@@ -6,20 +6,22 @@ import deleteRoutes from './delete.js';
 
 
 import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './db.js';
 
 const app: Express = express();
 const port: number = 8080; //Put this in .env file when building code for production
 const hostname = '127.0.0.1'; // Using this url for testing purposes (same as localhost), this supports android emulator when paired with 10.0.2.2
 
-
+dotenv.config();
 app.use(cors());
 
-
+app.use(cors());
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to Tara Backend!');
 });
 
-
+connectDB();
 app.use('/post', postRoutes)
 app.use('/get', getRoutes)
 app.use('/put', putRoutes)
