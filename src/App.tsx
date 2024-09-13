@@ -7,6 +7,7 @@ import ProfilePage from './pages/profile';
 import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
+import OnboardingPage from './pages/onboarding';
 
 // Import your page components
 // import Dashboard from './pages/Dashboard/Dashboard';
@@ -21,13 +22,14 @@ const App: React.FC = () => {
     <Router>
       {/* <NavBar /> Common navigation bar */}
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<OnboardingPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/game" element={<GamePage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="*" element={<div>Not Found</div>} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} /> 
       </Routes>
     </Router>
   );
