@@ -30,4 +30,36 @@ getRoutes.get("/getStudentsByID" , async (req: Request, res: Response) => {
   }
 })
 
+// GET students by name
+getRoutes.get("/getStudentsByName" , async (req: Request, res: Response) => {
+    try {
+        const name = req.query.name as string;
+        const students = await Student.find({ name });
+        res.json(students);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+})
+
+// GET students by age range
+getRoutes.get("/getStudentsByAgeRange" , async (req: Request, res: Response) => {
+    try {
+        const minAge = parseInt(req.query.minAge as string);
+        const maxAge = parseInt(req.query.maxAge as string);
+        const students = await Student.find({ age: { $gte: minAge, $lte: maxAge } });
+        res.json(students);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+})
+// GET students by grade
+getRoutes.get("/getStudentsByGrade" , async (req: Request, res: Response) => {
+    try {
+        const grade = req.query.grade as string;
+        const students = await Student.find({ grade });
+        res.json(students);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+})
 export default getRoutes
