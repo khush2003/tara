@@ -8,6 +8,7 @@ import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
+import LearningContentPage from './pages/learning';
 
 // Import your page components
 // import Dashboard from './pages/Dashboard/Dashboard';
@@ -30,6 +31,7 @@ const App: React.FC = () => {
         <Route path="*" element={<div>Not Found</div>} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
+        <Route path="/learning" element={<LearningContentPage />} />
       </Routes>
     </Router>
   );

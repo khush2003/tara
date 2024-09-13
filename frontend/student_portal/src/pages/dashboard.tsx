@@ -3,8 +3,10 @@ import { Card } from '@/components/ui/card';
 import React from 'react';
 import owl from '../assets/owl.png';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="w-full min-h-screen p-6 bg-gray-100">
       {/* Header */}
@@ -17,7 +19,7 @@ const DashboardPage: React.FC = () => {
           />
           <h1 className="text-2xl font-bold">Welcome, Student Name!</h1> {/* Replace with dynamic name */}
         </div>
-        <Button className="text-sm">Logout</Button>
+        <Button className="text-sm" onClick={() => navigate("/")}>Logout</Button>
       </div>
 
       {/* Main Content */}
@@ -28,7 +30,7 @@ const DashboardPage: React.FC = () => {
           <ul className="space-y-2">
             {/* Replace static values with dynamic data */}
             <li className="flex justify-between">
-              <Button className='w-[100%] py-7 bg-blue-500 justify-between '> 
+              <Button className='w-[100%] py-7 bg-blue-500 justify-between ' onClick={() => navigate("/learning")}> 
               <span>Unit 1</span>
               <Progress value={75} className="w-[60%]">75% Complete</Progress>
               </Button>
@@ -39,19 +41,19 @@ const DashboardPage: React.FC = () => {
           <ul className="space-y-2">
             {/* Replace static values with dynamic data */}
             <li className="flex justify-between">
-              <Button className='w-[100%] py-7 bg-blue-500 justify-between '> 
+              <Button className='w-[100%] py-7 bg-blue-500 justify-between '  onClick={() => navigate("/learning")}> 
               <span>Unit 1</span>
               <Progress value={75} className="w-[60%]">75% Complete</Progress>
               </Button>
             </li>
             <li className="flex justify-between">
-            <Button className='w-[100%] py-7 bg-blue-300 justify-between '> 
+            <Button className='w-[100%] py-7 bg-blue-300 justify-between ' onClick={() => navigate("learning")}> 
               <span>Unit 2</span>
               <Progress value={50} className="w-[60%]">50% Complete</Progress>
               </Button>
             </li>
             <li className="flex justify-between">
-            <Button className='w-[100%] py-7 bg-blue-300 justify-between '> 
+            <Button className='w-[100%] py-7 bg-blue-300 justify-between ' onClick={() => navigate("learning")}> 
               <span>Unit 3</span>
               <Progress value={30} className="w-[60%]">30% Complete</Progress>
               </Button>
