@@ -9,14 +9,10 @@ import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
 import LearningContentPage from './pages/learning';
-
-// Import your page components
-// import Dashboard from './pages/Dashboard/Dashboard';
-// import Profile from './pages/Profile/Profile';
-// import LearningResources from './pages/LearningResources/LearningResources';
-// import Game from './pages/Game/Game';
-// import Help from './pages/Help/Help';
-// import NavBar from './components/NavBar/NavBar'; // Common navigation bar
+import TeacherDashboard from './pages/teacher/teacherdashboard';
+import TeacheraccessPage from './pages/teacher/teacheraccess';
+import StudentGuide from './pages/guidance';
+import SettingsPage from './pages/studentsetting';
 
 const App: React.FC = () => {
   return (
@@ -32,9 +28,12 @@ const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
         <Route path="/learning" element={<LearningContentPage />} />
+        <Route path="/teacheraccress" element={<TeacheraccessPage />} />
+        <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+        <Route path="/StudentGuidance" element={<StudentGuide />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );
 };
-
 export default App;
