@@ -1,21 +1,27 @@
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import StudentGuide from './guidance';
 
 const LearningContentPage: React.FC = () => {
-    const navigate = useNavigate();
-  // State to manage sidebar collapse
+  const navigate = useNavigate();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);  // State to toggle StudentGuide
 
-  // Function to handle sidebar collapse
+  // Toggle Sidebar Collapse
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  // Toggle the visibility of the StudentGuide
+  const toggleGuide = () => {
+    setShowGuide(!showGuide);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="relative flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div
         className={`${
@@ -95,38 +101,49 @@ const LearningContentPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <Card className="p-8 shadow-md rounded-lg bg-white">
-          {/* Poem Instructions */}
           <h2 className="text-xl font-bold mb-4 text-center">Translate the Poem</h2>
-          <p className="text-center mb-6">
-            Please translate the following poem into your native language:
-          </p>
-          
-          {/* English Poem */}
+          <p className="text-center mb-6">Please translate the following poem into your native language:</p>
           <div className="text-center mb-6">
             <blockquote className="italic text-gray-600">
-            Tom is hungry. Tom is very hungry. Tom wants to eat.<br />
-
-Tom walks to the kitchen. Tom walks very fast. Tom opens the door. <br />
-
-Tom sees the eggs. Tom sees the bread. Tom sees the milk. <br />
-
-Tom makes a sandwich. Tom makes a yummy sandwich. Tom eats the sandwich. 
+              Tom is hungry. Tom is very hungry. Tom wants to eat.<br />
+              Tom walks to the kitchen. Tom walks very fast. Tom opens the door. <br />
+              Tom sees the eggs. Tom sees the bread. Tom sees the milk. <br />
+              Tom makes a sandwich. Tom makes a yummy sandwich. Tom eats the sandwich.
             </blockquote>
           </div>
-
-          {/* Input for Native Language Translation */}
           <textarea
             className="w-full h-40 p-4 border border-gray-300 rounded-md mb-6"
             placeholder="Write your translation here..."
           ></textarea>
-
-          {/* Action Buttons */}
           <div className="flex justify-center space-x-4">
             <Button className="p-4 bg-green-500 text-white">Complete Exercise & Earn Points</Button>
             <Button className="p-4 bg-blue-500 text-white">Next Lesson</Button>
           </div>
         </Card>
       </div>
+
+      {/* Floating Button */}
+      <Button
+        onClick={toggleGuide}  // Toggle the guide visibility
+        className="fixed bottom-4 right-4 p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600"
+      >
+        ?
+      </Button>
+
+      {/* Student Guide Modal */}
+      {showGuide && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-lg">
+            <StudentGuide />
+            <Button
+              onClick={toggleGuide}  // Close the modal
+              className="mt-4 p-2 bg-red-500 text-white rounded-lg"
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
