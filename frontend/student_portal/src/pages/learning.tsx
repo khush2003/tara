@@ -53,7 +53,7 @@ const LearningContentPage: React.FC = () => {
                 <h2 className="text-sm font-semibold mt-2">Johnny</h2> {/* Dynamic Name */}
                 <p className="text-xs text-gray-300">Level 3</p>
                 <p className="text-xs text-gray-300">490 Points</p>
-                <Button className="w-full py-4 bg-indigo-500 rounded-lg">Go to Game</Button> {/* Updated */}
+                <Button className="w-full py-4 bg-indigo-500 rounded-lg"  onClick={() => navigate("/gameintro")}>Go to Game</Button> {/* Updated */}
               </>
               )
               }
