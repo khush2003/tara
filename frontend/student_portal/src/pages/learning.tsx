@@ -72,7 +72,7 @@ const LearningContentPage: React.FC = () => {
                 <h2 className="text-sm font-semibold mt-2">Johnny</h2> {/* Dynamic Name */}
                 <p className="text-xs text-gray-300">Level 3</p>
                 <p className="text-xs text-gray-300">490 Points</p>
-                <Button className="w-full py-4 bg-indigo-500 rounded-lg">Go to Game</Button> {/* Updated */}
+                <Button className="w-full py-4 bg-indigo-500 rounded-lg"  onClick={() => navigate('/gameintro')}>Go to Game</Button> {/* Updated */}
               </>
             )}
           </div>
@@ -155,7 +155,8 @@ const LearningContentPage: React.FC = () => {
             placeholder="Write your translation here..."
           ></textarea>
           <div className="flex justify-center space-x-4">
-            <Button className="p-4 bg-green-500 text-white rounded-lg">Complete Exercise & Earn Points</Button>
+            <Button className="p-4 bg-green-500 text-white rounded-lg">Complete Exercise</Button>
+            {/* & Earn Points */}
             <Button className="p-4 bg-blue-500 text-white rounded-lg">Next Lesson</Button>
           </div>
         </Card>
