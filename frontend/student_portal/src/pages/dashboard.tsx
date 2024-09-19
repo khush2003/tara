@@ -1,26 +1,41 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import React from 'react';
+import React, { useState } from 'react';
 import owl from '../assets/owl.png';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
+import LogoutModal from './logoutmodal';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false); // State to control modal visibility
+
+  const handleLogoutClick = () => {
+    setLogoutModalVisible(true); // Show the modal
+  };
+
+  const handleLogoutConfirm = () => {
+    setLogoutModalVisible(false); // Hide the modal and perform logout
+    navigate('/'); // Redirect to login or home after logout
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutModalVisible(false); // Hide the modal without logging out
+  };
+
   return (
     <div className="w-full min-h-screen p-6 bg-gray-100 relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
           <img
-            src={owl} // Replace with dynamic source
+            src={owl}
             alt="Profile"
             className="w-16 h-16 rounded-full"
           />
           <h1 className="text-2xl font-bold">Welcome, Student Name!</h1> {/* Replace with dynamic name */}
         </div>
-        <Button className="text-sm" onClick={() => navigate("/")}>Logout</Button>
+        <Button className="text-sm" onClick={handleLogoutClick}>Logout</Button>
       </div>
 
       {/* Main Content */}
@@ -125,11 +140,18 @@ const DashboardPage: React.FC = () => {
 
       {/* Floating "Settings" Button */}
       <Button
-        onClick={() => navigate("/settings")}  // Navigate to the settings page
+        onClick={() => navigate("/settings")}
         className="fixed bottom-4 right-4 p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600"
       >
         Settings
       </Button>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isVisible={isLogoutModalVisible}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

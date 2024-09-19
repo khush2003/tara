@@ -47,6 +47,7 @@ const LearningContentPage: React.FC = () => {
               alt="Profile"
               className="w-12 h-12 rounded-full border-2 border-white"
             />
+
             {!isSidebarCollapsed && (
               <>
                 <h2 className="text-sm font-semibold mt-2">Johnny</h2> {/* Dynamic Name */}
@@ -54,7 +55,8 @@ const LearningContentPage: React.FC = () => {
                 <p className="text-xs text-gray-300">490 Points</p>
                 <Button className="w-full py-4 bg-indigo-500 rounded-lg">Go to Game</Button> {/* Updated */}
               </>
-            )}
+              )
+              }
           </div>
         </div>
 
