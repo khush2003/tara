@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import owl from '../assets/owl.png';
 import { Progress } from '@/components/ui/progress';
 import { useNavigate } from 'react-router-dom';
@@ -8,19 +8,43 @@ import LogoutModal from './logoutmodal';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false); // State to control modal visibility
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // Fetch username and check login status when the component mounts
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername || 'Student');
+    } else {
+      setIsLoggedIn(false);
+      setUsername('Student'); // Default value if username not available
+    }
+  }, []);
 
   const handleLogoutClick = () => {
     setLogoutModalVisible(true); // Show the modal
   };
 
   const handleLogoutConfirm = () => {
-    setLogoutModalVisible(false); // Hide the modal and perform logout
+    // Clear user data from localStorage
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('username'); 
+    setIsLoggedIn(false); // Update login status
+    setLogoutModalVisible(false); // Hide the modal
     navigate('/'); // Redirect to login or home after logout
   };
 
   const handleLogoutCancel = () => {
     setLogoutModalVisible(false); // Hide the modal without logging out
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login'); // Navigate to login page
   };
 
   return (
@@ -33,11 +57,19 @@ const DashboardPage: React.FC = () => {
             alt="Profile"
             className="w-16 h-16 rounded-full border-2 border-gray-300"
           />
-          <h1 className="text-2xl font-bold">Welcome, Student Name!</h1> {/* Replace with dynamic name */}
+          <h1 className="text-2xl font-bold">
+            Welcome, {username}!
+          </h1>
         </div>
-        <Button className="text-sm p-3 bg-red-500 text-white rounded-lg" onClick={handleLogoutClick}>
-          Logout
-        </Button>
+        {isLoggedIn ? (
+          <Button className="text-sm p-3 bg-red-500 text-white rounded-lg" onClick={handleLogoutClick}>
+            Logout
+          </Button>
+        ) : (
+          <Button className="text-sm p-3 bg-blue-500 text-white rounded-lg" onClick={handleLoginClick}>
+            Login
+          </Button>
+        )}
       </div>
 
       {/* Main Grid Content */}
@@ -50,7 +82,7 @@ const DashboardPage: React.FC = () => {
             <ul className="space-y-2">
               <li className="flex justify-between">
                 <Button
-                  className="w-[100%] py-7 bg-blue-500 text-white justify-between"
+                  className="w-full py-7 bg-blue-500 text-white justify-between"
                   onClick={() => navigate('/learning')}
                 >
                   <span>Unit 1</span>
@@ -64,33 +96,17 @@ const DashboardPage: React.FC = () => {
           <Card className="p-6 shadow-md rounded-lg bg-white">
             <h2 className="text-lg font-semibold mb-4">Learning Progress</h2>
             <ul className="space-y-4">
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-500 justify-between text-white"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 1</span>
-                  <Progress value={75} className="w-[50%]" />
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-400 justify-between text-white"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 2</span>
-                  <Progress value={50} className="w-[50%]" />
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-300 justify-between text-white"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 3</span>
-                  <Progress value={30} className="w-[50%]" />
-                </Button>
-              </li>
+              {['Unit 1', 'Unit 2', 'Unit 3'].map((unit, index) => (
+                <li key={index} className="flex justify-between">
+                  <Button
+                    className={`w-full py-7 text-white justify-between ${['bg-blue-500', 'bg-blue-400', 'bg-blue-300'][index]}`}
+                    onClick={() => navigate('/learning')}
+                  >
+                    <span>{unit}</span>
+                    <Progress value={[75, 50, 30][index]} className="w-[50%]" />
+                  </Button>
+                </li>
+              ))}
             </ul>
           </Card>
         </div>
@@ -101,7 +117,7 @@ const DashboardPage: React.FC = () => {
           <Card className="p-6 shadow-md rounded-lg bg-white flex flex-col justify-between items-start">
             <div className="flex flex-col w-full space-y-4">
               <h2 className="text-lg font-semibold">Game Points</h2>
-              <p className="text-2xl font-bold">150 Coins</p> {/* Replace with dynamic points */}
+              <p className="text-2xl font-bold">150 Coins</p>
               <h2 className="text-lg font-semibold mb-4">Total Playtime Remaining</h2>
               <div className="w-full py-1 flex justify-between">
                 <span>5 mins</span>
@@ -117,33 +133,17 @@ const DashboardPage: React.FC = () => {
           <Card className="p-6 shadow-md rounded-lg bg-white">
             <h2 className="text-lg font-semibold mb-4">Recommended Courses</h2>
             <ul className="space-y-4">
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-purple-600 text-white justify-between"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 1</span>
-                  <p className="text-md font-bold">40 points</p>
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-purple-600 text-white justify-between"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 2</span>
-                  <p className="text-md font-bold">35 points</p>
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-purple-600 text-white justify-between"
-                  onClick={() => navigate('/learning')}
-                >
-                  <span>Unit 3</span>
-                  <p className="text-md font-bold">35 points</p>
-                </Button>
-              </li>
+              {['Unit 1', 'Unit 2', 'Unit 3'].map((unit, index) => (
+                <li key={index} className="flex justify-between">
+                  <Button
+                    className="w-full py-7 bg-purple-600 text-white justify-between"
+                    onClick={() => navigate('/learning')}
+                  >
+                    <span>{unit}</span>
+                    <p className="text-md font-bold">{40 - index * 5} points</p>
+                  </Button>
+                </li>
+              ))}
             </ul>
           </Card>
         </div>
@@ -163,9 +163,11 @@ const DashboardPage: React.FC = () => {
           <Card className="p-6 shadow-md rounded-lg bg-white">
             <h2 className="text-lg font-semibold mb-4">Actions</h2>
             <div className="flex flex-col space-y-4">
-              <Button className="bg-blue-500 text-white py-2">Edit Profile</Button>
-              <Button className="bg-blue-500 text-white py-2">Change Name</Button>
-              <Button className="bg-blue-500 text-white py-2">Settings</Button>
+              {['Edit Profile', 'Change Name', 'Settings'].map((action, index) => (
+                <Button key={index} className="bg-blue-500 text-white py-2">
+                  {action}
+                </Button>
+              ))}
             </div>
           </Card>
 
