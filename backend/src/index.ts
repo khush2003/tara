@@ -1,32 +1,44 @@
 import express, { Express, Request, Response } from 'express';
-import postRoutes from './post.js';
-import getRoutes from './get.js';
-import putRoutes from './put.js';
-import deleteRoutes from './delete.js';
-
-
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './db.js';
-
-const app: Express = express();
-const port: number = 8080; //Put this in .env file when building code for production
-const hostname = '127.0.0.1'; // Using this url for testing purposes (same as localhost), this supports android emulator when paired with 10.0.2.2
+import connectDB from './db'; // Adjust path if necessary
+import authRoutes from './routes/auth.routes'; // Adjust path if necessary
 
 dotenv.config();
-app.use(cors());
 
+const app: Express = express();
+const port = process.env.PORT || 8080;
+
+// Middleware
 app.use(cors());
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Tara Backend!');
+app.use(express.json());
+
+// Logging middleware to log requests
+app.use((req: Request, res: Response, next) => {
+  console.log(`Received request for: ${req.method} ${req.url}`);
+  next();
 });
 
-connectDB();
-app.use('/post', postRoutes)
-app.use('/get', getRoutes)
-app.use('/put', putRoutes)
-app.use('/delete', deleteRoutes)
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    console.log('MongoDB connection established.');
+  })
+  .catch((err) => {
+    console.error('Failed to establish MongoDB connection:', err.message);
+    process.exit(1);
+  });
 
-app.listen(port, hostname, () => {
+// Register routes
+app.use('/auth', authRoutes); // Ensure this line is present
+
+// Root route for testing connection
+app.get('/', (req: Request, res: Response) => {
+  res.send('Server is up and running!');
+});
+
+// Start the server
+app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+  console.log(`Routes registered: /auth/login`);
 });
