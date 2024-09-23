@@ -4,109 +4,115 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 
 export default function SettingsPage() {
-  // State to manage profile fields
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>(''); // Password can be initially empty
-  const [message, setMessage] = useState<string>(''); // Message for user feedback
-  const [error, setError] = useState<string>(''); // Error message for validation
+  const [password, setPassword] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [error, setError] = useState<string>('');
 
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  // Fetch user data when the component mounts
   useEffect(() => {
-    const storedFirstName = localStorage.getItem('firstName');
-    const storedLastName = localStorage.getItem('lastName');
-    const storedEmail = localStorage.getItem('email');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('User not logged in. Please log in again.');
+      return;
+    }
 
-    if (storedFirstName) setFirstName(storedFirstName);
-    if (storedLastName) setLastName(storedLastName);
-    if (storedEmail) setEmail(storedEmail);
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('User not logged in. Please log in again.');
+        return;
+      }
+    
+      try {
+        const response = await fetch('/api/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch user data: ${response.status} ${errorText}`);
+        }
+    
+        const data = await response.json();
+        setUsername(data.username);
+        setEmail(data.email);
+      } catch (error) {
+        // Use a type guard to check if 'error' is an instance of Error
+        if (error instanceof Error) {
+          console.error('Error fetching user data:', error);
+          setError('Could not fetch user data: ' + error.message);
+        } else {
+          console.error('Unknown error:', error);
+          setError('Could not fetch user data: An unknown error occurred.');
+        }
+      }
+    };
+    
+
+
+    fetchUserData();
   }, []);
 
-  // Handle form submission
-  const handleSave = () => {
-    // Validation: Check if any fields are empty
-    if (!firstName || !lastName || !email || (password.length === 0)) {
+  const handleSave = async () => {
+    if (!username || !email || (password.length === 0)) {
       setError('Please fill out all fields before submitting.');
       return;
     }
 
-    // If all fields are filled, clear the error and show success message
     setError('');
-    setMessage('Profile updated successfully!');
+    setMessage('Updating profile...');
 
-    // Save updated information to localStorage (or you can call an API to save it)
-    localStorage.setItem('firstName', firstName);
-    localStorage.setItem('lastName', lastName);
-    localStorage.setItem('email', email);
-    if (password) {
-      // Assuming you want to store the password, you can handle encryption here
-      // localStorage.setItem('password', password); // Don't store plain passwords!
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update profile');
+
+      setMessage('Profile updated successfully!');
+      setTimeout(() => navigate('/dashboard'), 1000);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setError('Failed to update profile');
     }
-
-    // Redirect to the Dashboard after 1 second
-    setTimeout(() => {
-      navigate('/dashboard'); // Redirect to the Dashboard
-    }, 1000); // Adding a small delay for user to see the success message
   };
 
   return (
     <div className="flex items-center justify-center h-screen w-screen">
       <Card className="shadow-2xl p-7 rounded-3xl bg-white lg:flex lg:w-full lg:max-w-none lg:px-0 lg:grid lg:grid-cols-2">
-        {/* Left Side: Branding */}
         <div className="relative hidden h-full lg:flex items-center justify-center bg-muted text-white dark:border-r">
           <div className="absolute inset-0 bg-gradient-to-bl from-purple-950 via-purple-900 to-blue-900" />
           <div className="relative z-20 flex flex-col items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-20 w-20 mb-4"
-            >
-              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
             <h1 className="text-7xl font-medium">TARA</h1>
           </div>
         </div>
 
-        {/* Right Side: Settings Form */}
         <div className="flex flex-col items-center justify-center p-8 lg:p-12">
           <div className="w-full max-w-md space-y-6">
-            <div className="space-y-2 text-left">
-              <h1 className="text-5xl font-semibold tracking-tight">Edit Profile</h1>
-            </div>
+            <h1 className="text-5xl font-semibold tracking-tight">Edit Profile</h1>
 
-            {/* First Name */}
             <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="firstName">First Name</label>
+              <label className="block text-gray-700 font-semibold mb-2" htmlFor="username">Username</label>
               <input
                 type="text"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
               />
             </div>
 
-            {/* Last Name */}
-            <div className="mb-4">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="lastName">Last Name</label>
-              <input
-                type="text"
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-            </div>
-
-            {/* Email */}
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">Email</label>
               <input
@@ -118,7 +124,6 @@ export default function SettingsPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="mb-4">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="password">Password</label>
               <input
@@ -131,17 +136,14 @@ export default function SettingsPage() {
               />
             </div>
 
-            {/* Error Message */}
             {error && (
               <p className="text-red-500 mb-4">{error}</p>
             )}
 
-            {/* Save Button */}
             <Button className="w-full py-3 mt-4 bg-blue-500 text-white rounded-lg" onClick={handleSave}>
               Save Changes
             </Button>
 
-            {/* Success Message */}
             {message && (
               <p className="mt-4 text-green-600 text-center">{message}</p>
             )}

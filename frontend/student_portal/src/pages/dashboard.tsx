@@ -164,9 +164,11 @@ const DashboardPage: React.FC = () => {
             <h2 className="text-lg font-semibold mb-4">Actions</h2>
             <div className="flex flex-col space-y-4">
               {['Edit Profile', 'Change Name', 'Settings'].map((action, index) => (
-                <Button key={index} className="bg-blue-500 text-white py-2">
-                  {action}
-                </Button>
+                isLoggedIn && (
+                  <Button key={index} className="bg-blue-500 text-white py-2" onClick={() => navigate('/settings')}>
+                    {action}
+                  </Button>
+                )
               ))}
             </div>
           </Card>
@@ -183,12 +185,14 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Floating "Settings" Button */}
-      <Button
-        onClick={() => navigate('/settings')}
-        className="fixed bottom-4 right-4 p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600"
-      >
-        Settings
-      </Button>
+      {isLoggedIn && (
+        <Button
+          onClick={() => navigate('/settings')}
+          className="fixed bottom-4 right-4 p-4 rounded-full bg-purple-500 text-white shadow-lg hover:bg-purple-600"
+        >
+          Settings
+        </Button>
+      )}
 
       {/* Logout Confirmation Modal */}
       <LogoutModal
