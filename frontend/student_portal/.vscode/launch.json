@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/Projects/tara/frontend/student_portal/src/pages",
-      "program": "d:/Projects/tara/frontend/student_portal/src/pages/build/Debug/outDebug",
+      "cwd": "d:/Projects/tara/frontend/student_portal/src/components/ui",
+      "program": "d:/Projects/tara/frontend/student_portal/src/components/ui/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

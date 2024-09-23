@@ -52,7 +52,7 @@ export const UserAuthForm: React.FC<UserAuthFormProps> = ({ className, ...props 
 
       if (response.ok) {
         console.log("Registration successful", data);
-        navigate("/"); // Redirect on success
+        navigate("/learningCode"); // Redirect on success
       } else {
         console.log("Registration failed with response:", data);
         setErrorMessage(data.message || "Registration failed");
