@@ -1,23 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 
 export default function SettingsPage() {
   // State to manage profile fields
-  const [firstName, setFirstName] = useState<string>('John');
-  const [lastName, setLastName] = useState<string>('Doe');
-  const [email, setEmail] = useState<string>('johndoe@example.com');
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>(''); // Password can be initially empty
   const [message, setMessage] = useState<string>(''); // Message for user feedback
   const [error, setError] = useState<string>(''); // Error message for validation
 
   const navigate = useNavigate(); // Hook for navigation
 
+  // Fetch user data when the component mounts
+  useEffect(() => {
+    const storedFirstName = localStorage.getItem('firstName');
+    const storedLastName = localStorage.getItem('lastName');
+    const storedEmail = localStorage.getItem('email');
+
+    if (storedFirstName) setFirstName(storedFirstName);
+    if (storedLastName) setLastName(storedLastName);
+    if (storedEmail) setEmail(storedEmail);
+  }, []);
+
   // Handle form submission
   const handleSave = () => {
     // Validation: Check if any fields are empty
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !email || (password.length === 0)) {
       setError('Please fill out all fields before submitting.');
       return;
     }
@@ -25,6 +36,15 @@ export default function SettingsPage() {
     // If all fields are filled, clear the error and show success message
     setError('');
     setMessage('Profile updated successfully!');
+
+    // Save updated information to localStorage (or you can call an API to save it)
+    localStorage.setItem('firstName', firstName);
+    localStorage.setItem('lastName', lastName);
+    localStorage.setItem('email', email);
+    if (password) {
+      // Assuming you want to store the password, you can handle encryption here
+      // localStorage.setItem('password', password); // Don't store plain passwords!
+    }
 
     // Redirect to the Dashboard after 1 second
     setTimeout(() => {
@@ -59,9 +79,7 @@ export default function SettingsPage() {
         <div className="flex flex-col items-center justify-center p-8 lg:p-12">
           <div className="w-full max-w-md space-y-6">
             <div className="space-y-2 text-left">
-              <h1 className="text-5xl font-semibold tracking-tight">
-                Edit Profile
-              </h1>
+              <h1 className="text-5xl font-semibold tracking-tight">Edit Profile</h1>
             </div>
 
             {/* First Name */}
