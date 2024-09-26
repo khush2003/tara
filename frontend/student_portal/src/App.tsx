@@ -15,6 +15,7 @@ import StudentGuide from './pages/guidance';
 import SettingsPage from './pages/studentsetting';
 import LandingPage from './pages/games/landingpage';
 import LearningCodePage from './pages/learningCode';
+import ExercisePage from './pages/exercise';
 
 const App: React.FC = () => {
   return (
@@ -36,6 +37,7 @@ const App: React.FC = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/gameintro" element={<LandingPage />} />
         <Route path="/learningCode" element={<LearningCodePage />} />
+        <Route path="/exercise" element={<ExercisePage />} />
       </Routes>
     </Router>
   );
