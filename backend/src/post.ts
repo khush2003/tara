@@ -1,5 +1,5 @@
 import express from "express";
-import Student from "./models/student.ts";
+import Student from "./models/student";
 const postRoutes = express()
 postRoutes.use(express.json())
 import { Request, Response } from 'express';

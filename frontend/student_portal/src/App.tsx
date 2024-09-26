@@ -14,7 +14,7 @@ import TeacheraccessPage from './pages/teacher/teacheraccess';
 import StudentGuide from './pages/guidance';
 import SettingsPage from './pages/studentsetting';
 import LandingPage from './pages/games/landingpage';
-import ExercisePage from './pages/exercise';
+import LearningCodePage from './pages/learningCode';
 
 const App: React.FC = () => {
   return (
@@ -30,12 +30,12 @@ const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
         <Route path="/learning" element={<LearningContentPage />} />
-        <Route path="/exercise" element={<ExercisePage/>} />
         <Route path="/teacheraccess" element={<TeacheraccessPage />} />
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
         <Route path="/StudentGuidance" element={<StudentGuide />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/gameintro" element={<LandingPage />} />
+        <Route path="/learningCode" element={<LearningCodePage />} />
       </Routes>
     </Router>
   );

@@ -4,7 +4,7 @@ getRoutes.use(express.json())
 
 // src/controllers/studentController.ts
 import { Request, Response } from 'express';
-import Student from './models/student.ts';
+import Student from './models/student';
 import exp from "constants";
 
 // GET all students

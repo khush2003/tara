@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import owl from "../assets/owl.png";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
@@ -12,22 +12,49 @@ import book from "../assets/book.png";
 import progrss from "../assets/success.png";
 import reccommend from "../assets/recommend.png";
 
+
+
+
+
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isLogoutModalVisible, setLogoutModalVisible] =
-    useState<boolean>(false); // State to control modal visibility
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // Fetch username and check login status when the component mounts
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername || 'Student');
+    } else {
+      setIsLoggedIn(false);
+      setUsername('Student'); // Default value if username not available
+    }
+  }, []);
 
   const handleLogoutClick = () => {
     setLogoutModalVisible(true); // Show the modal
   };
 
   const handleLogoutConfirm = () => {
-    setLogoutModalVisible(false); // Hide the modal and perform logout
-    navigate("/"); // Redirect to login or home after logout
+    // Clear user data from localStorage
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('username'); 
+    setIsLoggedIn(false); // Update login status
+    setLogoutModalVisible(false); // Hide the modal
+    navigate('/'); // Redirect to login or home after logout
   };
 
   const handleLogoutCancel = () => {
     setLogoutModalVisible(false); // Hide the modal without logging out
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login'); // Navigate to login page
   };
 
   return (
