@@ -8,16 +8,16 @@ import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
-import LearningContentPage from './pages/learning';
+import LearningContentPage from './pages/lessons/learning';
 import TeacherDashboard from './pages/teacher/teacherdashboard';
 import TeacheraccessPage from './pages/teacher/teacheraccess';
 import StudentGuide from './pages/guidance';
 import SettingsPage from './pages/studentsetting';
 import LandingPage from './pages/games/landingpage';
 import LearningCodePage from './pages/learningCode';
-import ExercisePage from './pages/exercise';
-import ExercisePage2 from './pages/exercise2';
-import ExercisePage3 from './pages/exercise3';
+import ExercisePage from './pages/excercises/exercise';
+import ExercisePage2 from './pages/excercises/exercise2';
+import ExercisePage3 from './pages/excercises/exercise3';
 
 const App: React.FC = () => {
   return (

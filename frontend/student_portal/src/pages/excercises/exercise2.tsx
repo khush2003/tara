@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import StudentGuide from "./guidance";
-import Logo from "../assets/Chat.png"; // Import your logo image
-import users from "../assets/users.png"; // Import your profile image
+import StudentGuide from "../guidance";
+import Logo from "../../assets/Chat.png"; // Import your logo image
+import users from "../../assets/users.png"; // Import your profile image
+
+// ID: 0001E0002
 
 const ExercisePage2: React.FC = () => {
   const navigate = useNavigate();

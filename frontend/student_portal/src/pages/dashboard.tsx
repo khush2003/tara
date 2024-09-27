@@ -13,9 +13,6 @@ import progrss from "../assets/success.png";
 import reccommend from "../assets/recommend.png";
 
 
-
-
-
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);

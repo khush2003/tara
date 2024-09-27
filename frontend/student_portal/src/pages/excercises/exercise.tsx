@@ -2,37 +2,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import StudentGuide from "./guidance";
-import Logo from "../assets/Chat.png"; // Import your logo image
-import users from "../assets/users.png"; // Import your profile image
-import meal from "../assets/TARA flashcards/meal.png"
-import breakfast from "../assets/TARA flashcards/breakfast.png"
-import lunch from "../assets/TARA flashcards/lunch.png"
-import dinner from "../assets/TARA flashcards/dinner.png"
-import cake from "../assets/TARA flashcards/cake.png"
-import bread from "../assets/TARA flashcards/bread.png"
-import egg from "../assets/TARA flashcards/egg.png"
-import rice from "../assets/TARA flashcards/rice.png"
+import StudentGuide from "../guidance";
+import Logo from "../../assets/Chat.png"; // Import your logo image
+import users from "../../assets/users.png"; // Import your profile image
 
-
-
-const LearningContentPage: React.FC = () => {
+// ID: 0001E0001
+const ExercisePage: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
   const [showGuide, setShowGuide] = useState(false);
-
-  // Dummy flashcard data
-  const flashcardsData = [
-    { image: meal, frontText: "Meal",},
-    { image: breakfast, frontText: "Breakfast",},
-    { image: lunch, frontText: "Lunch",},
-    { image: dinner, frontText: "Dinner",},
-    { image: cake, frontText: "Cake",},
-    { image: bread, frontText: "Bread",},
-    { image: egg, frontText: "Egg",},
-    { image: rice, frontText: "Rice",},
-  ];
 
   // Toggle Sidebar Collapse (for desktop)
   const toggleSidebar = () => {
@@ -134,9 +113,8 @@ const LearningContentPage: React.FC = () => {
             <div className="mt-6">
               <h3 className="text-xs font-semibold">Lesson</h3>
               <ul className="flex flex-col mt-2 space-y-1 text-xs">
-                <Button
-                  className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800 hover:to-[#25c3ea] rounded-lg px-2 py-2"
-                  onClick={() => navigate("/learning")}
+                <Button className=" bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800  hover:to-[#25c3ea] rounded-lg px-2 py-2"
+                onClick={() => navigate("/learning")}
                 >
                   Unit 1: Foods
                 </Button>
@@ -168,7 +146,7 @@ const LearningContentPage: React.FC = () => {
                 <li className="flex flex-col">
                   <Button
                     className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
-                    onClick={() => navigate("/exercise3")}
+                    onClick={() => navigate("/exercise")}
                   >
                     <span>Exercise 3: Drag and Drop</span>
                   </Button>
@@ -199,33 +177,42 @@ const LearningContentPage: React.FC = () => {
       <div className="flex-1 p-3 overflow-y-auto">
         <div className="flex items-center justify-center mb-3 bg-gradient-to-r from-[#002761] to-[#5E0076] pr-14 rounded-md border-1">
           <div className="">
-            <h1 className="text-white text-4xl font-mono">LESSON: FOODS</h1>
+            <h1 className="text-white text-4xl">EXERCISE: FOODS</h1>
           </div>
         </div>
         <Card className="p-8 shadow-md rounded-xl bg-white">
           <h2 className="text-2xl font-bold font-mono mb-4 text-center text-gray-700">
-            COOKING VOCABULARY
+            ENGLISH OR THAI?
           </h2>
-
-          {/* Flashcards Grid */}
-          <div className="grid grid-cols-4 gap-4">
-            {flashcardsData.map((card, index) => (
-              <div key={index} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                <img src={card.image} alt={card.frontText} className="w-auto h-auto object-fill rounded-lg mb-2" />
-                <h3 className="text-lg flex items-center justify-center font-semibold">{card.frontText}</h3>
-              </div>
-            ))}
+          <p className="text-center mb-6 text-gray-600">
+            Translate this text to your native language
+          </p>
+          <div className="text-center mb-6">
+            <blockquote className="italic text-gray-600 bg-gray-100 p-4 rounded-lg">
+              Tom is hungry. He walks to the kitchen and gets some eggs. He
+              takes some oil and puts a pan on the stove. Next, he turns on the
+              heat and pours the oil into the pan. He cracks the eggs into a
+              bowl, mixes them, and then pours them into the hot pan. He waits
+              while the eggs cook. They cook for two minutes. Next, Tom puts the
+              eggs on a plate and places the plate on the dining room table. Tom
+              feels happy because he cooked eggs. He sits down in the big wooden
+              chair, and eats the eggs with a spoon. They are good. He washes
+              the plate with dishwashing soap, then washes the pan. He wets a
+              sponge and finally cleans the table.
+            </blockquote>
           </div>
-
-          
-          <div className="flex justify-center space-x-4 p-10">
+          <textarea
+            className="w-full h-40 p-4 border border-gray-300 rounded-lg mb-6"
+            placeholder="Write your translation here..."
+          ></textarea>
+          <div className="flex justify-center space-x-4">
             <Button className="p-4 bg-green-500 text-white rounded-lg">
               Complete Exercise
             </Button>
             {/* & Earn Points */}
             <Button
               className="p-4 bg-blue-500 text-white rounded-lg"
-              onClick={() => navigate("/exercise")}
+              onClick={() => navigate("login")}
             >
               Next Lesson
             </Button>
@@ -260,4 +247,4 @@ const LearningContentPage: React.FC = () => {
   );
 };
 
-export default LearningContentPage;
+export default ExercisePage;

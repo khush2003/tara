@@ -1,99 +1,53 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import StudentGuide from "./guidance";
-import Logo from "../assets/Chat.png";
-import users from "../assets/users.png";
-import cake from "../assets/TARA flashcards/cake.png";
-import rice from "../assets/TARA flashcards/rice.png";
-import egg from "../assets/TARA flashcards/egg.png";
-import salad from "../assets/TARA flashcards/salad.png";
-import chicken from "../assets/TARA flashcards/chicken.png";
-import omelette from "../assets/TARA flashcards/omelette.png";
+import StudentGuide from "../guidance";
+import Logo from "../../assets/Chat.png"; // Import your logo image
+import users from "../../assets/users.png"; // Import your profile image
+import meal from "../../assets/TARA flashcards/meal.png"
+import breakfast from "../../assets/TARA flashcards/breakfast.png"
+import lunch from "../../assets/TARA flashcards/lunch.png"
+import dinner from "../../assets/TARA flashcards/dinner.png"
+import cake from "../../assets/TARA flashcards/cake.png"
+import bread from "../../assets/TARA flashcards/bread.png"
+import egg from "../../assets/TARA flashcards/egg.png"
+import rice from "../../assets/TARA flashcards/rice.png"
 
-const ExercisePage3 = () => {
+// ID: 0001L0001
+
+const LearningContentPage: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
   const [showGuide, setShowGuide] = useState(false);
 
-  const [items, setItems] = useState([
-    { id: 1, img: cake, alt: "Cake" },
-    { id: 2, img: rice, alt: "Rice" },
-    { id: 3, img: egg, alt: "Egg" },
-    { id: 4, img: omelette, alt: "Omelette" },
-    { id: 5, img: salad, alt: "Salad" },
-    { id: 5, img: salad, alt: "Salad" },
-    { id: 6, img: chicken, alt: "Chicken" },
-  ]);
+  // Dummy flashcard data
+  const flashcardsData = [
+    { image: meal, frontText: "Meal",},
+    { image: breakfast, frontText: "Breakfast",},
+    { image: lunch, frontText: "Lunch",},
+    { image: dinner, frontText: "Dinner",},
+    { image: cake, frontText: "Cake",},
+    { image: bread, frontText: "Bread",},
+    { image: egg, frontText: "Egg",},
+    { image: rice, frontText: "Rice",},
+  ];
 
-  const [sentences, setSentences] = useState([
-    { id: 1, text: "Josh cooked an omelette and prepared a salad", answer: [], expectedAnswers: 2 },
-    { id: 2, text: "Bingo prepared two salads", answer: [], expectedAnswers: 2 },
-    { id: 3, text: "Leo prepared a meal with rice and chicken", answer: [], expectedAnswers: 2 },
-  ]);
-
-  const onDragStart = useCallback((e, item) => {
-    e.dataTransfer.setData("application/json", JSON.stringify(item));
-  }, []);
-
-  const onDragOver = useCallback((e) => {
-    e.preventDefault();
-  }, []);
-
-  const onDrop = useCallback((e, sentenceId, boxIndex) => {
-    e.preventDefault();
-    const item = JSON.parse(e.dataTransfer.getData("application/json"));
-    
-    setSentences((prevSentences) =>
-      prevSentences.map((sentence) =>
-        sentence.id === sentenceId
-          ? {
-              ...sentence,
-              answer: [
-                ...sentence.answer.slice(0, boxIndex),
-                item,
-                ...sentence.answer.slice(boxIndex + 1),
-              ],
-            }
-          : sentence
-      )
-    );
-    setItems((prevItems) => prevItems.filter((i) => i.id !== item.id));
-  }, []);
-
-  const checkAnswers = useCallback(() => {
-    const correctAnswers = {
-      1: [4, 5], // Omelette and Salad
-      2: [5, 5], // Two Salads
-      3: [2, 6], // Rice and Chicken
-    };
-
-    setSentences((prevSentences) =>
-      prevSentences.map((sentence) => ({
-        ...sentence,
-        isCorrect:
-          sentence.answer &&
-          sentence.answer.length === correctAnswers[sentence.id].length &&
-          sentence.answer.every(
-            (item, index) => item.id === correctAnswers[sentence.id][index]
-          ),
-      }))
-    );
-  }, []);
-
-  const toggleSidebar = useCallback(() => {
+  // Toggle Sidebar Collapse (for desktop)
+  const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
-  }, [isSidebarCollapsed]);
+  };
 
-  const toggleGuide = useCallback(() => {
+  // Toggle the visibility of the StudentGuide
+  const toggleGuide = () => {
     setShowGuide(!showGuide);
-  }, [showGuide]);
+  };
 
-  const toggleMobileSidebar = useCallback(() => {
+  // Toggle mobile sidebar
+  const toggleMobileSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
-  }, [isSidebarOpen]);
+  };
 
   return (
     <div className="relative flex h-screen bg-gray-50">
@@ -104,6 +58,7 @@ const ExercisePage3 = () => {
           className="p-2 bg-blue-600 text-white rounded-lg shadow-lg"
         >
           {isSidebarOpen ? (
+            // Close "X" icon
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -119,6 +74,7 @@ const ExercisePage3 = () => {
               />
             </svg>
           ) : (
+            // Hamburger icon
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -147,15 +103,17 @@ const ExercisePage3 = () => {
       >
         {/* Sidebar Header */}
         <div className="flex flex-col items-center">
+          {/* Profile Section */}
           <div className="flex flex-col items-center space-y-2">
             <img
-              src={users}
+              src={users} // Replace with dynamic source
               alt="Profile"
               className="w-12 h-12 rounded-full border-2 border-white"
             />
             {!isSidebarCollapsed && (
               <>
-                <h2 className="text-sm font-semibold mt-2">Johnny</h2>
+                <h2 className="text-sm font-semibold mt-2">Johnny</h2>{" "}
+                {/* Dynamic Name */}
                 <p className="text-xs text-gray-300">Level 3</p>
                 <p className="text-xs text-gray-300">490 Points</p>
                 <Button
@@ -163,7 +121,8 @@ const ExercisePage3 = () => {
                   onClick={() => navigate("/gameintro")}
                 >
                   Let's Play TARA Game!
-                </Button>
+                </Button>{" "}
+                {/* Updated */}
               </>
             )}
           </div>
@@ -228,6 +187,7 @@ const ExercisePage3 = () => {
         )}
       </div>
 
+      {/* Backdrop for Mobile Sidebar */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-5 md:hidden"
@@ -235,77 +195,37 @@ const ExercisePage3 = () => {
         ></div>
       )}
 
+      {/* Main Content */}
       <div className="flex-1 p-3 overflow-y-auto">
         <div className="flex items-center justify-center mb-3 bg-gradient-to-r from-[#002761] to-[#5E0076] pr-14 rounded-md border-1">
-          <h1 className="text-white text-4xl">EXERCISE: FOODS</h1>
+          <div className="">
+            <h1 className="text-white text-4xl font-mono">LESSON: FOODS</h1>
+          </div>
         </div>
         <Card className="p-8 shadow-md rounded-xl bg-white">
           <h2 className="text-2xl font-bold font-mono mb-4 text-center text-gray-700">
-            DRAG AND DROP
+            COOKING VOCABULARY
           </h2>
-          <p className="text-center mb-6 text-gray-600">
-            Drag the images to complete the sentences
-          </p>
-          <div className="text-center mb-6">
-            <div className="mb-4 flex justify-center">
-              {items.map((item) => (
-                <img
-                  key={item.id}
-                  src={item.img}
-                  alt={item.alt}
-                  draggable
-                  onDragStart={(e) => onDragStart(e, item)}
-                  className="w-16 h-16 m-2 cursor-move"
-                />
-              ))}
-            </div>
-            {sentences.map((sentence) => (
-              <div key={sentence.id} className="mb-4">
-                <span>{sentence.text}</span>
-                <div className="flex justify-center space-x-4">
-                  {Array.from({ length: sentence.expectedAnswers }).map(
-                    (_, index) => (
-                      <div
-                        key={index}
-                        onDragOver={(e) => onDragOver(e)}
-                        onDrop={(e) => onDrop(e, sentence.id, index)}
-                        className="w-20 h-20 border-2 border-dashed border-gray-400 flex items-center justify-center"
-                      >
-                        {sentence.answer[index] && (
-                          <img
-                            src={sentence.answer[index].img}
-                            alt={sentence.answer[index].alt}
-                            className="w-16 h-16"
-                          />
-                        )}
-                      </div>
-                    )
-                  )}
-                </div>
-                {sentence.isCorrect !== undefined && (
-                  <span
-                    className={
-                      sentence.isCorrect
-                        ? "text-green-500 ml-2"
-                        : "text-red-500 ml-2"
-                    }
-                  >
-                    {sentence.isCorrect ? "✓" : "✗"}
-                  </span>
-                )}
+
+          {/* Flashcards Grid */}
+          <div className="grid grid-cols-4 gap-4">
+            {flashcardsData.map((card, index) => (
+              <div key={index} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                <img src={card.image} alt={card.frontText} className="w-auto h-auto object-fill rounded-lg mb-2" />
+                <h3 className="text-lg flex items-center justify-center font-semibold">{card.frontText}</h3>
               </div>
             ))}
           </div>
-          <div className="flex justify-center space-x-4">
-            <Button
-              className="p-4 bg-green-500 text-white rounded-lg"
-              onClick={checkAnswers}
-            >
-              Check Answers
+
+          
+          <div className="flex justify-center space-x-4 p-10">
+            <Button className="p-4 bg-green-500 text-white rounded-lg">
+              Complete Exercise
             </Button>
+            {/* & Earn Points */}
             <Button
               className="p-4 bg-blue-500 text-white rounded-lg"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/exercise")}
             >
               Next Lesson
             </Button>
@@ -313,13 +233,16 @@ const ExercisePage3 = () => {
         </Card>
       </div>
 
+      {/* Floating Circular Button - Dark Blue */}
       <Button
         onClick={toggleGuide}
         className="fixed bottom-4 right-4 w-16 h-16 p-0 rounded-full bg-blue-900 text-white shadow-lg hover:bg-purple-600 flex items-center justify-center"
       >
-        <img src={Logo} alt="Logo" className="w-10 h-10" />
+        <img src={Logo} alt="Logo" className="w-10 h-10" />{" "}
+        {/* Resized the logo */}
       </Button>
 
+      {/* Student Guide Modal */}
       {showGuide && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-lg">
@@ -337,4 +260,4 @@ const ExercisePage3 = () => {
   );
 };
 
-export default ExercisePage3;
+export default LearningContentPage;
