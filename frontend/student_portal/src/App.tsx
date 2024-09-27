@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/login';
 import DashboardPage from './pages/dashboard';
@@ -18,8 +18,15 @@ import LearningCodePage from './pages/learningCode';
 import ExercisePage from './pages/excercises/exercise';
 import ExercisePage2 from './pages/excercises/exercise2';
 import ExercisePage3 from './pages/excercises/exercise3';
+import useAuthStore from './store/authStore';
 
 const App: React.FC = () => {
+  const autoLogin = useAuthStore((state) => state.autoLogin);
+  useEffect(() => {
+    autoLogin();
+  }, [autoLogin]);
+
+
   return (
     <Router>
       {/* <NavBar /> Common navigation bar */}

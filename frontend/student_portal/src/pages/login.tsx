@@ -1,42 +1,136 @@
-import { Card } from "@/components/ui/card";
-import { UserAuthForm } from "@/components/user_auth_login";
-import tara from '../assets/tara.png';
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import tara from "../assets/tara.png";
+import { Icons } from "@/components/icons";
+import { useEffect, useState } from "react";
+import useAuthStore from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+    const [isLoading, setIsLoading] = useState(false);
+    const login = useAuthStore((state) => state.login);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isError, setIsError] = useState(false);
+    const navigate = useNavigate();
+
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate("/dashboard");
+        }
+    }, [isLoggedIn, navigate]);
+
+    const handleLogin = async (e: React.FormEvent) => {
+        setIsLoading(true);
+        e.preventDefault();
+        try {
+          const error = await login(email, password);
+          if (error) {
+                setError(error);
+                setIsError(true);
+                setIsLoading(false);
+                return;
+            }
+          navigate("/dashboard");
+        } catch (error) {
+            setIsError(true);
+            
+            setIsLoading(false);
+          console.error('Login failed', error);
+        }
+    };
+
     return (
-       
-        <div
-            id="page"
-            className="flex items-center justify-center h-screen rounded-sm w-screen"
-        >
-             
-            <Card className="shadow-2xl p-7 rounded-3xl bg-white">
-                <div
-                    id="page"
-                    className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0"
-                >
-                    <div className="relative hidden h-full flex-row justify-center items-center bg-muted p-10 text-white dark:border-r lg:flex">
-                        <div className="absolute inset-0 bg-gradient-to-bl from-purple-950 via-purple-900 to-blue-900" />
-                        <div className="relative z-20 flex items-center justify-center text-7xl font-medium">
-                            <div className="flex items-center justify-center pt-"></div>
-                            <img src={tara} alt="Logo" className="h-14" />
-                        </div>
+        <div className="min-h-screen flex flex-col md:flex-row">
+            <div className="w-full md:w-1/2 bg-gradient-to-b from-purple-700 to-blue-600 flex items-center justify-center p-8">
+                <div className="text-center">
+                    <img src={tara} alt="Logo" className="h-30" />
+                    <p className="text-2xl text-purple-200">
+                        Learn, Play, Grow!
+                    </p>
+                </div>
+            </div>
+            <div className="w-full md:w-1/2 bg-white flex items-center justify-center p-8">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="text-center">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-2">
+                            Welcome, Young Explorer!
+                        </h2>
+                        <p className="text-xl text-gray-600">
+                            Let's make learning fun!
+                        </p>
                     </div>
-                    <div className="lg:p-8">
-                        <div className="mx-auto flex w-full flex-col justify-start space-y-1 sm:w-[600px] p-28">
-                            <div className="flex flex-col space-y-2 text-left  ">
-                                <h1 className="text-5xl font-semibold tracking-tight">
-                                    Sign In
-                                </h1>
+                    {/* <div className="p-1"></div> */}
+                    <form className="space-y-6" onSubmit={handleLogin}>
+                        <div>
+                            <Label
+                                htmlFor="email"
+                                className="text-lg font-medium text-gray-700"
+                            >
+                                Your Email
+                            </Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                className="mt-1 text-lg p-3 rounded-xl"
+                                required
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <Label
+                                htmlFor="password"
+                                className="text-lg font-medium text-gray-700"
+                            >
+                                Secret Password
+                            </Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="Shh... it's a secret!"
+                                className="mt-1 text-lg p-3 rounded-xl"
+                                required
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        {isError && (
+                            <p className="text-red-500 text-sm">{error}</p>
+                        )}
+                        <Button type="submit" className="w-full text-xl py-6 rounded-xl bg-purple-600 hover:bg-purple-700 transition-colors">
+                            {isLoading && (
+                                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                            )}
+                            Let's Begin!
+                        </Button>
+                    </form>
+                    <div className="flex flex-col gap-3">
+                        <div className="relative mt-5   ">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
                             </div>
-                            <div className="pt-10"></div>
-                            <UserAuthForm />
-                            
+
+                            <div className="relative flex justify-center text-md uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">
+                                    New to Tara? Let's make an account!
+                                </span>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <Button
+                                variant="link"
+                                className="text-lg text-purple-600 hover:text-purple-700"
+                                onClick={() => navigate("/register")}
+                            >
+                                Join the Adventure!
+                            </Button>
                         </div>
                     </div>
                 </div>
-            </Card>
+            </div>
         </div>
     );
 }
