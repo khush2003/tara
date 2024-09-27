@@ -41,7 +41,7 @@ export default function RegisterPage() {
                 setIsLoading(false);
                 return;
             }
-            navigate("/dashboard");
+            navigate("/learningCode");
         } catch (error) {
             setIsError(true);
             setIsLoading(false);
