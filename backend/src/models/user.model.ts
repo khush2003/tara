@@ -1,17 +1,12 @@
 import mongoose, { Document, Schema, model, CallbackError } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { StudentDetailsSchema } from './student.model';
+import { TeacherDetailsSchema } from './teacher.model';
 
-// Interface for the User model
-export interface IUser extends Document {
-  username: string;
-  email: string;
-  password: string;
-  comparePassword(candidatePassword: string): Promise<boolean>; // Method for comparing passwords
-}
 
 // User schema definition
-const userSchema = new Schema<IUser>({
-  username: { type: String, required: [true, 'Username is required'], trim: true },
+const UserSchema = new Schema({
+  name: { type: String, required: true, trim: true },
   email: { 
     type: String, 
     required: [true, 'Email is required'], 
@@ -26,31 +21,11 @@ const userSchema = new Schema<IUser>({
     }
   },
   password: { type: String, required: [true, 'Password is required'], minlength: 6 },
+  role: { type: String, enum: ['student', 'teacher', 'admin'], default: 'student' },
+  profile_picture: { type: String, default: 'https://via.placeholder.com/150' },
+  student_details: StudentDetailsSchema,
+  teacher_details: TeacherDetailsSchema,
 }, { timestamps: true });
 
-// Pre-save middleware to hash the password before saving
-userSchema.pre('save', async function (next) {
-  const user = this as IUser;
 
-  // Only hash the password if it has been modified or is new
-  if (!user.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10); // Generate salt
-    user.password = await bcrypt.hash(user.password, salt); // Hash the password
-    next();
-  } catch (error) {
-    // Handle error safely
-    next(error as CallbackError);  // Cast the error to the expected type
-  }
-});
-
-// Method to compare the password during login
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-// Create and export the User model
-const User = model<IUser>('User', userSchema);
-
-export default User;
+export default mongoose.model('User', UserSchema);;

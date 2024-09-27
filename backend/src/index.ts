@@ -1,12 +1,12 @@
 import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './db'; // Adjust path if necessary
+
 import authRoutes from './routes/auth.routes'; // Adjust path if necessary
+import connectDB from './config/db';
+import testRoutes from './routes/test.routes';
 
 dotenv.config();
-console.log('All Environment Variables:', process.env);
-console.log('JWT_SECRET:', process.env.JWT_SECRET); // Log to verify it's loaded
 
 const app: Express = express();
 const port = process.env.PORT || 8080;
@@ -18,7 +18,7 @@ app.use(express.json());
 // Connect to MongoDB
 connectDB()
   .then(() => {
-    console.log('MongoDB connection established.');
+    // console.log('MongoDB connection established.');
   })
   .catch((err) => {
     console.error('Failed to establish MongoDB connection:', err.message);
@@ -28,8 +28,10 @@ connectDB()
 // Register routes
 app.use('/auth', authRoutes);
 
+// Register test routes
+app.use('/test', testRoutes);
+
 // Start the server
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-  console.log(`Routes registered: /auth/login`);
 });
