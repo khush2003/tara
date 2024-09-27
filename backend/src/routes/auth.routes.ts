@@ -41,7 +41,18 @@ router.post('/registerStudent', async (req: Request, res: Response) => {
         }
       });
       await newUser.save();
-    res.status(201).json({ user_id: newUser._id, message: 'Student registered successfully' });
+      const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      return res.status(500).json({ message: 'Server error' });
+    }
+
+    const token = jwt.sign({ _id: newUser._id }, JWT_SECRET);
+
+    res.header('auth-token', token).status(201).json({
+      message: 'Register successful',
+      token,
+      user_id: newUser._id, 
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Some error with the provided user details or something wrong with the server' });
@@ -76,7 +87,7 @@ router.post('/login', async (req: Request, res: Response) => {
     res.header('auth-token', token).json({
       message: 'Login successful',
       token,
-      username: user.name, // Include username in response
+      user_id: user._id, // Include username in response
     });
   } catch (error) {
     console.error('Login error:', error);
