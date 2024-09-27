@@ -7,7 +7,7 @@ const BACKEND_API_URL = "http://localhost:8080";
 // Define the shape of the state
 interface AuthState {
     accessToken: string | null;
-    user: { username: string } | null;
+    user: { user_id: string } | null;
     isLoggedIn: boolean;
     login: (email: string, password: string) => Promise<string | void>;
     register: (
@@ -55,7 +55,7 @@ const useAuthStore = create<AuthState>(
                     const data = await response.json();
                     set({
                         accessToken: data.token,
-                        user: { username: data.username },
+                        user: { user_id: data.user_id },
                         isLoggedIn: true,
                     });
                 } catch (error) {
@@ -87,8 +87,12 @@ const useAuthStore = create<AuthState>(
                         return errorData.message || "Registration failed";
                     }
 
-                    await response.json();
-                    set({ user: { username: name } });
+                    const data = await response.json();
+                    set({
+                        accessToken: data.token,
+                        user: { user_id: data.user_id },
+                        isLoggedIn: true,
+                    });
                 } catch (error) {
                     return (error as Error).message || "An error occurred";
                 }
@@ -119,7 +123,7 @@ const useAuthStore = create<AuthState>(
                         const user = await response.json();
                         set({
                             accessToken: token,
-                            user: { username: user.username },
+                            user: { user_id: user.user_id },
                             isLoggedIn: true,
                         });
                     } else {
