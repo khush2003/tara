@@ -138,7 +138,7 @@ const LearningContentPage: React.FC = () => {
                   className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800 hover:to-[#25c3ea] rounded-lg px-2 py-2"
                   onClick={() => navigate("/learning")}
                 >
-                  Unit 1 (Foods)
+                  Unit 1: Foods
                 </Button>
               </ul>
             </div>
@@ -152,25 +152,25 @@ const LearningContentPage: React.FC = () => {
                     className="w-full py-4 bg-blue-500 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
                     onClick={() => navigate("/exercise")}
                   >
-                    <span>Exercise 1</span>
+                    <span>Exercise 1: Translation</span>
                   </Button>
                 </li>
 
                 <li className="flex flex-col">
                   <Button
                     className="w-full py-4 bg-blue-400 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
-                    onClick={() => navigate("/exercise")}
+                    onClick={() => navigate("/exercise2")}
                   >
-                    <span>Exercise 2</span>
+                    <span>Exercise 2: Fill in the blanks</span>
                   </Button>
                 </li>
 
                 <li className="flex flex-col">
                   <Button
                     className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
-                    onClick={() => navigate("/exercise")}
+                    onClick={() => navigate("/exercise3")}
                   >
-                    <span>Exercise 3</span>
+                    <span>Exercise 3: Drag and Drop</span>
                   </Button>
                 </li>
               </ul>
@@ -199,11 +199,11 @@ const LearningContentPage: React.FC = () => {
       <div className="flex-1 p-3 overflow-y-auto">
         <div className="flex items-center justify-center mb-3 bg-gradient-to-r from-[#002761] to-[#5E0076] pr-14 rounded-md border-1">
           <div className="">
-            <h1 className="text-white text-2xl">LESSON: FOODS</h1>
+            <h1 className="text-white text-4xl font-mono">LESSON: FOODS</h1>
           </div>
         </div>
         <Card className="p-8 shadow-md rounded-xl bg-white">
-          <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">
+          <h2 className="text-2xl font-bold font-mono mb-4 text-center text-gray-700">
             COOKING VOCABULARY
           </h2>
 
@@ -211,7 +211,7 @@ const LearningContentPage: React.FC = () => {
           <div className="grid grid-cols-4 gap-4">
             {flashcardsData.map((card, index) => (
               <div key={index} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                <img src={card.image} alt={card.frontText} className="w-full object-fill rounded-lg mb-2" />
+                <img src={card.image} alt={card.frontText} className="w-auto h-auto object-fill rounded-lg mb-2" />
                 <h3 className="text-lg flex items-center justify-center font-semibold">{card.frontText}</h3>
               </div>
             ))}

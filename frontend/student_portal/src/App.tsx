@@ -16,6 +16,8 @@ import SettingsPage from './pages/studentsetting';
 import LandingPage from './pages/games/landingpage';
 import LearningCodePage from './pages/learningCode';
 import ExercisePage from './pages/exercise';
+import ExercisePage2 from './pages/exercise2';
+import ExercisePage3 from './pages/exercise3';
 
 const App: React.FC = () => {
   return (
@@ -31,6 +33,9 @@ const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
         <Route path="/learning" element={<LearningContentPage />} />
+        <Route path="/exercise" element={<ExercisePage />} />
+        <Route path="/exercise2" element={<ExercisePage2 />} />
+        <Route path="/exercise3" element={<ExercisePage3 />} />
         <Route path="/teacheraccess" element={<TeacheraccessPage />} />
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
         <Route path="/StudentGuidance" element={<StudentGuide />} />

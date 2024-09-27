@@ -7,7 +7,7 @@ import StudentGuide from "./guidance";
 import Logo from "../assets/Chat.png"; // Import your logo image
 import users from "../assets/users.png"; // Import your profile image
 
-const ExercisePage: React.FC = () => {
+const ExercisePage2: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
@@ -113,8 +113,9 @@ const ExercisePage: React.FC = () => {
             <div className="mt-6">
               <h3 className="text-xs font-semibold">Lesson</h3>
               <ul className="flex flex-col mt-2 space-y-1 text-xs">
-                <Button className=" bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800  hover:to-[#25c3ea] rounded-lg px-2 py-2"
-                onClick={() => navigate("/learning")}
+                <Button
+                  className=" bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800  hover:to-[#25c3ea] rounded-lg px-2 py-2"
+                  onClick={() => navigate("/learning")}
                 >
                   Unit 1: Foods
                 </Button>
@@ -146,7 +147,7 @@ const ExercisePage: React.FC = () => {
                 <li className="flex flex-col">
                   <Button
                     className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
-                    onClick={() => navigate("/exercise")}
+                    onClick={() => navigate("/exercise3")}
                   >
                     <span>Exercise 3: Drag and Drop</span>
                   </Button>
@@ -182,23 +183,21 @@ const ExercisePage: React.FC = () => {
         </div>
         <Card className="p-8 shadow-md rounded-xl bg-white">
           <h2 className="text-2xl font-bold font-mono mb-4 text-center text-gray-700">
-            ENGLISH OR THAI?
+            FILL IN THE BLANKS
           </h2>
           <p className="text-center mb-6 text-gray-600">
-            Translate this text to your native language
+            Find the synonyms in the text
           </p>
           <div className="text-center mb-6">
             <blockquote className="italic text-gray-600 bg-gray-100 p-4 rounded-lg">
-              Tom is hungry. He walks to the kitchen and gets some eggs. He
-              takes some oil and puts a pan on the stove. Next, he turns on the
-              heat and pours the oil into the pan. He cracks the eggs into a
-              bowl, mixes them, and then pours them into the hot pan. He waits
-              while the eggs cook. They cook for two minutes. Next, Tom puts the
-              eggs on a plate and places the plate on the dining room table. Tom
-              feels happy because he cooked eggs. He sits down in the big wooden
-              chair, and eats the eggs with a spoon. They are good. He washes
-              the plate with dishwashing soap, then washes the pan. He wets a
-              sponge and finally cleans the table.
+              Tom is excited to cook his favorite recipe. He starts by getting a
+              fresh set of vegetables from the market. He carefully washes them
+              to make sure they are clean. Tom uses a sharp knife to chop the
+              vegetables into small pieces. He heats some oil in a pan until it
+              is hot. Then, he adds the vegetables and mixes them until they are
+              tender. After cooking, Tom puts the vegetables on a plate. The
+              meal looks very appealing, and Tom feels happy with his delicious
+              dish.
             </blockquote>
           </div>
           <textarea
@@ -247,4 +246,4 @@ const ExercisePage: React.FC = () => {
   );
 };
 
-export default ExercisePage;
+export default ExercisePage2;
