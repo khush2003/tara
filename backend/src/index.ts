@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes'; // Adjust path if necessary
 import connectDB from './config/db';
 import testRoutes from './routes/test.routes';
+import guestSessionRoutes from './routes/guestSession.routes';
+import learningRoutes from './routes/learning.routes';
 
 dotenv.config();
 
@@ -30,6 +32,12 @@ app.use('/auth', authRoutes);
 
 // Register test routes
 app.use('/test', testRoutes);
+
+// Guest session routes
+app.use('/guest', guestSessionRoutes);
+
+// Learning module routes
+app.use('/learning', learningRoutes);
 
 // Start the server
 app.listen(port, () => {

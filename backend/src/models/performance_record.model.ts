@@ -20,16 +20,15 @@ import mongoose, { Schema, Document } from 'mongoose';
 //   }
 
 
-
 const PerformanceRecordSchema = new Schema({
     user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    module_id: { type: Schema.Types.ObjectId, ref: 'LearningModule', required: true },
+    moduleCode: { type: String, ref: 'LearningModule', required: true },
     lessonDetails: {
-        lesson_id: { type: Schema.Types.ObjectId, ref: 'Lesson' },
+        lessonCode: { type: String, ref: 'Lesson' },
         is_complete: { type: Boolean, default: false }
     },
     exerciseDetails: {
-        exercise_id: { type: Schema.Types.ObjectId, ref: 'Exercise' },
+        excerciseCode: { type: String, ref: 'Exercise' },
         attempt: { type: Number },
         score: { type: Number },
         answers: { type: String },

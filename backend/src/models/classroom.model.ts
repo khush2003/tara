@@ -23,9 +23,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 const ClassroomSchema = new Schema({
     students_enrolled: [{ type: Schema.Types.ObjectId, ref: 'User', index: true }],
-    teacher_id: { type: Schema.Types.ObjectId, ref: 'User', index: true },
-    learning_modules: [{ type: Schema.Types.ObjectId, ref: 'LearningModule', index: true }],
-    // today_lesson: LearningModuleSchema,
+    teacher_id: { type: Schema.Types.ObjectId, ref: 'User', index: true, required: true },
+    learning_modules: [{ type: String, ref: 'LearningModule', index: true }],
+    today_lesson: { type: String, ref: 'LearningModule' },
     game_restriction_period: {
         start: { type: Date },
         end: { type: Date }

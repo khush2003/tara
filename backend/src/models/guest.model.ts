@@ -2,10 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Table guest_session {
 //     session_id String [primary key]  // Temporary session ID for the anonymous user
-//     selected_modules ObjectId[]      // Reference to learning modules accessed by the guest
-//     performanceRecords Object[]      // Track progress on exercises or lessons
+//     performanceRecords ObjectId[]    // Track progress on exercises or lessons
 //     created_at timestamp
 //     expires_at timestamp             // Session expiration time
+//     guest_game_points integer        // Points earned by the guest
+//     game_hours_left integer          // Hours left for the guest to play
 //   }
 
 //   Table guest_performance_record {
@@ -29,13 +30,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 const GuestPerformanceRecordSchema = new Schema({
     session_id: { type: String, required: true },
-    module_id: { type: Schema.Types.ObjectId, ref: 'LearningModule', required: true },
+    moduleCode: { type: String, ref: 'LearningModule', required: true },
     lessonDetails: {
-        lesson_id: { type: Schema.Types.ObjectId, ref: 'Lesson' },
+        lessonCode: { type: String, ref: 'Lesson' },
         is_complete: { type: Boolean, default: false }
     },
     exerciseDetails: {
-        exercise_id: { type: Schema.Types.ObjectId, ref: 'Exercise' },
+        exerciseCode: { type: String, ref: 'Exercise' },
         attempt: { type: Number },
         score: { type: Number },
         answers: { type: String },
@@ -47,10 +48,15 @@ const GuestPerformanceRecordSchema = new Schema({
 
 const GuestSessionSchema = new Schema({
     session_id: { type: String, required: true, unique: true },
-    selected_modules: [{ type: Schema.Types.ObjectId, ref: 'LearningModule' }],
-    performanceRecords: [GuestPerformanceRecordSchema],
+    performanceRecords: [{ type: Schema.Types.ObjectId, ref: 'GuestPerformanceRecord' }],
     created_at: { type: Date, default: Date.now },
-    expires_at: { type: Date, required: true }
+    expires_at: { type: Date, required: true },
+    guest_game_points: { type: Number, required: true, default: 0 },
+    game_hours_left: { type: Number, required: true, default: 60 },
 }, { timestamps: true });
 
-export default mongoose.model('GuestSession', GuestSessionSchema);
+export { GuestPerformanceRecordSchema, GuestSessionSchema };
+
+const GuestPerformanceRecord = mongoose.model('GuestPerformanceRecord', GuestPerformanceRecordSchema);
+const GuestSession = mongoose.model('GuestSession', GuestSessionSchema);
+export { GuestPerformanceRecord, GuestSession };

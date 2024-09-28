@@ -41,6 +41,7 @@ const LearningModuleSchema = new Schema({
     lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
     exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }],
     isPremium: { type: Boolean, default: false },
+    moduleCode: { type: String, required: true, trim: true, unique: true },
 }, { timestamps: true });
 
 const LessonSchema = new Schema({

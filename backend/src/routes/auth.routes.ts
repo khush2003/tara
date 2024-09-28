@@ -105,4 +105,16 @@ router.get('/me', verify, async (req: AuthenticatedRequest, res: Response) => {
     }
 });
 
+// Update user profile
+router.put('/me', verify, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { name, email, password, profile_picture } = req.body;
+    const user = await User.findByIdAndUpdate((req.user as JwtPayload)._id, req.body, { new: true });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;
+ 
