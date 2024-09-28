@@ -168,5 +168,52 @@ router.put('/me/updatePassword', verify, async (req: AuthenticatedRequest, res: 
   }
 });
 
+// Register a new Teacher
+router.post('/registerTeacher', async (req: Request, res: Response) => {
+  const { name, email, password, profile_picture, school } = req.body;
+
+  // Check if the user already exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    return res.status(400).json({ message: 'User already exists' });
+  }
+
+  // Hash the password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  try {
+    const newUser = new User({
+      name: name,
+      email: email,
+      password: hashedPassword,
+      role: 'teacher',
+      profile_picture: profile_picture? profile_picture : 'https://via.placeholder.com/150',
+      teacher_details: {
+        school: school,
+        classrooms: []
+      }
+    });
+    await newUser.save();
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      return res.status(500).json({ message: 'Server error' });
+    }
+
+    const token = jwt.sign({ _id: newUser._id }, JWT_SECRET);
+
+    res.header('auth-token', token).status(201).json({
+      message: 'Register successful',
+      token,
+      user_id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Some error with the provided user details or something wrong with the server' });
+  }
+});
+
 export default router;
  

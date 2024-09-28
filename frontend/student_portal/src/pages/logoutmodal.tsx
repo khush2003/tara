@@ -6,17 +6,16 @@ import { useNavigate } from 'react-router-dom';
 interface LogoutModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+ 
 }
 
-const LogoutModal: React.FC<LogoutModalProps> = ({ isVisible, onClose, onConfirm }) => {
+const LogoutModal: React.FC<LogoutModalProps> = ({ isVisible, onClose }) => {
   const logOut  = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
   
   const handleLogout = () => {
     logOut();
     navigate("/");
-
     onClose();
   }
 

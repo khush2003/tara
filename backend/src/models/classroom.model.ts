@@ -22,7 +22,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 
 const ClassroomSchema = new Schema({
-    students_enrolled: [{ type: Schema.Types.ObjectId, ref: 'User', index: true }],
+    students_enrolled: [{ type: Schema.Types.ObjectId, ref: 'User', index: true, unique: true }],
     teacher_id: { type: Schema.Types.ObjectId, ref: 'User', index: true, required: true },
     learning_modules: [{ type: String, ref: 'LearningModule', index: true }],
     today_lesson: { type: String, ref: 'LearningModule' },
@@ -41,5 +41,7 @@ const ClassroomSchema = new Schema({
         date_awarded: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
+
+ClassroomSchema.index({ students_enrolled: 1 }, { unique: true });
 
 export default mongoose.model('Classroom', ClassroomSchema);

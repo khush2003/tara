@@ -4,7 +4,6 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 //     id integer [primary key]
 //     name String
 //     description String
-//     type String                // 'limerick', 'poem', etc.
 //     difficulty String          // 'easy', 'medium', 'hard'
 //     skills String[]            // Array of skills - Index for skill-based queries
 //     related_modules ObjectId[]  // Array of references to related modules
@@ -12,6 +11,7 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 //     lessons ObjectId[]          // Array of references to lessons
 //     exercises ObjectId[]        // Array of references to exercises
 //     isPremium boolean           // to differentiate globally accessible modules
+// moduleCode: { type: String, required: true, trim: true, unique: true },
 //   }
 
 //   Table lesson {
@@ -33,7 +33,6 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 const LearningModuleSchema = new Schema({
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
-    type: { type: String, required: true, trim: true },
     difficulty: { type: String, required: true, trim: true },
     skills: { type: [String], required: true },
     related_modules: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LearningModule' }],

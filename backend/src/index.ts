@@ -8,6 +8,7 @@ import testRoutes from './routes/test.routes';
 import guestSessionRoutes from './routes/guestSession.routes';
 import learningRoutes from './routes/learning.routes';
 import performanceRecordRoutes from './routes/performanceRecords.routes';
+import classroomRoutes from './routes/classRoom.routes';
 
 dotenv.config();
 
@@ -42,6 +43,9 @@ app.use('/learning', learningRoutes);
 
 // Performance record routes
 app.use('/performance', performanceRecordRoutes);
+
+// Classrooms routes
+app.use('/classroom', classroomRoutes);
 
 // Start the server
 app.listen(port, () => {

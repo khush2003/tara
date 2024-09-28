@@ -10,7 +10,6 @@ router.post('/createLearningModule', async (req, res) => {
         const {
             name,
             description,
-            type,
             difficulty,
             skills,
             related_modules,
@@ -24,7 +23,6 @@ router.post('/createLearningModule', async (req, res) => {
         const learningModule = new LearningModule({
             name,
             description,
-            type,
             difficulty,
             skills,
             related_modules,
@@ -41,6 +39,22 @@ router.post('/createLearningModule', async (req, res) => {
         return res.status(500).json({ error: 'Error creating learning module' });
     }
 });
+// Request
+// POST http://localhost:3000/createLearningModule
+// Request body
+// {
+//     "name": "Introduction to Python",
+//     "description": "Learn the basics of Python programming language",
+//     "difficulty": "easy",
+//     "skills": ["programming", "python"],
+//     "related_modules": [],
+//     "prerequisites": [],
+//     "lessons": [],
+//     "exercises": [],
+//     "isPremium": false,
+//     "moduleCode": "PY101"
+// }
+
 
 // Get all learning modules
 router.get('/learning-modules', async (req, res) => {

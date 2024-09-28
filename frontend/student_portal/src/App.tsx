@@ -8,7 +8,7 @@ import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
-import LearningContentPage from './pages/lessons/learning';
+import Learning001 from './pages/lessons/learning';
 import TeacherDashboard from './pages/teacher/teacherdashboard';
 import TeacheraccessPage from './pages/teacher/teacheraccess';
 import StudentGuide from './pages/guidance';
@@ -19,6 +19,7 @@ import ExercisePage from './pages/excercises/exercise';
 import ExercisePage2 from './pages/excercises/exercise2';
 import ExercisePage3 from './pages/excercises/exercise3';
 import useAuthStore from './store/authStore';
+import LearningContentPage from './pages/learningHome';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -39,7 +40,7 @@ const App: React.FC = () => {
         <Route path="*" element={<div>Not Found</div>} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
-        <Route path="/learning" element={<LearningContentPage />} />
+        <Route path="/learning/:id" element={<LearningContentPage />} />
         <Route path="/exercise" element={<ExercisePage />} />
         <Route path="/exercise2" element={<ExercisePage2 />} />
         <Route path="/exercise3" element={<ExercisePage3 />} />

@@ -1,286 +1,346 @@
+import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
-import owl from "../assets/owl.png";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Bell,
+    BookOpen,
+    Gamepad,
+    Layers,
+    LogOut,
+    Rocket,
+    Settings,
+    Sparkles,
+    Star,
+} from "lucide-react";
+import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "./logoutmodal";
-import blackboard from "../assets/bb.jpg";
-import doggy from "../assets/GameDog.png";
-import food from "../assets/food.png";
-import book from "../assets/book.png";
-import progrss from "../assets/success.png";
-import reccommend from "../assets/recommend.png";
 
-
-const DashboardPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>('');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
-  // Fetch username and check login status when the component mounts
-  useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      setIsLoggedIn(true);
-      setUsername(storedUsername || 'Student');
-    } else {
-      setIsLoggedIn(false);
-      setUsername('Student'); // Default value if username not available
+interface User {
+    name: string;
+    email: string;
+    profilePicture: string;
+    student_details: {
+        game_points: number;
+        classroom_code: string;
+        game_hours_left: number;
     }
-  }, []);
+    role: string;
+}
 
-  const handleLogoutClick = () => {
-    setLogoutModalVisible(true); // Show the modal
-  };
+interface LearningModule {
+    _id: string;
+    name: string;
+    description: string;
+    difficulty: string;
+    skills: string[];
+    createdAt: string;
+    updatedAt: string;
+    isPremium: boolean;
+    moduleCode: string;
+    prerequisites: LearningModule[];
+    related_modules: LearningModule[];
+    exercises: any[];
+    lessons: any[];
+    __v: number;
+}
 
-  const handleLogoutConfirm = () => {
-    // Clear user data from localStorage
-    localStorage.removeItem('token'); 
-    localStorage.removeItem('username'); 
-    setIsLoggedIn(false); // Update login status
-    setLogoutModalVisible(false); // Hide the modal
-    navigate('/'); // Redirect to login or home after logout
-  };
+interface Classroom {
+    classroom_code: string;
+    classroom_name: string;
+    createdAt: string;
+    extra_points_award: any[];
+    is_game_active: boolean;
+    learning_modules: LearningModule[];
+    performance_records: any[];
+    students_enrolled: string[];
+    teacher_id: string;
+    today_lesson: LearningModule;
+    updatedAt: string;
+    __v: number;
+    _id: string;
+}
 
-  const handleLogoutCancel = () => {
-    setLogoutModalVisible(false); // Hide the modal without logging out
-  };
+export default function DashboardPage() {
+    const navigate = useNavigate();
+    const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
+    const [userInfo, setUserInfo] = useState<User | null>(null);
+    const accessToken = useAuthStore((state) => state.accessToken);
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const [isGuest, setIsGuest] = useState(false);
+    const [classroomDetails, setClassroomDetails] = useState<Classroom | null>(null);
+    // const [hoveredCard, setHoveredCard] = useState(null);
 
-  const handleLoginClick = () => {
-    navigate('/login'); // Navigate to login page
-  };
+    const fetchClassroomDetails = useCallback(async () => {
+        if (!userInfo?.student_details.classroom_code) {
+            if (!userInfo) {
+                return;
+            }
+            if (!userInfo.student_details.classroom_code) {
+                navigate("/learningCode");
+                return;
+            }
 
-  return (
-    <div className="w-full min-h-screen bg-white relative">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5 bg-gradient-to-r from-[#002761] to-[#5E0076] pr-14">
-        <div className="flex items-center space-x-4 m-3">
-          <img
-            src={owl}
-            alt="Profile"
-            onClick={() => navigate("/settings")}
-            className="w-16 h-16 rounded-full border-2 border-gray-300 cursor-pointer"
-          />
-          <h1 className="text-xl font-bold text-white">
-            Welcome, Student Name!
-          </h1>{" "}
-          {/* Replace with dynamic name */}
-        </div>
-        <div>
-          <img
-            src="tara.png"
-            alt="tara"
-            className="bg-white border-spacing-3 rounded-lg m-2"
-          />
-        </div>
-        <div className="pl-10">
-          <Button
-            className="text-lg p-3 bg-red-500 text-white rounded-lg m-3"
-            onClick={handleLogoutClick}
-          >
-            Logout
-          </Button>
-        </div>
-      </div>
+        }
+        const response = await fetch("http://localhost:8080/classroom/classrooms/" + userInfo?.student_details.classroom_code, {
+            headers: {
+                "auth-token": `${accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            console.log("Failed to fetch classroom details");
+            navigate("/learningCode");
+            return;
+        }
+        const data = await response.json();
+        console.log(data);
+        setClassroomDetails(data);
+    }, [userInfo?.student_details.classroom_code, accessToken, navigate]);
 
-      <div className="grid grid-cols-2 gap-4 m-3">
-        {/* Announcements Section */}
-        <div className="col-span-1">
-          <Card
-            className="p-6 shadow-md rounded-lg h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${blackboard})`,
-            }}
-          >
-            <h2 className="text-2xl font-semibold text-white mb-4 p-2 rounded-md">
-              Announcements for Student Name
-            </h2>
-            <ul className="space-y-2 p-2 rounded-md">
-              <li className="text-sm text-white">
-                New exercise available in Unit 2.
-              </li>
-              <li className="text-sm text-white">
-                Reminder: Project submission due next week.
-              </li>
-            </ul>
-          </Card>
-        </div>
+    const fetchUserDetails = useCallback(async () => {
+        // Fetch user details from the backend
+        const response = await fetch("http://localhost:8080/auth/profile", {
+            headers: {
+                "auth-token": `${accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            alert("Failed to fetch user details");
+            return;
+        }
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setUserInfo(data);
+        }
+    }, [accessToken]);
+    
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsGuest(false);
+            await fetchUserDetails();
+            await fetchClassroomDetails();
+        };
 
-        {/* Game Points Section */}
-        <div className="col-span-1">
-          <Card className="p-6 shadow-md rounded-lg bg-white flex flex-col justify-between h-full ">
-            <Card className="p-6 shadow-md rounded-lg bg-white flex flex-col justify-between h-full relative overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-35"
-                style={{ height: 350, backgroundImage: `url(${doggy})` }}
-              />
-              <div className="relative z-10">
-                <div className="flex flex-col w-full space-y-2">
-                  <h2 className="text-2xl font-semibold">TARA Points</h2>
-                  <p className="text-2xl font-bold">150 Coins</p>
-                  <h2 className="text-lg font-semibold mb-4">
-                    Total Playtime Remaining
-                  </h2>
-                  <div className="w-full py-1 flex justify-between">
-                    <span>5 mins</span>
-                    <Progress value={40} className="w-[50%] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 " />
-                  </div>
+        if (isLoggedIn) {
+            fetchData();
+        } else {
+            setIsGuest(true);
+        }
+    }, [isLoggedIn, fetchUserDetails, fetchClassroomDetails]);
+
+    
+  
+
+      const handleLogoutCancel = () => {
+        setLogoutModalVisible(false); // Hide the modal without logging out
+      };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 p-4 sm:p-6 lg:p-8">
+            <header className="bg-white rounded-3xl shadow-lg p-6 mb-8 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                    <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <Avatar className="w-16 h-16 border-4 border-purple-400">
+                            <AvatarImage
+                                src="/placeholder.svg?height=64&width=64"
+                                alt="Student"
+                            />
+                            <AvatarFallback>ME</AvatarFallback>
+                        </Avatar>
+                    </motion.div>
+                    <div>
+                        <h1 className="text-3xl font-bold text-purple-800">
+                            Welcome, {userInfo?.name}!
+                        </h1>
+                        <p className="text-lg text-purple-600">
+                            Ready to conquer new galaxies of knowledge?
+                        </p>
+                    </div>
                 </div>
-              </div>
-            </Card>
+                <div className="flex items-center space-x-4">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() => navigate("/settings")}
+                    >
+                        <Settings className="h-6 w-6 text-purple-600" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() => setLogoutModalVisible(true)}
+                    >
+                        <LogOut className="h-6 w-6 text-purple-600"  />
+                    </Button>
+                </div>
+            </header>
 
-            <Button
-              className="w-full text-lg py-3 bg-gradient-to-r from-[#002761] to-[#5E0076] hover:from-purple-800 text-white rounded-lg mt-4"
-              onClick={() => navigate("/gameintro")}
-            >
-              Let's Play TARA Game!
-            </Button>
-          </Card>
-        </div>
-      </div>
+            <LogoutModal
+                isVisible={isLogoutModalVisible}
+                onClose={handleLogoutCancel}
+            />
 
-      {/*Today Lesson */}
-      <div className="shadow-md rounded-lg m-3">
-        <Card className="p-6 shadow-md rounded-lg bg-white">
-          <h2 className="text-2xl font-semibold mb-4 inline-flex place-items-center gap-x-3">
-            <img src={book} alt="book logo" className="h-10 w-10" />
-            Today's Lesson
-          </h2>
-          <ul className="space-y-2">
-            <li className="flex justify-between">
-              <Button
-                className="w-[100%] py-7 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800  hover:to-[#25c3ea] text-white justify-between"
-                onClick={() => navigate("/learning")}
-              >
-                <span className="inline-flex place-items-center gap-x-3">
-                  <img src={food} alt="food logo" className="h-10 w-10" />
-                  Unit 1 (Foods)
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div 
+          className="col-span-full lg:col-span-2"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-2xl sm:text-3xl flex items-center justify-between">
+                <span className="flex items-center">
+                  <Gamepad className="mr-3 h-8 w-8" />
+                  Game Zone
                 </span>
-                <Progress value={75} className="w-[50%]" />
-              </Button>
-            </li>
-          </ul>
-        </Card>
-      </div>
-
-      {/* Main Grid Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 m-3">
-        {/* Column 1 */}
-        <div className="space-y-6">
-          {/* Learning Progress */}
-          <Card className="p-6 shadow-md rounded-lg bg-white">
-            <h2 className="text-lg font-semibold mb-4 inline-flex place-items-center gap-x-3">
-              <img src={progrss} alt="progress logo" className="h-10 w-10" />
-              Learning Progress
-            </h2>
-
-            <ul className="space-y-4">
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-500 justify-between text-white hover:bg-blue-800"
-                  onClick={() => navigate("/learning")}
-                >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 1 (Foods)
-                  </span>
-                  <Progress value={75} className="w-[50%]" />
+                <Button onClick={() => navigate("/gameintro")} variant="secondary" className="bg-white text-purple-600 hover:bg-purple-100 text-lg px-6 py-2 rounded-full">
+                  Play Now!
                 </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-400 justify-between text-white hover:bg-blue-800"
-                  onClick={() => navigate("/learning")}
-                >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 2 (Foods)
-                  </span>
-                  <Progress value={50} className="w-[50%]" />
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-blue-300 justify-between text-white hover:bg-blue-800"
-                  onClick={() => navigate("/learning")}
-                >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 3 (Foods)
-                  </span>
-                  <Progress value={30} className="w-[50%]" />
-                </Button>
-              </li>
-            </ul>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row justify-between items-center">
+              <div>
+                <p className="text-2xl font-bold mb-2">Your Coins: {userInfo?.student_details.game_points} 💎</p>
+                <p className="text-lg">Playtime Left: {userInfo?.student_details.game_hours_left} space minutes</p>
+                <div className="w-full py-1 flex justify-between">
+                    <Progress value={userInfo? userInfo.student_details.game_hours_left/60 * 100 : 60/60*100}  className="w-[100%] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 " />
+                  </div>
+              </div>
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+              >
+                <Rocket className="h-24 w-24 text-white mt-4 sm:mt-0" />
+              </motion.div>
+            </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
-        {/* Column 2 */}
-        <div className="space-y-6">
-          {/* Recommended Courses */}
-          <Card className="p-6 shadow-md rounded-lg bg-white">
-            <h2 className="text-lg font-semibold mb-4 inline-flex place-items-center gap-x-3">
-              <img
-                src={reccommend}
-                alt="reccommend logo"
-                className="w-10 h-10"
-              />
-              Recommended Courses
-            </h2>
-            <ul className="space-y-4">
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-gradient-to-r from-[#002761] to-[#5E0076] hover:from-purple-800 text-white justify-between"
-                  onClick={() => navigate("/learning")}
+                <motion.div
+                    className="col-span-full md:col-span-1"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 1 (Foods)
-                  </span>
-                  <p className="text-md font-bold">40 points</p>
+                    <Card className="bg-gradient-to-br from-green-400 to-blue-500 text-white h-full">
+                        <CardHeader>
+                            <CardTitle className="text-2xl flex items-center">
+                                <Bell className="mr-2 h-6 w-6" />
+                                Tara News
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-lg">
+                                🍰 <strong>Yay! </strong> Let's Finish foods unit on your own! <br></br>
+                                No more announcements for today. <br></br> See you tomorrow! 
+                            </p>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+
+                <motion.div 
+          className="col-span-full"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Card className="bg-white border-2 border-purple-200">
+            <CardHeader>
+              <CardTitle className="text-2xl text-gray-800 flex items-center justify-between">
+                <span className="flex items-center">
+                  <BookOpen className="mr-2 h-6 w-6 text-purple-600" />
+                  Today's Tara Lesson: {classroomDetails?.today_lesson.name || "No lesson today"}
+                </span>
+                <Button onClick={() => navigate("/learning/" + classroomDetails?.today_lesson.moduleCode + "L0001")} variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full">
+                  Let's Learn
                 </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-gradient-to-r from-[#002761] to-[#5E0076] hover:from-purple-800  opacity-80 text-white justify-between"
-                  onClick={() => navigate("/learning")}
-                >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 2 (Foods)
-                  </span>
-                  <p className="text-md font-bold">35 points</p>
-                </Button>
-              </li>
-              <li className="flex justify-between">
-                <Button
-                  className="w-[100%] py-7 bg-gradient-to-r from-[#002761] to-[#5E0076] hover:from-purple-800 opacity-60 text-white justify-between"
-                  onClick={() => navigate("/learning")}
-                >
-                  <span className="inline-flex place-items-center gap-x-3">
-                    <img src={food} alt="food logo" className="h-10 w-10" />
-                    Unit 3 (Foods)
-                  </span>
-                  <p className="text-md font-bold">35 points</p>
-                </Button>
-              </li>
-            </ul>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Progress value={30} className="h-4 bg-purple-100" />
+              <p className="text-lg text-gray-600 mt-2">30% of your journey completed</p>
+            </CardContent>
           </Card>
+        </motion.div>
+
+        <motion.div 
+          className="col-span-full lg:col-span-2"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Card className="bg-white border-2 border-purple-200">
+            <CardHeader>
+              <CardTitle className="text-2xl text-gray-800 flex items-center">
+                <Layers className="mr-2 h-6 w-6 text-purple-600" />
+                Your Learning Units
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-4">
+                {classroomDetails?.learning_modules.map((unit, index) => (
+                  <motion.li 
+                    key={unit._id} 
+                    onClick={() => navigate("/learning/" + unit.moduleCode + "L0001")}
+                    className={`p-4 rounded-xl flex items-center justify-between ${index === 0 ? 'bg-purple-100' : 'bg-gray-100'}`}
+                    whileHover={{ scale: 1.03, backgroundColor: "#e0e7ff" }}
+                  >
+                    <span className="text-lg font-medium flex items-center text-gray-800" >
+                      <Star className="mr-2 h-5 w-5 text-yellow-500" />
+                      {unit.name}
+                    </span>
+                    <Progress value={[30, 100, 60, 10][index]} className="w-1/3 h-3" />
+                  </motion.li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+                <motion.div
+                    className="col-span-full md:col-span-1"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                >
+                    <Card className="bg-gradient-to-br from-purple-400 to-pink-500 text-white h-full">
+                        <CardHeader>
+                            <CardTitle className="text-2xl flex items-center">
+                                <Sparkles className="mr-2 h-6 w-6" />
+                                Recommended Units
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="space-y-3">
+                                {classroomDetails?.learning_modules.map((course) => (
+                                    <motion.li
+                                        key={course._id}
+                                        className="p-3 bg-white bg-opacity-20 rounded-xl flex items-center justify-between"
+                                        whileHover={{
+                                            scale: 1.05,
+                                            backgroundColor:
+                                                "rgba(255,255,255,0.3)",
+                                        }}
+                                    >
+                                        <span className="text-lg">
+                                            {course.name}
+                                        </span>
+                                        <div className="flex flex-row">
+                                        20 💎
+                                        
+                                        </div>
+                                    </motion.li>
+                                ))}
+                            </ul>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+            </div>
         </div>
-      </div>
-
-      {/* Logout Confirmation Modal */}
-      <LogoutModal
-        isVisible={isLogoutModalVisible}
-        onClose={handleLogoutCancel}
-        onConfirm={handleLogoutConfirm}
-      />
-    </div>
-  );
-};
-
-export default DashboardPage;
+    );
+}

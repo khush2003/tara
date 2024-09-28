@@ -5,20 +5,35 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Check, Stars } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
+import useAuthStore from '@/store/authStore'
 
 export default function LearningCodePage() {
   const [otp, setOtp] = useState('')
   const [isComplete, setIsComplete] = useState(false)
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
 
   const handleComplete = (value: string) => {
     setOtp(value)
     setIsComplete(value.length === 6)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Submitting OTP:', otp)
+    const response = await fetch("http://localhost:8080/classroom/addStudentToClassroom", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ classroom_code: otp, student_id: user?.user_id }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert(errorData.message || "Failed to join classroom, check the code and try again");
+      return;
+    }
+
     navigate('/dashboard');
 
     // Here you would typically send the OTP to your backend for verification

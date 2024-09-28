@@ -1,6 +1,7 @@
 import express from 'express';
 import { Exercise, LearningModule, Lesson } from '../models/learning_module.model';
 import  Classroom from '../models/classroom.model';
+import User from '../models/user.model';
 
 const router = express.Router();
 
@@ -53,7 +54,22 @@ router.get('/classrooms', async (req, res) => {
 // Get a classroom by classroom code
 router.get('/classrooms/:classroomCode', async (req, res) => {
     try {
-        const classroom = await Classroom.findOne({ classroom_code: req.params.classroomCode });
+        const classroom = await Classroom.findOne({ classroom_code: req.params.classroomCode }).lean();
+
+        // If the classroom exists, manually populate the learning_modules by moduleCode
+        if (classroom) {
+            classroom.learning_modules = await LearningModule.find({
+                moduleCode: { $in: classroom.learning_modules } // Match moduleCode
+            })
+    
+            // Also, populate today's lesson if it exists
+            if (classroom.today_lesson) {
+                classroom.today_lesson = await LearningModule.findOne({
+                moduleCode: classroom.today_lesson
+            })
+            }
+        }
+      
 
         if (!classroom) {
             return res.status(404).json({ error: 'Classroom not found' });
@@ -61,7 +77,8 @@ router.get('/classrooms/:classroomCode', async (req, res) => {
 
         return res.status(200).json(classroom);
     } catch (error) {
-        return res.status(500).json({ error: 'Error fetching classroom' });
+
+        return res.status(500).json({ error: 'Error fetching classroom:' + error });
     }
 });
 
@@ -69,15 +86,21 @@ router.get('/classrooms/:classroomCode', async (req, res) => {
 router.put('/addStudentToClassroom', async (req, res) => {
     try {
         const { classroom_code, student_id } = req.body;
+        const classroom = await Classroom.findOne({ classroom_code: classroom_code });
 
-        const classroom = await Classroom.findOne({ classroom_code });
+        const user = await User.findById(student_id);
+        if (!user) {
+            return res.status(404).json({ error: 'Student not found' });
+        }
 
         if (!classroom) {
             return res.status(404).json({ error: 'Classroom not found' });
         }
 
         classroom.students_enrolled.push(student_id);
+        user.student_details? user.student_details.classroom_code = classroom_code : user.student_details = {classroom_code, game_points: 0};
         await classroom.save();
+        await user.save();
         return res.status(200).json(classroom);
     } catch (error) {
         return res.status(500).json({ error: 'Error adding student to classroom' });
@@ -106,7 +129,7 @@ router.put('/removeStudentFromClassroom', async (req, res) => {
 // Add learning module to classroom
 router.put('/addLearningModuleToClassroom', async (req, res) => {
     try {
-        const { classroom_code, moduleCode } = req.body;
+        const { classroom_code, module_code } = req.body;
 
         const classroom = await Classroom.findOne({ classroom_code });
 
@@ -114,7 +137,7 @@ router.put('/addLearningModuleToClassroom', async (req, res) => {
             return res.status(404).json({ error: 'Classroom not found' });
         }
 
-        classroom.learning_modules.push(moduleCode);
+        classroom.learning_modules.push(module_code);
         await classroom.save();
         return res.status(200).json(classroom);
     } catch (error) {
@@ -125,7 +148,7 @@ router.put('/addLearningModuleToClassroom', async (req, res) => {
 // Remove learning module from classroom
 router.put('/removeLearningModuleFromClassroom', async (req, res) => {
     try {
-        const { classroom_code, moduleCode } = req.body;
+        const { classroom_code, module_code } = req.body;
 
         const classroom = await Classroom.findOne({ classroom_code });
 
@@ -133,7 +156,7 @@ router.put('/removeLearningModuleFromClassroom', async (req, res) => {
             return res.status(404).json({ error: 'Classroom not found' });
         }
 
-        classroom.learning_modules = classroom.learning_modules.filter((code) => code !== moduleCode);
+        classroom.learning_modules = classroom.learning_modules.filter((code) => code !== module_code);
         await classroom.save();
         return res.status(200).json(classroom);
     } catch (error) {
@@ -144,7 +167,7 @@ router.put('/removeLearningModuleFromClassroom', async (req, res) => {
 // Set today's lesson for classroom
 router.put('/setTodaysLesson', async (req, res) => {
     try {
-        const { classroom_code, moduleCode } = req.body;
+        const { classroom_code, module_code } = req.body;
 
         const classroom = await Classroom.findOne({ classroom_code });
 
@@ -152,7 +175,7 @@ router.put('/setTodaysLesson', async (req, res) => {
             return res.status(404).json({ error: 'Classroom not found' });
         }
 
-        classroom.today_lesson = moduleCode;
+        classroom.today_lesson = module_code;
         await classroom.save();
         return res.status(200).json(classroom);
     } catch (error) {
