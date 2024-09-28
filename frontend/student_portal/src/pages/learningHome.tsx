@@ -16,6 +16,9 @@ import Excercise3_01 from "./excercises/excercise3_01";
 import Excercise3_02 from "./excercises/excercise3_02";
 import Excercise3_03 from "./excercises/excercise3_03";
 import Excercise3_004 from "./excercises/excercise3_04";
+import LearningContentPage2 from "./lessons/learning2";
+import ExercisePageUnit2Ver2 from "./excercises/exercise2-2";
+import ExercisePageUnit2 from "./excercises/exercise2-1";
 
 // ID: 0001L0001
 
@@ -197,6 +200,24 @@ const LearningContentPage: React.FC = () => {
                                 <li className="flex flex-col">
                                     <Button
                                         className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0002E0001")}
+                                    >
+                                        <span>Unit 2 Exercise 1: Fill Story</span>
+                                    </Button>
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0002E0002")}
+                                    >
+                                        <span>Unit 2 Exercise 2: True or False</span>
+                                    </Button>
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
                                         onClick={() => navigate("/learning/0003E0001")}
                                     >
                                         <span>Unit 3 Exercise 1: Choose </span>
@@ -295,12 +316,18 @@ const PageContent: React.FC<{ id: string | undefined }> = ({ id }) => {
     switch (id) {
         case "0001L0001":
             return <Learning001 />;
+        case "0002L0001":
+            return <LearningContentPage2 />;
         case "0001E0001":
             return <ExercisePage />;
         case "0001E0002":
             return <ExercisePage2 />;
         case "0001E0003":
             return <ExercisePage3 />;
+        case "0002E0001":
+            return <ExercisePageUnit2 />;
+        case "0002E0002":
+            return <ExercisePageUnit2Ver2 />;
         case "0003L0001":
             return <Learning0003 />;
         case "0003E0001":

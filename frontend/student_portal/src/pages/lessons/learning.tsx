@@ -56,7 +56,7 @@ const Learning001: React.FC = () => {
           
           <div className="flex justify-center space-x-4 p-10">
             <Button className="p-4 bg-green-500 text-white rounded-lg">
-              Complete Exercise
+              Complete Lesson 
             </Button>
             {/* & Earn Points */}
             <Button
@@ -68,8 +68,6 @@ const Learning001: React.FC = () => {
           </div>
         </Card>
       </div>
-
-      
     </div>
   );
 };

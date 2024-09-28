@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 // import StudentGuide from "./guidance";
-import Logo from "../../assets/Chat.png"; // Import your logo image
 
 const Learning0003: React.FC = () => {
   const navigate = useNavigate();
