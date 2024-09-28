@@ -9,6 +9,7 @@ import {
     BookOpen,
     Gamepad,
     Layers,
+    LogIn,
     LogOut,
     Rocket,
     Settings,
@@ -18,6 +19,21 @@ import {
 import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "./logoutmodal";
+
+
+const LEARNING_MODULES = [
+  {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
+  name: "Foods",
+  moduleCode: "0001"},
+  {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
+    name: "Places",
+    moduleCode: "0002"},
+    {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
+      name: "Animals",
+      moduleCode: "0003"},
+
+]
+
 
 interface User {
     name: string;
@@ -157,7 +173,7 @@ export default function DashboardPage() {
                     </motion.div>
                     <div>
                         <h1 className="text-3xl font-bold text-purple-800">
-                            Welcome, {userInfo?.name}!
+                            Welcome, {userInfo?.name || "Guest"}!
                         </h1>
                         <p className="text-lg text-purple-600">
                             Ready to conquer new galaxies of knowledge?
@@ -173,6 +189,15 @@ export default function DashboardPage() {
                     >
                         <Settings className="h-6 w-6 text-purple-600" />
                     </Button>
+                    {isGuest ? <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={() => navigate("/login")}
+                    >
+                        <LogIn className="h-6 w-6 text-purple-600"  />
+                    </Button>
+                      :
                     <Button
                         variant="outline"
                         size="icon"
@@ -180,7 +205,7 @@ export default function DashboardPage() {
                         onClick={() => setLogoutModalVisible(true)}
                     >
                         <LogOut className="h-6 w-6 text-purple-600"  />
-                    </Button>
+                    </Button>}
                 </div>
             </header>
 
@@ -191,18 +216,19 @@ export default function DashboardPage() {
 
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             <motion.div 
+            
           className="col-span-full lg:col-span-2"
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: isGuest ? 1 : 1.02 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white overflow-hidden">
+          <Card className={`bg-gradient-to-br from-purple-500 to-indigo-600 text-white overflow-hidden ${isGuest ? 'text-gray-200' : 'text-white'}`}>
             <CardHeader>
               <CardTitle className="text-2xl sm:text-3xl flex items-center justify-between">
                 <span className="flex items-center">
                   <Gamepad className="mr-3 h-8 w-8" />
                   Game Zone
                 </span>
-                <Button onClick={() => navigate("/gameintro")} variant="secondary" className="bg-white text-purple-600 hover:bg-purple-100 text-lg px-6 py-2 rounded-full">
+                <Button disabled={isGuest} onClick={() => navigate("/gameintro")} variant="secondary" className="bg-white text-purple-600 hover:bg-purple-100 text-lg px-6 py-2 rounded-full">
                   Play Now!
                 </Button>
               </CardTitle>
@@ -227,10 +253,10 @@ export default function DashboardPage() {
 
                 <motion.div
                     className="col-span-full md:col-span-1"
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: isGuest ? 1 :1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                 >
-                    <Card className="bg-gradient-to-br from-green-400 to-blue-500 text-white h-full">
+                    <Card className={`bg-gradient-to-br from-green-400 to-blue-500 text-white h-full ${isGuest ? 'text-gray-200' : 'text-white'}`}>
                         <CardHeader>
                             <CardTitle className="text-2xl flex items-center">
                                 <Bell className="mr-2 h-6 w-6" />
@@ -248,24 +274,24 @@ export default function DashboardPage() {
 
                 <motion.div 
           className="col-span-full"
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: isGuest ? 1 : 1.02 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          <Card className="bg-white border-2 border-purple-200">
+          <Card className={`bg-white border-2 border-purple-200 ${isGuest ? 'text-gray-200' : 'text-white'}`}>
             <CardHeader>
-              <CardTitle className="text-2xl text-gray-800 flex items-center justify-between">
+              <CardTitle className="text-2xl text-gray-800 flex items-center justify-between ">
                 <span className="flex items-center">
                   <BookOpen className="mr-2 h-6 w-6 text-purple-600" />
                   Today's Tara Lesson: {classroomDetails?.today_lesson.name || "No lesson today"}
                 </span>
-                <Button onClick={() => navigate("/learning/" + classroomDetails?.today_lesson.moduleCode + "L0001")} variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full">
+                <Button disabled={isGuest} onClick={() => navigate("/learning/" + classroomDetails?.today_lesson.moduleCode + "L0001")} variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full">
                   Let's Learn
                 </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Progress value={30} className="h-4 bg-purple-100" />
-              <p className="text-lg text-gray-600 mt-2">30% of your journey completed</p>
+              <p className="text-lg text-gray-600 mt-2"> {isGuest ? "0%" : "30%"} of your journey completed</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -284,7 +310,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
-                {classroomDetails?.learning_modules.map((unit, index) => (
+                {classroomDetails? classroomDetails.learning_modules.map((unit, index) => (
                   <motion.li 
                     key={unit._id} 
                     onClick={() => navigate("/learning/" + unit.moduleCode + "L0001")}
@@ -296,6 +322,19 @@ export default function DashboardPage() {
                       {unit.name}
                     </span>
                     <Progress value={[30, 100, 60, 10][index]} className="w-1/3 h-3" />
+                  </motion.li>
+                )) : LEARNING_MODULES.map((unit, index) => (
+                  <motion.li 
+                    key={unit._id} 
+                    onClick={() => navigate("/learning/" + unit.moduleCode + "L0001")}
+                    className={`p-4 rounded-xl flex items-center justify-between ${index === 0 ? 'bg-purple-100' : 'bg-gray-100'}`}
+                    whileHover={{ scale: 1.03, backgroundColor: "#e0e7ff" }}
+                  >
+                    <span className="text-lg font-medium flex items-center text-gray-800" >
+                      <Star className="mr-2 h-5 w-5 text-yellow-500" />
+                      {unit.name}
+                    </span>
+                    <Progress value={[0, 0, 0, 0][index]} className="w-1/3 h-3" />
                   </motion.li>
                 ))}
               </ul>

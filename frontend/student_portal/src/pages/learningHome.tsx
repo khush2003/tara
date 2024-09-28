@@ -10,29 +10,30 @@ import ExercisePage from "./excercises/exercise";
 import ExercisePage2 from "./excercises/exercise2";
 import ExercisePage3 from "./excercises/exercise3";
 import StudentGuide from "./guidance";
+import Learning0003 from "./lessons/learning3";
+import Unit3exercise1 from "./excercises/excercise3_02";
+import Excercise3_01 from "./excercises/excercise3_01";
+import Excercise3_02 from "./excercises/excercise3_02";
+import Excercise3_03 from "./excercises/excercise3_03";
+import Excercise3_004 from "./excercises/excercise3_04";
 
 // ID: 0001L0001
 
 const LearningContentPage: React.FC = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
     const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [isSidebarOpen, setSidebarOpen] = useState(false); // State for mobile sidebar toggle
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
 
-    // Get ID from URL using react router
-    const { id } = useParams();
-
-    // Toggle Sidebar Collapse (for desktop)
     const toggleSidebar = () => {
         setSidebarCollapsed(!isSidebarCollapsed);
     };
 
-    // Toggle the visibility of the StudentGuide
     const toggleGuide = () => {
         setShowGuide(!showGuide);
     };
 
-    // Toggle mobile sidebar
     const toggleMobileSidebar = () => {
         setSidebarOpen(!isSidebarOpen);
     };
@@ -86,9 +87,17 @@ const LearningContentPage: React.FC = () => {
                 className={`fixed z-10 ${
                     isSidebarOpen ? "translate-x-0" : "-translate-x-full"
                 } md:translate-x-0 transform md:relative flex-shrink-0 ${
-                    isSidebarCollapsed ? "w-16" : "w-60"
+                    isSidebarCollapsed ? "w-20" : "w-80"
                 } h-full p-4 bg-gradient-to-r from-[#002761] to-[#5E0076] text-white shadow-lg transition-all duration-300 ease-in-out md:flex flex-col md:static`}
             >
+                {/* Collapse Button */}
+                <Button
+                    onClick={toggleSidebar}
+                    className="absolute top-4 right-4 bg-gray-700 text-white rounded-lg p-2"
+                >
+                    {isSidebarCollapsed ? 'Expand' : 'Collapse'}
+                </Button>
+
                 {/* Sidebar Header */}
                 <div className="flex flex-col items-center">
                     {/* Profile Section */}
@@ -133,7 +142,24 @@ const LearningContentPage: React.FC = () => {
                                     Unit 1: Foods
                                 </Button>
                             </ul>
+                            <ul className="flex flex-col mt-2 space-y-1 text-xs">
+                                <Button
+                                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800 hover:to-[#25c3ea] rounded-lg px-2 py-2"
+                                    onClick={() => navigate("/learning/0002L0001")}
+                                >
+                                    Unit 2: Places
+                                </Button>
+                            </ul>
+                            <ul className="flex flex-col mt-2 space-y-1 text-xs">
+                                <Button
+                                    className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-blue-800 hover:to-[#25c3ea] rounded-lg px-2 py-2"
+                                    onClick={() => navigate("/learning/0003L0001")}
+                                >
+                                    Unit 3: Animals
+                                </Button>
+                            </ul>
                         </div>
+                        
 
                         {/* Current Courses */}
                         <div className="mt-6">
@@ -144,7 +170,7 @@ const LearningContentPage: React.FC = () => {
                                         className="w-full py-4 bg-blue-500 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
                                         onClick={() => navigate("/learning/0001E0001")}
                                     >
-                                        <span>Exercise 1: Translation</span>
+                                        <span>Unit 1 Exercise 1: Translation</span>
                                     </Button>
                                 </li>
 
@@ -154,7 +180,7 @@ const LearningContentPage: React.FC = () => {
                                         onClick={() => navigate("/learning/0001E0002")}
                                     >
                                         <span>
-                                            Exercise 2: Fill in the blanks
+                                            Unit 1 Exercise 2: Fill in the blanks
                                         </span>
                                     </Button>
                                 </li>
@@ -164,7 +190,43 @@ const LearningContentPage: React.FC = () => {
                                         className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
                                         onClick={() => navigate("/learning/0001E0003")}
                                     >
-                                        <span>Exercise 3: Drag and Drop</span>
+                                        <span>Unit 1 Exercise 3: Drag and Drop</span>
+                                    </Button>
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0003E0001")}
+                                    >
+                                        <span>Unit 3 Exercise 1: Choose </span>
+                                    </Button>
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0003E0002")}
+                                    >
+                                        <span>Unit 3 Exercise 2: Drag and Drop</span>
+                                    </Button> 
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0003E0003")}
+                                    >
+                                        <span>Unit 3 Exercise 3: Answer</span>
+                                    </Button>
+                                </li>
+
+                                <li className="flex flex-col">
+                                    <Button
+                                        className="w-full py-4 bg-blue-300 hover:bg-blue-800 rounded-lg text-left pl-3 mb-2"
+                                        onClick={() => navigate("/learning/0003E0004")}
+                                    >
+                                        <span>Unit 3 Exercise 4: Describe</span>
                                     </Button>
                                 </li>
                             </ul>
@@ -220,9 +282,13 @@ const LearningContentPage: React.FC = () => {
                     </div>
                 </div>
             )}
+        
         </div>
     );
 };
+
+
+            
 
 
 const PageContent: React.FC<{ id: string | undefined }> = ({ id }) => {
@@ -235,6 +301,16 @@ const PageContent: React.FC<{ id: string | undefined }> = ({ id }) => {
             return <ExercisePage2 />;
         case "0001E0003":
             return <ExercisePage3 />;
+        case "0003L0001":
+            return <Learning0003 />;
+        case "0003E0001":
+            return <Excercise3_01 />;
+        case "0003E0002":
+            return <Excercise3_02 />;
+        case "0003E0003":
+            return <Excercise3_03 />;
+        case "0003E0004":
+            return <Excercise3_004 />;
         default:
             return <Learning001 />;
     }
