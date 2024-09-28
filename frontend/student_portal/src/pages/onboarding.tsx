@@ -5,7 +5,6 @@ import owl from "../assets/owl.png";
 import auth from "../assets/auth.png";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
-import { log } from "console";
 
 const OnboardingPage: React.FC = () => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);

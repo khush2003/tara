@@ -51,7 +51,9 @@ router.post('/registerStudent', async (req: Request, res: Response) => {
     res.header('auth-token', token).status(201).json({
       message: 'Register successful',
       token,
-      user_id: newUser._id, 
+      user_id: newUser._id,
+      name: newUser.name,
+      email: newUser.email, 
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -88,6 +90,8 @@ router.post('/login', async (req: Request, res: Response) => {
       message: 'Login successful',
       token,
       user_id: user._id, // Include username in response
+      name: user.name,
+      email: user.email,
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -95,7 +99,7 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-// Get user profile
+// Get user logged in status
 router.get('/me', verify, async (req: AuthenticatedRequest, res: Response) => {
   try {
       const user = await User.findById((req.user as JwtPayload)._id);
@@ -105,12 +109,60 @@ router.get('/me', verify, async (req: AuthenticatedRequest, res: Response) => {
     }
 });
 
+// Get user profile
+router.get('/profile', verify, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = await User.findById((req.user as JwtPayload)._id);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Update user profile
 router.put('/me', verify, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { name, email, password, profile_picture } = req.body;
+    const { name, email, profile_picture } = req.body;
+    // Validate the request
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+
     const user = await User.findByIdAndUpdate((req.user as JwtPayload)._id, req.body, { new: true });
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user password
+router.put('/me/updatePassword', verify, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { oldPassword, password } = req.body;
+    // Validate the request
+    if (!oldPassword || !password) {
+      return res.status(400).json({ message: 'Old password and new password are required' });
+    }
+
+    const user = await User.findById((req.user as JwtPayload)._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+    res.json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
