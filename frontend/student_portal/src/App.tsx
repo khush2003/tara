@@ -8,18 +8,21 @@ import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
-import Learning001 from './pages/lessons/learning';
+import Learning001 from './pages/lessons/learning1_0001';
 import TeacherDashboard from './pages/teacher/teacherdashboard';
 import TeacheraccessPage from './pages/teacher/teacheraccess';
 import StudentGuide from './pages/guidance';
 import SettingsPage from './pages/studentsetting';
 import LandingPage from './pages/games/landingpage';
-import LearningCodePage from './pages/learningCode';
-import ExercisePage from './pages/excercises/exercise';
-import ExercisePage2 from './pages/excercises/exercise2';
-import ExercisePage3 from './pages/excercises/exercise3';
+import LearningCodePage from './pages/classCode';
+import Exercise1_0001 from './pages/exercises/exercise1_0001';
+import Exercise1_0002 from './pages/exercises/exercise1_0002';
+import Exercise1_0003 from './pages/exercises/exercise1_0003';
 import useAuthStore from './store/authStore';
 import LearningContentPage from './pages/learningHome';
+import ChatInterface from './pages/chat';
+import NewLearningHome from './pages/learningModule';
+import EnhancedLearningHomePage from './pages/learningHome';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -40,17 +43,20 @@ const App: React.FC = () => {
         <Route path="*" element={<div>Not Found</div>} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} /> 
-        <Route path="/learning/:id" element={<LearningContentPage />} />
-        <Route path="/exercise" element={<ExercisePage />} />
-        <Route path="/exercise2" element={<ExercisePage2 />} />
-        <Route path="/exercise3" element={<ExercisePage3 />} />
+        
+        <Route path="/exercise" element={<Exercise1_0001 />} />
+        <Route path="/exercise2" element={<Exercise1_0002 />} />
+        <Route path="/exercise3" element={<Exercise1_0003 />} />
         <Route path="/teacheraccess" element={<TeacheraccessPage />} />
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
         <Route path="/StudentGuidance" element={<StudentGuide />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/gameintro" element={<LandingPage />} />
         <Route path="/learningCode" element={<LearningCodePage />} />
-        <Route path="/exercise" element={<ExercisePage />} />
+        <Route path="/exercise" element={<Exercise1_0001 />} />
+        <Route path="/chat" element={<ChatInterface />} />
+        <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
+        <Route path="/learningModule/:id" element={<NewLearningHome />} />
       </Routes>
     </Router>
   );

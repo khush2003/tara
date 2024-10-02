@@ -5,6 +5,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle } from 'lucide-react'
+import LessonContainer from '@/components/LessonContainer'
+import { Card } from '@/components/ui/card'
 
 const questions = [
   {
@@ -64,7 +66,7 @@ const questions = [
   }
 ]
 
-export default function Excercise3_01() {
+export default function Exercise3_0001() {
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>(new Array(questions.length).fill(''))
   const [submitted, setSubmitted] = useState(false)
 
@@ -85,11 +87,10 @@ export default function Excercise3_01() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-blue-100 rounded-lg shadow-md">
-      <h1 className="text-4xl font-bold mb-6 text-center text-blue-800">Bear Quiz for Kids!</h1>
+    <LessonContainer title='Bear Quiz for Kids!' className='bg-gradient-to-r from-blue-300 to-sky-300' overrideClass="bg-white" headerBgColor='bg-blue-200' headerTextColor='text-blue-900'>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {questions.map((question) => (
-          <div key={question.id} className="bg-white p-4 rounded-lg shadow">
+          <Card key={question.id} className="bg-blue-100 p-4 rounded-xl shadow-lg">
             <h2 className="text-xl font-semibold mb-4 text-blue-700">{question.question}</h2>
             <RadioGroup
               value={selectedAnswers[question.id - 1]}
@@ -115,7 +116,7 @@ export default function Excercise3_01() {
                 </div>
               ))}
             </RadioGroup>
-          </div>
+          </Card>
         ))}
       </div>
       <div className="mt-8 text-center">
@@ -137,9 +138,7 @@ export default function Excercise3_01() {
           </p>
         </div>
       )}
-      <div className="mt-6 flex justify-center">
-        <img src="/placeholder.svg?height=200&width=200" alt="Cute cartoon bear" className="rounded-full shadow-lg" />
-      </div>
-    </div>
+      
+    </LessonContainer>
   )
 }

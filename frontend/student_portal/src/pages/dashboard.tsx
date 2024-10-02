@@ -25,10 +25,10 @@ const LEARNING_MODULES = [
   {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
   name: "Foods",
   moduleCode: "0001"},
-  {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
+  {_id: "60f3b1b3b3b3b3b3b3b3b3b2",
     name: "Places",
     moduleCode: "0002"},
-    {_id: "60f3b1b3b3b3b3b3b3b3b3b3",
+    {_id: "60f3b1b3b3b3b3b3b3b3b313",
       name: "Animals",
       moduleCode: "0003"},
 

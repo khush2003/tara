@@ -124,9 +124,10 @@ const useAuthStore = create<AuthState>(
 
                     if (response.ok) {
                         const user = await response.json();
+                        console.log(user._id, user.name, user.email);
                         set({
                             accessToken: token,
-                            user: { user_id: user.user_id, name: user.name, email: user.email },
+                            user: { user_id: user._id, name: user.name, email: user.email },
                             isLoggedIn: true,
                         });
                     } else {

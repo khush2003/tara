@@ -8,6 +8,7 @@ import snail from '@/assets/snail.png'
 import pigeon from '@/assets/pigeon.png'
 import cow from '@/assets/cow.png'
 import monkeys from '@/assets/monkey.png'
+import LessonContainer from '@/components/LessonContainer'
 
 const animals = [
   { name: 'octopus', image: octopus, thai: 'ปลาหมึก' },
@@ -18,7 +19,7 @@ const animals = [
   { name: 'monkeys', image: monkeys, thai: 'ลิง' },
 ]
 
-export default function Excercise3_004() {
+export default function Exercise3_0004() {
   const [descriptions, setDescriptions] = useState(Array(6).fill(''))
   const [feedback, setFeedback] = useState(Array(6).fill(''))
   const [showFeedback, setShowFeedback] = useState(false)
@@ -40,8 +41,7 @@ export default function Excercise3_004() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-r from-blue-100 to-green-100 rounded-lg shadow-lg">
-      <h1 className="text-4xl font-bold text-center mb-8 text-indigo-600">Describe the Animals!</h1>
+    <LessonContainer title="Describe the Animals">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {animals.map((animal, index) => (
           <motion.div 
@@ -88,6 +88,6 @@ export default function Excercise3_004() {
           Check My Answers!
         </Button>
       </motion.div>
-    </div>
+    </LessonContainer>
   )
 }
