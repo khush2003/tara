@@ -34,6 +34,7 @@ const ClassroomSchema = new Schema({
     performance_records: [{ type: Schema.Types.ObjectId, ref: 'PerformanceRecord' }],
     classroom_name: { type: String, required: true },
     classroom_code: { type: String, required: true, unique: true },
+    announcement: { type: String },
     extra_points_award: [{
         student_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
         points: { type: Number, required: true },

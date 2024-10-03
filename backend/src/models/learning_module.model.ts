@@ -19,6 +19,8 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 //     title String
 //     description String
 //     lessonCode String
+//     type String // 'text', 'flashcards', 'image'
+//     content Json // Content of the lesson
 //   }
   
 //   Table exercise {
@@ -27,6 +29,7 @@ import mongoose, { Schema, Document, model } from 'mongoose';
 //     description String
 //     exerciseCode String
 //     maxScore integer // Max score possible for the exercise
+//     type String // 'translate', 'fill_in_the_blanks', 'coding'
 //   }
 
 

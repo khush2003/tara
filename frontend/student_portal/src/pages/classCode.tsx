@@ -1,42 +1,48 @@
-
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Check, Stars } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
-import useAuthStore from '@/store/authStore'
+import { useUserStore } from '@/store/userStore'
 
+/**
+ * LearningCodePage component
+ * 
+ * This component renders a page where users can enter a special code provided by their teacher
+ * to join a classroom. It uses OTP (One-Time Password) input fields for the code entry.
+ * 
+ * @returns {JSX.Element} The rendered LearningCodePage component
+ */
 export default function LearningCodePage() {
-  const [otp, setOtp] = useState('')
+  const [classCode, setClassCode] = useState('')
   const [isComplete, setIsComplete] = useState(false)
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  const addCurrentUserToClassroom = useUserStore((state) => state.addCurrentUserToClassroom);
 
+  /**
+   * Handles the completion of the OTP input.
+   * 
+   * @param {string} value - The complete OTP value entered by the user
+   */
   const handleComplete = (value: string) => {
-    setOtp(value)
+    setClassCode(value)
     setIsComplete(value.length === 6)
   }
 
+  /**
+   * Handles the form submission to join the classroom.
+   * 
+   * @param {React.FormEvent} e - The form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const response = await fetch("http://localhost:8080/classroom/addStudentToClassroom", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ classroom_code: otp, student_id: user?.user_id }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      alert(errorData.message || "Failed to join classroom, check the code and try again");
-      return;
+    try {
+      await addCurrentUserToClassroom(classCode);
+      navigate('/dashboard');
+    } catch (error: any) {
+      alert(error.message || "Failed to join classroom, check the code and try again");
     }
-
-    navigate('/dashboard');
-
-    // Here you would typically send the OTP to your backend for verification
   }
 
   return (

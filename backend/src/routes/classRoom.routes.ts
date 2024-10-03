@@ -240,5 +240,25 @@ router.put('/awardExtraPoints', async (req, res) => {
     }
 });
 
+
+// Update class announcement
+router.put('/updateClassAnnouncement', async (req, res) => {
+    try {
+        const { classroom_code, announcement } = req.body;
+
+        const classroom = await Classroom.findOne({ classroom_code });
+
+        if (!classroom) {
+            return res.status(404).json({ error: 'Classroom not found' });
+        }
+
+        classroom.announcement = announcement;
+        await classroom.save();
+        return res.status(200).json(classroom);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error updating class announcement' });
+    }
+});
+
 export default router;
 

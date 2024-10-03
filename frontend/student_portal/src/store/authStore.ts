@@ -2,12 +2,12 @@
 import { create, StateCreator } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 
-const BACKEND_API_URL = "http://localhost:8080";
+export const BACKEND_API_URL = "http://localhost:8080";
 
 // Define the shape of the state
 interface AuthState {
     accessToken: string | null;
-    user: { user_id: string, name: string, email: string } | null;
+    user: { user_id: string; name: string; email: string } | null;
     isLoggedIn: boolean;
     login: (email: string, password: string) => Promise<string | void>;
     register: (
@@ -18,8 +18,15 @@ interface AuthState {
     ) => Promise<string | void>;
     logout: () => void;
     autoLogin: () => void;
-    updateProfile: (name: string, email: string, profilePicture?: string | undefined) => Promise<string | void>;
-    updatePassword: (oldPassword: string, newPassword: string) => Promise<string | void>;
+    updateProfile: (
+        name: string,
+        email: string,
+        profilePicture?: string | undefined
+    ) => Promise<string | void>;
+    updatePassword: (
+        oldPassword: string,
+        newPassword: string
+    ) => Promise<string | void>;
 }
 
 type AuthPersist = (
@@ -36,7 +43,7 @@ const useAuthStore = create<AuthState>(
             isLoggedIn: false,
 
             // Login action
-            login: async (email, password) =>  {
+            login: async (email, password) => {
                 try {
                     const response = await fetch(
                         BACKEND_API_URL + "/auth/login",
@@ -57,7 +64,11 @@ const useAuthStore = create<AuthState>(
                     const data = await response.json();
                     set({
                         accessToken: data.token,
-                        user: { user_id: data.user_id, name: data.name, email: data.email },
+                        user: {
+                            user_id: data.user_id,
+                            name: data.name,
+                            email: data.email,
+                        },
                         isLoggedIn: true,
                     });
                 } catch (error) {
@@ -92,7 +103,11 @@ const useAuthStore = create<AuthState>(
                     const data = await response.json();
                     set({
                         accessToken: data.token,
-                        user: { user_id: data.user_id, name: data.name, email: data.email },
+                        user: {
+                            user_id: data.user_id,
+                            name: data.name,
+                            email: data.email,
+                        },
                         isLoggedIn: true,
                     });
                 } catch (error) {
@@ -111,23 +126,29 @@ const useAuthStore = create<AuthState>(
 
             // Auto-login if token is found in localStorage
             autoLogin: async () => {
-                const token = get().accessToken
-                console.log("Token: " + token);
+                const token = get().accessToken;
                 if (token) {
                     // Verify token by calling the /me endpoint
-                    const response = await fetch("/auth/me", {
+                    const response = await fetch(BACKEND_API_URL + "/auth/me", {
                         method: "GET",
                         headers: {
                             "auth-token": token,
                         },
                     });
 
+                    if (!response.ok) {
+                        throw new Error("Invalid token");
+                    }
                     if (response.ok) {
                         const user = await response.json();
-                        console.log(user._id, user.name, user.email);
+
                         set({
                             accessToken: token,
-                            user: { user_id: user._id, name: user.name, email: user.email },
+                            user: {
+                                user_id: user._id,
+                                name: user.name,
+                                email: user.email,
+                            },
                             isLoggedIn: true,
                         });
                     } else {
@@ -144,17 +165,14 @@ const useAuthStore = create<AuthState>(
                     if (!token) {
                         return "User not logged in. Please log in again.";
                     }
-                    const response = await fetch(
-                        BACKEND_API_URL + "/auth/me",
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "auth-token": token,
-                            },
-                            body: JSON.stringify({ name, email, profilePicture }),
-                        }
-                    );
+                    const response = await fetch(BACKEND_API_URL + "/auth/me", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "auth-token": token,
+                        },
+                        body: JSON.stringify({ name, email, profilePicture }),
+                    });
 
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -165,7 +183,11 @@ const useAuthStore = create<AuthState>(
                         const user = await response.json();
                         set({
                             accessToken: token,
-                            user: { user_id: user._id, name: user.name, email: user.email },
+                            user: {
+                                user_id: user._id,
+                                name: user.name,
+                                email: user.email,
+                            },
                             isLoggedIn: true,
                         });
                     }
@@ -191,7 +213,10 @@ const useAuthStore = create<AuthState>(
                                 "auth-token": token,
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify({ oldPassword, password: newPassword }),
+                            body: JSON.stringify({
+                                oldPassword,
+                                password: newPassword,
+                            }),
                         }
                     );
 
@@ -204,7 +229,7 @@ const useAuthStore = create<AuthState>(
                 } catch (error) {
                     return (error as Error).message || "An error occurred";
                 }
-            },    
+            },
         }),
         {
             name: "auth-storage", // Key for localStorage
