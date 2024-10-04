@@ -23,6 +23,7 @@ import LearningContentPage from './pages/learningHome';
 import ChatInterface from './pages/chat';
 import NewLearningHome from './pages/learningModule';
 import EnhancedLearningHomePage from './pages/learningHome';
+import { AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -32,33 +33,34 @@ const App: React.FC = () => {
 
 
   return (
-    <Router>
-      {/* <NavBar /> Common navigation bar */}
-      <Routes>
-        <Route path="/" element={<OnboardingPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/game" element={<GamePage />} />
-        <Route path="/help" element={<HelpPage />} />
-        <Route path="*" element={<div>Not Found</div>} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} /> 
-        
-        <Route path="/exercise" element={<Exercise1_0001 />} />
-        <Route path="/exercise2" element={<Exercise1_0002 />} />
-        <Route path="/exercise3" element={<Exercise1_0003 />} />
-        <Route path="/teacheraccess" element={<TeacheraccessPage />} />
-        <Route path="/teacherdashboard" element={<TeacherDashboard />} />
-        <Route path="/StudentGuidance" element={<StudentGuide />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/gameintro" element={<LandingPage />} />
-        <Route path="/learningCode" element={<LearningCodePage />} />
-        <Route path="/exercise" element={<Exercise1_0001 />} />
-        <Route path="/chat" element={<ChatInterface />} />
-        <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
-        <Route path="/learningModule/:id" element={<NewLearningHome />} />
-      </Routes>
-    </Router>
+    <AnimatePresence mode="wait">
+      <Router>
+        <Routes>
+          <Route path="/" element={<OnboardingPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/game" element={<GamePage />} />
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="*" element={<div>Not Found</div>} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} /> 
+          
+          <Route path="/exercise" element={<Exercise1_0001 />} />
+          <Route path="/exercise2" element={<Exercise1_0002 />} />
+          <Route path="/exercise3" element={<Exercise1_0003 />} />
+          <Route path="/teacheraccess" element={<TeacheraccessPage />} />
+          <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+          <Route path="/StudentGuidance" element={<StudentGuide />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/gameintro" element={<LandingPage />} />
+          <Route path="/learningCode" element={<LearningCodePage />} />
+          <Route path="/exercise" element={<Exercise1_0001 />} />
+          <Route path="/chat" element={<ChatInterface />} />
+          <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
+          <Route path="/learningModule/:id" element={<NewLearningHome />} />
+        </Routes>
+      </Router>
+    </AnimatePresence>
   );
 };
 export default App;
