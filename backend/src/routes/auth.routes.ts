@@ -110,6 +110,7 @@ router.post("/login", async (req: Request, res: Response) => {
 // Get user logged in status
 router.get("/me", verify, async (req: AuthenticatedRequest, res: Response) => {
     try {
+        console.log((req.user as JwtPayload)._id);
         const user = await User.findById((req.user as JwtPayload)._id);
         res.status(200).json({
             response: "success",

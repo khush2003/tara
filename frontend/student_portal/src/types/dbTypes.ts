@@ -23,8 +23,27 @@ export interface LearningModule {
     moduleCode: string;
     prerequisites: LearningModule[];
     related_modules: LearningModule[];
-    exercises: any[];
-    lessons: any[];
+    exercises: Partial<Exercise>[];
+    lessons: Partial<Lesson>[];
+    __v: number;
+}
+
+export interface Lesson {
+    title: string;
+    description: string;
+    lessonCode: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+}
+
+export interface Exercise {
+    title: string;
+    description: string;
+    exerciseCode: string;
+    maxScore: number;
+    createdAt: string;
+    updatedAt: string;
     __v: number;
 }
 
@@ -32,15 +51,82 @@ export interface Classroom {
     classroom_code: string;
     classroom_name: string;
     createdAt: string;
-    extra_points_award: any[];
+    extra_points_award: ExtraPointsAward[];
     announcement: string;
     is_game_active: boolean;
     learning_modules: LearningModule[];
-    performance_records: any[];
+    performance_records: (string | PerformanceRecord)[]; // Array of performance record IDs or performance records
     students_enrolled: string[];
     teacher_id: string;
     today_lesson: LearningModule;
     updatedAt: string;
+    progress: ProgressRecord[]
     __v: number;
     _id: string;
+}
+// Exmaple ProgressRecord
+// [
+//     {
+//         "totalTasks": 2,
+//         "completedTasks": 2,
+//         "completedLessons": [
+//             "0001L0001",
+//             "0001L0002"
+//         ],
+//         "completedExercises": [],
+//         "moduleCode": "0001",
+//         "progressPercentage": 100
+//     },
+//     {
+//         "totalTasks": 0,
+//         "completedTasks": 0,
+//         "progressPercentage": 0,
+//         "completedLessons": [],
+//         "completedExercises": [],
+//         "moduleCode": "0002"
+//     },
+//     {
+//         "totalTasks": 0,
+//         "completedTasks": 0,
+//         "progressPercentage": 0,
+//         "completedLessons": [],
+//         "completedExercises": [],
+//         "moduleCode": "0003"
+//     }
+// ]
+
+
+export interface ProgressRecord {
+    totalTasks: number;
+    completedTasks: number;
+    completedLessons: string[];
+    completedExercises: string[];
+    moduleCode: string;
+    progressPercentage: number;
+}
+
+export interface ExtraPointsAward {
+    student_id: string;
+    points: number;
+    reason: string;
+    date_awarded: string;
+}
+
+
+export interface PerformanceRecord {
+    user_id: string;
+    moduleCode: string;
+    lessonDetails?: {
+        lessonCode: string;
+        is_complete: boolean;
+    };
+    exerciseDetails?: {
+        excerciseCode: string;
+        attempt: number;
+        score: number;
+        answers: string;
+        feedback: string;
+    };
+    created_at: string;
+    updated_at: string;
 }

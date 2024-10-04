@@ -71,6 +71,16 @@ router.get('/learning-modules/:moduleCode', async (req, res) => {
     try {
         const learningModule = await LearningModule.findOne({ moduleCode: req.params.moduleCode });
 
+        // If the learning module exists, manually populate the lessons and exercises by lessonCode and exerciseCode
+        if (learningModule) {
+            learningModule.lessons = await Lesson.find({
+                lessonCode: { $in: learningModule.lessons } // Match lessonCode
+            });
+            learningModule.exercises = await Exercise.find({
+                exerciseCode: { $in: learningModule.exercises } // Match exerciseCode
+            });
+        }
+
         if (!learningModule) {
             return res.status(404).json({ error: 'Learning module not found' });
         }

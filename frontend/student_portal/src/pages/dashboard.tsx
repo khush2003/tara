@@ -213,27 +213,33 @@ export default function DashboardPage() {
                                     disabled={isGuest}
                                     onClick={() =>
                                         navigate(
-                                            "/learning/" +
+                                            "/learningModule/" +
                                                 classroom?.today_lesson
-                                                    .moduleCode +
-                                                "L0001"
+                                                    .moduleCode
+                                            
                                         )
                                     }
                                     variant="outline"
                                     className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full"
                                 >
-                                    Let's Learn
+                                    {classroom?.progress.find(
+                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                )?.progressPercentage === 100 ? "Review" : "Let's Learn!"}
                                 </Button>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Progress
-                                value={30}
+                                value={classroom?.progress.find(
+                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                )?.progressPercentage || 0}
                                 className="h-4 bg-purple-100"
                             />
                             <p className="text-lg text-gray-600 mt-2">
                                 {" "}
-                                {isGuest ? "0%" : "30%"} of your journey
+                                {isGuest ? "0" : classroom?.progress.find(
+                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                )?.progressPercentage || 0}% of your journey
                                 completed
                             </p>
                         </CardContent>
@@ -261,9 +267,9 @@ export default function DashboardPage() {
                                                   key={unit._id}
                                                   onClick={() =>
                                                       navigate(
-                                                          "/learning/" +
-                                                              unit.moduleCode +
-                                                              "L0001"
+                                                          "/learningModule/" +
+                                                              unit.moduleCode
+                                                            
                                                       )
                                                   }
                                                   className={`p-4 rounded-xl flex items-center justify-between ${
@@ -283,11 +289,14 @@ export default function DashboardPage() {
                                                   </span>
                                                   <Progress
                                                       value={
-                                                          [30, 100, 60, 10][
-                                                              index
-                                                          ]
+                                                            classroom.progress.find(
+                                                                (p) =>
+                                                                    p.moduleCode ===
+                                                                    unit.moduleCode
+                                                            )?.progressPercentage ||
+                                                            0
                                                       }
-                                                      className="w-1/3 h-3"
+                                                      className="w-1/3 h-3 bg-gray-300"
                                                   />
                                               </motion.li>
                                           )

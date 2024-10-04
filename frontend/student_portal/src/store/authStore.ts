@@ -127,6 +127,7 @@ const useAuthStore = create<AuthState>(
             // Auto-login if token is found in localStorage
             autoLogin: async () => {
                 const token = get().accessToken;
+                // console.log("Token: " + token);
                 if (token) {
                     // Verify token by calling the /me endpoint
                     const response = await fetch(BACKEND_API_URL + "/auth/me", {

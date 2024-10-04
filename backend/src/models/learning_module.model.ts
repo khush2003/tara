@@ -40,8 +40,8 @@ const LearningModuleSchema = new Schema({
     skills: { type: [String], required: true },
     related_modules: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LearningModule' }],
     prerequisites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LearningModule' }],
-    lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
-    exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }],
+    lessons: [{ type: String, ref: 'Lesson' }],
+    exercises: [{ type: String, ref: 'Exercise' }],
     isPremium: { type: Boolean, default: false },
     moduleCode: { type: String, required: true, trim: true, unique: true },
 }, { timestamps: true });

@@ -16,11 +16,15 @@ export const useClassroomStore = create<ClassroomStore>((set) => ({
 
     // Fetch classroom details
     fetchClassroom: async (classroomCode: string) => {
-        const token = useAuthStore.getState().accessToken;
         set({ classroomLoading: true, classroomError: null });
+        const token = useAuthStore.getState().accessToken;
         try {
-            const response = await fetch(BACKEND_API_URL + `/classroom/classrooms/${classroomCode}`, {
-                headers: { "auth-token": `${token}` },
+            const response = await fetch(BACKEND_API_URL + `/classroom/classroomsProgress/${classroomCode}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "auth-token": `${token}`,
+                },
             });
             if (!response.ok) throw new Error("Failed to fetch classroom");
             const data = await response.json();
