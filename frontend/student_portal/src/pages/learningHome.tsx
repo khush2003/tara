@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, Settings, ChevronLeft, ChevronRight, Trophy, GamepadIcon, Book, Dumbbell, Smile, Lock, Layout, ArrowLeft } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { BookOpen, Settings, ChevronLeft, ChevronRight, Trophy, GamepadIcon, Book, Dumbbell, Lock, Layout, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import PageContent from "@/components/PageContent";
 import ChatModule from "@/components/ChatModule";
@@ -14,14 +12,24 @@ import useAuthStore from "@/store/authStore";
 import { useClassroomStore } from "@/store/classroomStore";
 
 export default function EnhancedLearningHomePage() {
-    const [learningModule, fetchLearningModule, moduleLoading, moduleError] = useLearningStore((state) => [state.learningModule, state.fetchLearningModule, state.moduleLoading, state.moduleError]);
+    const [learningModule, fetchLearningModule, moduleLoading, moduleError] = useLearningStore((state) => [
+        state.learningModule,
+        state.fetchLearningModule,
+        state.moduleLoading,
+        state.moduleError,
+    ]);
     const { id } = useParams();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const { user, fetchCurrentUser, userError, userLoading } = useUserStore();
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const [isGuest, setIsGuest] = useState(false);
-    const [classroom, fetchClassroomDetails, classroomLoading, classroomError] = useClassroomStore((state) => [state.classroom, state.fetchClassroom, state.classroomLoading, state.classroomError]);
+    const [classroom, fetchClassroomDetails, classroomLoading, classroomError] = useClassroomStore((state) => [
+        state.classroom,
+        state.fetchClassroom,
+        state.classroomLoading,
+        state.classroomError,
+    ]);
     const [hoverTimer, setHoverTimer] = useState<number | null>(null);
 
     useEffect(() => {
@@ -30,7 +38,7 @@ export default function EnhancedLearningHomePage() {
             return;
         }
         if (!learningModule) {
-            fetchLearningModule(id);
+            fetchLearningModule(id.split(/L|E/)[0]);
         }
         if (isLoggedIn) {
             setIsGuest(false);
@@ -65,7 +73,8 @@ export default function EnhancedLearningHomePage() {
         );
     }
 
-    const allLessonsCompleted = classroom?.progress.find((p) => p.moduleCode === id?.split(/L|E/)[0])?.completedLessons.length === learningModule.lessons.length;
+    const allLessonsCompleted =
+        classroom?.progress.find((p) => p.moduleCode === id?.split(/L|E/)[0])?.completedLessons.length === learningModule?.lessons.length;
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
     const MotionButton = motion.create(Button);
@@ -91,7 +100,12 @@ export default function EnhancedLearningHomePage() {
                         exit={{ x: -300 }}
                         className="fixed top-0 left-0 h-scree p-4 shadow-lg rounded-r-3xl w-[20rem] bg-gradient-to-r from-fuchsia-400 to-purple-400"
                     >
-                        <motion.div className="flex flex-col mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                        <motion.div
+                            className="flex flex-col mb-4"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
                             <div className="flex h-screen flex-col">
                                 <motion.div
                                     initial={{ scale: 0.9, opacity: 0 }}
@@ -109,7 +123,9 @@ export default function EnhancedLearningHomePage() {
                                         </motion.div>
                                         <div>
                                             <h2 className="font-bold text-indigo-800 text-xl">{user?.name || "Guest"}</h2>
-                                            <p className="text-sm text-indigo-600">Unit {id ? parseInt(id?.split(/[LE]/)[0]) : 0} {learningModule.name}</p>
+                                            <p className="text-sm text-indigo-600">
+                                                Unit {id ? parseInt(id?.split(/[LE]/)[0]) : 0} {learningModule.name}
+                                            </p>
                                         </div>
                                     </div>
                                     <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.3 }} onClick={() => navigate("/settings")}>
@@ -132,7 +148,9 @@ export default function EnhancedLearningHomePage() {
                                                 className="w-full bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 hover:from-fuchsia-600 hover:to-fuchsia-700 text-white py-2 rounded-xl font-bold text-md shadow-sm"
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
-                                                disabled={isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false}
+                                                disabled={
+                                                    isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false
+                                                }
                                                 onClick={() => navigate("/gameintro")}
                                             >
                                                 Play Now!
@@ -207,7 +225,11 @@ export default function EnhancedLearningHomePage() {
                                                     >
                                                         <div className="flex w-full flex-row items-center justify-between">
                                                             <span className="flex items-center space-x-3">
-                                                                {!allLessonsCompleted ? <Lock className="w-4 h-4 text-yellow-500" /> : <Trophy className="w-4 h-4 text-yellow-500" />}
+                                                                {!allLessonsCompleted ? (
+                                                                    <Lock className="w-4 h-4 text-yellow-500" />
+                                                                ) : (
+                                                                    <Trophy className="w-4 h-4 text-yellow-500" />
+                                                                )}
                                                                 <span>{exercise.title}</span>
                                                             </span>
                                                             <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
@@ -219,7 +241,11 @@ export default function EnhancedLearningHomePage() {
                                             </div>
                                         </motion.div>
                                         <div className="flex flex-1 items-center space-x-3 mt-4" />
-                                        <motion.div className="bg-white text-violet-600  p-4 rounded-2xl shadow-md" whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+                                        <motion.div
+                                            className="bg-white text-violet-600  p-4 rounded-2xl shadow-md"
+                                            whileHover={{ scale: 1.02 }}
+                                            transition={{ type: "spring", stiffness: 300 }}
+                                        >
                                             <div className="space-y-3">
                                                 <motion.button
                                                     className="w-full bg-gray-100 bg-opacity-50 text-sm font-medium p-3 rounded-xl  text-left flex flex-row items-center px-4 shadow-sm"
@@ -257,10 +283,16 @@ export default function EnhancedLearningHomePage() {
             </AnimatePresence>
 
             <main className={`flex-1 p-6  transition-all duration-300 ${sidebarOpen ? "ml-[20rem]" : "ml-0"} `}>
-                <motion.div className="bg-white rounded-3xl shadow-lg p-0 overflow-hidden mt-12" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                    <div className="">
+                <motion.div
+                    className="bg-white rounded-3xl shadow-lg p-0 overflow-hidden mt-12"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    
                         <PageContent id={id} />
-                    </div>
+                        
+                    
                 </motion.div>
 
                 <ChatModule />
