@@ -58,6 +58,7 @@ const App: React.FC = () => {
           <Route path="/chat" element={<ChatInterface />} />
           <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
           <Route path="/learningModule/:id" element={<NewLearningHome />} />
+          <Route path="/help" element={<HelpPage />} />
         </Routes>
       </Router>
     </AnimatePresence>
