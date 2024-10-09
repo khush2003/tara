@@ -423,6 +423,14 @@ const DashboardHeader = ({
             >
                 <Settings className="h-6 w-6 text-purple-600" />
             </Button>
+            <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full"
+                onClick={() => navigate("/help")}
+            >
+                <BookOpen className="h-6 w-6 text-purple-600" />
+            </Button>
             {isGuest ? (
                 <Button
                     variant="outline"

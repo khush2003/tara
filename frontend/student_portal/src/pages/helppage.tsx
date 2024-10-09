@@ -7,8 +7,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Search, Mail, ChevronLeft, Link } from 'lucide-react';
-
+import { Search, Mail, ChevronLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface HelpTopic {
   title: string;
@@ -38,14 +38,16 @@ const helpTopics: HelpTopic[] = [
   }
 ];
 
-const HelpPage: React.FC = () => {
+export default function Component() {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // Filtering the help topics based on the search input
   const filteredTopics = helpTopics.filter(topic =>
     topic.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     topic.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Handle the search input change event
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
@@ -53,11 +55,13 @@ const HelpPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center mb-4">
-        <Link href="/dashboard">
-          <a className="flex items-center text-blue-600 hover:text-blue-800">
-            <ChevronLeft className="mr-2" size={20} />
-            Back to Dashboard
-          </a>
+        {/* "Return" button styled as a button-like link */}
+        <Link
+          to="/dashboard"
+          className="flex items-center text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <ChevronLeft className="mr-2" size={20} />
+          <span>Return to Dashboard</span>
         </Link>
       </div>
       <h1 className="text-3xl font-bold text-center mb-8">Student Portal Help Center</h1>
@@ -97,6 +101,4 @@ const HelpPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default HelpPage;
+}
