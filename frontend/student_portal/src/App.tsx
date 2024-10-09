@@ -8,7 +8,6 @@ import GamePage from './pages/game';
 import HelpPage from './pages/help';
 import RegisterPage from './pages/register';
 import OnboardingPage from './pages/onboarding';
-import Learning001 from './pages/lessons/learning1_0001';
 import TeacherDashboard from './pages/teacher/teacherdashboard';
 import TeacheraccessPage from './pages/teacher/teacheraccess';
 import StudentGuide from './pages/guidance';
@@ -19,7 +18,6 @@ import Exercise1_0001 from './pages/exercises/exercise1_0001';
 import Exercise1_0002 from './pages/exercises/exercise1_0002';
 import Exercise1_0003 from './pages/exercises/exercise1_0003';
 import useAuthStore from './store/authStore';
-import LearningContentPage from './pages/learningHome';
 import ChatInterface from './pages/chat';
 import NewLearningHome from './pages/learningModule';
 import EnhancedLearningHomePage from './pages/learningHome';
@@ -58,7 +56,6 @@ const App: React.FC = () => {
           <Route path="/chat" element={<ChatInterface />} />
           <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
           <Route path="/learningModule/:id" element={<NewLearningHome />} />
-          <Route path="/help" element={<HelpPage />} />
         </Routes>
       </Router>
     </AnimatePresence>

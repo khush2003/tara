@@ -17,24 +17,56 @@ interface HelpTopic {
 
 const helpTopics: HelpTopic[] = [
   {
-    title: "Accessing Your Courses",
-    content: "To access your courses, log in to the student portal and click on the 'My Courses' tab. You'll see a list of all your enrolled courses. Click on any course to view its content, assignments, and resources."
+    title: "How to Update Your Profile",
+    content: "To update your profile, navigate to the Settings page and click on 'Profile'. Here you can change your avatar, update your personal information, and save the changes by clicking the 'Save Your Profile Changes' button."
   },
   {
-    title: "Submitting Assignments",
-    content: "To submit an assignment, go to the specific course page and find the 'Assignments' section. Click on the assignment you want to submit, upload your file or type your response, and click 'Submit'. Make sure to submit before the deadline!"
+    title: "How to Use the Learning Modules",
+    content: "The learning modules can be accessed from the Dashboard. Click on the module you want to start, and follow the instructions provided. Each module contains lessons and exercises to help you learn effectively. You can track your progress and revisit lessons or exercises as needed."
   },
   {
-    title: "Checking Grades",
-    content: "You can check your grades by clicking on the 'Grades' tab in the main navigation menu. This will show you an overview of your grades for all courses. To see detailed feedback, click on the specific grade or assignment."
+    title: "How to Contact Support",
+    content: "If you need further assistance, you can contact our support team by clicking the 'Contact Support' button on the Help page. Fill out the form with your query, and our team will get back to you as soon as possible. You can also reach us via email or phone for urgent issues."
   },
   {
-    title: "Communicating with Instructors",
-    content: "To communicate with your instructors, use the 'Messages' feature in the portal. You can also post questions in the course discussion forums or use the email provided in the course syllabus."
+    title: "Navigating the Dashboard",
+    content: "The Dashboard provides an overview of your progress and available modules. You can access different sections such as Settings, Help, and Learning Modules from here. Use the navigation buttons to explore each section. The Dashboard also displays announcements and your current learning status."
   },
   {
-    title: "Technical Support",
-    content: "If you're experiencing technical issues, first try clearing your browser cache and cookies. If the problem persists, contact our IT support team at support@studentportal.edu or use the 'Report an Issue' button in the portal."
+    title: "Understanding Your Learning Progress",
+    content: "Your learning progress is displayed on the Dashboard and within each module. Progress bars indicate how much of the module you have completed. Keep track of your progress to stay motivated and on track with your learning goals. Detailed progress reports are available in the Learning Modules section."
+  },
+  {
+    title: "Using the Game Zone",
+    content: "The Game Zone is accessible from the Dashboard. Click on 'Play Now!' to start playing educational games that help reinforce your learning. Your coins and playtime are displayed in the Game Zone section. Make sure to complete your lessons to earn more playtime."
+  },
+  {
+    title: "Viewing Announcements",
+    content: "Announcements from your classroom or the platform are displayed on the Dashboard under 'Tara News'. Check this section regularly to stay updated with the latest news and important information."
+  },
+  {
+    title: "Accessing Your Learning Units",
+    content: "Your Learning Units are listed on the Dashboard. Click on a unit to view its lessons and exercises. You can track your progress and start or revisit any lesson or exercise from this section."
+  },
+  {
+    title: "Completing Exercises",
+    content: "Exercises are part of the learning modules and can be accessed after completing the lessons. Each exercise has a maximum score you can achieve. Your performance is tracked, and you can reattempt exercises to improve your score."
+  },
+  {
+    title: "Using the Sidebar in Learning Home",
+    content: "The sidebar in the Learning Home page provides quick access to various sections such as Game Zone, Lessons, and Exercises. You can toggle the sidebar visibility using the button at the top. The sidebar also displays your profile information and allows you to navigate to the settings page."
+  },
+  {
+    title: "Handling Errors in Learning Home",
+    content: "If you encounter errors while fetching module or user data in the Learning Home page, you will see an error message with a button to navigate back to the Dashboard. Ensure you have a stable internet connection and try reloading the page."
+  },
+  {
+    title: "Completing Lessons in Lesson Container",
+    content: "The Lesson Container component is used to display lessons and exercises. After completing a lesson or exercise, click the 'Complete' button to mark it as complete. If it's an exercise, you may need to submit your answers for scoring. You can navigate to the next module or return to the Dashboard after completion."
+  },
+  {
+    title: "Navigating Between Lessons and Exercises",
+    content: "In the Lesson Container, you can navigate between lessons and exercises using the 'Next' button. If you have completed the current module, the 'Next' button will take you to the next module. If it's the last module, you will be redirected to the Dashboard."
   }
 ];
 
@@ -91,9 +123,10 @@ const HelpPage: React.FC = () => {
       <div className="bg-gray-100 p-4 rounded-lg mt-8">
         <h2 className="text-xl font-semibold mb-2">Need More Help?</h2>
         <p className="mb-4">If you couldn't find the information you need, our support team is here to help!</p>
-        <Button className="w-full sm:w-auto">
+        <p> Email: khush.agar@kmutt.ac.th, LineId: khush2003</p>
+        {/* <Button className="w-full sm:w-auto">
           <Mail className="mr-2 h-4 w-4" /> Contact Support
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

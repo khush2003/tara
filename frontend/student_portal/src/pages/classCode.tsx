@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
-import { Check, Stars } from "lucide-react"
+import { Check, LogOut, Stars } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '@/store/userStore'
+import LogoutModal from '@/components/logoutmodal'
+import useAuthStore from '@/store/authStore'
 
 /**
  * LearningCodePage component
@@ -14,11 +16,14 @@ import { useUserStore } from '@/store/userStore'
  * 
  * @returns {JSX.Element} The rendered LearningCodePage component
  */
-export default function LearningCodePage() {
+export default function LearningCodePage(): JSX.Element {
   const [classCode, setClassCode] = useState('')
   const [isComplete, setIsComplete] = useState(false)
   const navigate = useNavigate();
   const addCurrentUserToClassroom = useUserStore((state) => state.addCurrentUserToClassroom);
+  const [isLogoutModalVisible, setLogoutModalVisible] =
+  useState<boolean>(false);
+  const logout = useAuthStore((state) => state.logout);
 
   /**
    * Handles the completion of the OTP input.
@@ -40,8 +45,8 @@ export default function LearningCodePage() {
     try {
       await addCurrentUserToClassroom(classCode);
       navigate('/dashboard');
-    } catch (error: any) {
-      alert(error.message || "Failed to join classroom, check the code and try again");
+    } catch (error) {
+      alert((error as Error).message || "Failed to join classroom, check the code and try again");
     }
   }
 
@@ -78,6 +83,7 @@ export default function LearningCodePage() {
             </div>
           </CardContent>
           <CardFooter>
+            <div className="flex flex-col w-full justify-center gap-4 text-sm text-gray-500">
             <Button 
               className="w-full text-lg font-semibold rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
               type="submit"
@@ -93,6 +99,22 @@ export default function LearningCodePage() {
                 </>
               )}
             </Button>
+            <Button
+                    variant="outline"
+                    size="icon"
+                    className="w-full rounded-xl text-lg"
+                    onClick={() => {
+                      logout()
+                      navigate('/')
+                    }}
+                >
+                    Log Out
+                </Button>
+                <LogoutModal
+                isVisible={isLogoutModalVisible}
+                onClose={() => setLogoutModalVisible(false)}
+            />
+            </div>
           </CardFooter>
         </form>
       </Card>

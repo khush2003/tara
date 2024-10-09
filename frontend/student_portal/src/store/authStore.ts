@@ -1,6 +1,9 @@
 // src/store/authStore.ts
 import { create, StateCreator } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
+import { useUserStore } from "./userStore";
+import useLearningStore from "./learningStore";
+import { useClassroomStore } from "./classroomStore";
 
 export const BACKEND_API_URL = "http://localhost:8080";
 
@@ -122,6 +125,11 @@ const useAuthStore = create<AuthState>(
                     user: null,
                     isLoggedIn: false,
                 });
+                // Clear out all other stores
+                useUserStore.setState({ user: null, userLoading: false, userError: null, classroomJoined: null });
+                useLearningStore.setState({ learningModule: null, moduleLoading: false, moduleError: null, performanceRecords: null });
+                useClassroomStore.setState({ classroom: null, classroomLoading: false, classroomError: null });
+
             },
 
             // Auto-login if token is found in localStorage
