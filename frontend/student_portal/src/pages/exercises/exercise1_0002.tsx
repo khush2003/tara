@@ -1,6 +1,5 @@
 import React from "react";
 import LessonContainer from "@/components/LessonContainer";
-import { Button } from "@/components/ui/button";
 
 // Begin, cut, warmup, delicious, clean, pointy, soft
 const synonyms = [
@@ -28,11 +27,29 @@ const Exercise1_0001: React.FC = () => {
     });
 
     setResults(newResults);
+
+    let score = 0;
+    let total = 0;
+    Object.keys(newResults).forEach((word) => {
+      total += 1;
+      if (newResults[word]) {
+        score += 1;
+      }
+    });
+    const scorePercent = (score / total) * 100;
+
+    const markdownResults = Object.keys(newResults).map((word) => {
+      const isCorrect = newResults[word];
+      const synonym = inputs[synonyms.findIndex(s => s.word === word)].value;
+      return `- **${word}**: ${synonym} - ${isCorrect ? "Correct" : "Incorrect"}`;
+    }).join("\n");
+
+    return {answers: markdownResults, score: scorePercent};
   };
  
 
   return (
-    <LessonContainer title="Exercise: Synonyms!" overrideClass="max-w-4xl">
+    <LessonContainer title="Exercise: Synonyms!" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleAnswerCheck}>
         
           <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700">
             Find the synonyms in the text
@@ -70,9 +87,6 @@ const Exercise1_0001: React.FC = () => {
             </div>
             {/* Check answers button, use lowercase */}
             <div className="mt-8 text-center">
-            <Button onClick={handleAnswerCheck} className="p-4 bg-green-500 text-white rounded-lg">
-              Check Answers
-            </Button>
             </div>
         
       </LessonContainer>

@@ -3,10 +3,15 @@ import LessonContainer from "@/components/LessonContainer";
 
 // ID: 0001E0001
 const Exercise1_0001: React.FC = () => {
+  const [translation, setTranslation] = React.useState("");
  
 
   return (
-    <LessonContainer title="Exercise: Let's Translate!" overrideClass="max-w-4xl">
+    <LessonContainer title="Exercise: Let's Translate!" overrideClass="max-w-4xl" isTeacherScoredExercise onSubmit={
+      () => {
+        return { answers:  translation};
+      }
+    }>
         
           <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700">
           Translate this text to your native language
@@ -26,6 +31,8 @@ const Exercise1_0001: React.FC = () => {
               
           </div>
           <textarea
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
             className="w-full h-40 p-4 border border-gray-300 rounded-lg mb-6"
             placeholder="Write your translation here..."
           ></textarea>

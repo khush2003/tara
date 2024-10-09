@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import LessonContainer from '@/components/LessonContainer'
@@ -11,6 +10,12 @@ export default function Exercise3_0003() {
   const [submitted, setSubmitted] = useState(false)
 
   const correctAnswers = ['octopus', 'zebra', 'sloth', 'lion']
+  const riddles = [
+    "I live in the sea, but I'm not a fish,\nWith eight long arms that squirm and twist.\nI'm clever and sneaky, I can change my hue,\nWhat kind of ocean creature am I to you?",
+    "I run very fast on the African plain,\nWith black and white stripes, I'm easy to name.\nI graze on the grass, with a herd I stay,\nWhat animal am I, can you say?",
+    "I hang upside down in a tree all day,\nI move very slowly, that's just my way.\nWith three or two toes, I live in the wild,\nWhat animal am I, calm and mild?",
+    "I have a big roar and a golden mane,\nI'm known as the king of the savannah plain.\nI live in a pride, and I hunt for my food,\nWhat animal am I, fierce and shrewd?"
+  ]
 
   const handleInputChange = (index: number, value: string) => {
     const newAnswers = [...answers]
@@ -24,17 +29,21 @@ export default function Exercise3_0003() {
     )
     setFeedback(newFeedback)
     setSubmitted(true)
+
+    const correctCount = newFeedback.filter(f => f.includes('Correct')).length
+    const scorePercent = (correctCount / correctAnswers.length) * 100
+
+    const answerMD = riddles.map((riddle, index) => 
+      `**Question:** ${riddle}\n**Your Answer:** ${answers[index]}\n**Feedback:** ${newFeedback[index]}\n`
+    ).join('\n')
+
+    return { answers: answerMD, score: scorePercent }
   }
 
   return (
-   <LessonContainer title="Animal Riddles" >
+   <LessonContainer title="Animal Riddles" isInstantScoredExercise onSubmit={handleSubmit} >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {[
-          "I live in the sea, but I'm not a fish,\nWith eight long arms that squirm and twist.\nI'm clever and sneaky, I can change my hue,\nWhat kind of ocean creature am I to you?",
-          "I run very fast on the African plain,\nWith black and white stripes, I'm easy to name.\nI graze on the grass, with a herd I stay,\nWhat animal am I, can you say?",
-          "I hang upside down in a tree all day,\nI move very slowly, that's just my way.\nWith three or two toes, I live in the wild,\nWhat animal am I, calm and mild?",
-          "I have a big roar and a golden mane,\nI'm known as the king of the savannah plain.\nI live in a pride, and I hunt for my food,\nWhat animal am I, fierce and shrewd?"
-        ].map((riddle, index) => (
+        {riddles.map((riddle, index) => (
           <Card key={index} className="bg-white p-4 rounded-lg shadow">
             <p className="whitespace-pre-wrap mb-4 text-gray-700">{riddle}</p>
             <Label htmlFor={`answer-${index}`}>Your Answer:</Label>
@@ -53,12 +62,7 @@ export default function Exercise3_0003() {
           </Card>
         ))}
       </div>
-      <Button 
-        onClick={handleSubmit} 
-        className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-      >
-        Check Answers
-      </Button>
+
       </LessonContainer>
   )
 }

@@ -1,108 +1,125 @@
 import React, { useState } from "react";
-import { Label } from "@radix-ui/react-label";
-import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import LessonContainer from "@/components/LessonContainer";
 import camp from "../../assets/camp.png";
 import zoo from "../../assets/zoo.png";
+import { Card } from "@/components/ui/card"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { CheckCircle, XCircle } from "lucide-react"
+
+interface Question {
+  id: number
+  text: string
+  isTrue: boolean
+}
+
+interface Exercise {
+  id: number
+  passage: string
+  questions: Question[]
+  image: string
+}
+
+const exercises: Exercise[] = [
+  {
+    id: 1,
+    passage: "Last summer, Emily and her friends were on a camping trip. The weather was hot, and the lake was perfect for swimming. The tents were set up quickly, and everyone was excited.",
+    questions: [
+      { id: 1, text: "The weather was chilly.", isTrue: false },
+      { id: 2, text: "The lake was great for swimming.", isTrue: true },
+      { id: 3, text: "The tents were set up slowly.", isTrue: false },
+    ],
+    image: camp,
+  },
+  {
+    id: 2,
+    passage: "Last Friday, Alex and his family were at the zoo. The animals were active, and the weather was sunny. The lions were roaring loudly, and the penguins were swimming in the water. Alex's favorite part was watching the elephants play with water.",
+    questions: [
+      { id: 1, text: "The lions were sleeping quietly.", isTrue: false },
+      { id: 2, text: "Alex's favorite part was watching the elephants.", isTrue: true },
+      { id: 3, text: "The penguins were swimming in the water.", isTrue: true },
+    ],
+    image: zoo,
+  },
+]
 
 const Exercise2_0002: React.FC = () => {
+  const [answers, setAnswers] = useState<Record<string, boolean | null>>({})
+  const [showResults, setShowResults] = useState(false)
+
+  const handleAnswerChange = (exerciseId: number, questionId: number, value: boolean) => {
+    setAnswers(prev => ({
+      ...prev,
+      [`${exerciseId}-${questionId}`]: value,
+    }))
+    
+
+  }
+
+  const handleComplete = () => {
+    setShowResults(true)
+    let score = 0
+    let total = 0
+    let answersMarkdown = ""
+
+    exercises.forEach((exercise) => {
+      exercise.questions.forEach((question) => {
+        total += 1
+        const isCorrect = answers[`${exercise.id}-${question.id}`] === question.isTrue
+        if (isCorrect) {
+          score += 1
+        }
+        answersMarkdown += `- ${question.text} - ${isCorrect ? "Correct" : "Incorrect"}\n`
+      })
+    })
+    const scorePercent = (score / total) * 100
+    console.log(answersMarkdown, scorePercent)
+
+    return { answers: answersMarkdown, scorePercent }
+  }
 
   return (
-    <LessonContainer title="Exercise: True or False" overrideClass="max-w-6xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <ExerciseSection
-                story="Last summer, Emily and her friends were on a camping trip. The weather was hot, and the lake was perfect for swimming. The tents were set up quickly, and everyone was excited."
-                questions={[
-                  "The weather was chilly.",
-                  "The lake was great for swimming.",
-                  "The tents were set up slowly.",
-                ]}
-                image={camp}
-                imageAlt="Camping scene with tent and campfire"
-              />
-              <ExerciseSection
-                story="Last Friday, Alex and his family were at the zoo. The animals were active, and the weather was sunny. The lions were roaring loudly, and the penguins were swimming in the water. Alex's favorite part was watching the elephants play with water."
-                questions={[
-                  "The lions were sleeping quietly.",
-                  "Alex's favorite part was watching the elephants.",
-                  "The penguins were swimming in the water.",
-                ]}
-                image={zoo}
-                imageAlt="Zoo animals including a penguin, lion, and elephant"
-              />
-            </div>
+    <LessonContainer title="Exercise: True or False" overrideClass="max-w-6xl" isInstantScoredExercise onSubmit={handleComplete}>
+            <div className="container mx-auto p-4 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {exercises.map((exercise) => (
+          <Card key={exercise.id} className="p-6 space-y-4">
+            <p className="text-lg font-medium mb-4">{exercise.passage}</p>
+            {exercise.questions.map((question) => (
+              <div key={question.id} className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium">{question.id}.</span>
+                  <span>{question.text}</span>
+                  {showResults && (
+                    answers[`${exercise.id}-${question.id}`] === question.isTrue ? (
+                      <CheckCircle className="text-green-500 ml-2" />
+                    ) : (
+                      <XCircle className="text-red-500 ml-2" />
+                    )
+                  )}
+                </div>
+                <RadioGroup
+                  onValueChange={(value) => handleAnswerChange(exercise.id, question.id, value === "true")}
+                  className="flex space-x-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id={`${exercise.id}-${question.id}-true`} />
+                    <Label htmlFor={`${exercise.id}-${question.id}-true`}>True</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id={`${exercise.id}-${question.id}-false`} />
+                    <Label htmlFor={`${exercise.id}-${question.id}-false`}>False</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            ))}
+            <img src={exercise.image} alt="Exercise illustration" className="mt-4 mx-auto" />
+          </Card>
+        ))}
+      </div>
+    </div>
     </LessonContainer>
   );
-
-  interface ExerciseSectionProps {
-    story: string;
-    questions: string[];
-    image: string;
-    imageAlt: string;
-  }
-
-  function ExerciseSection({ story, questions, image, imageAlt }: ExerciseSectionProps) {
-    const [answers, setAnswers] = useState(Array(questions.length).fill(""));
-
-    const handleAnswerChange = (index: number, value: string) => {
-      const newAnswers = [...answers];
-      newAnswers[index] = value;
-      setAnswers(newAnswers);
-    };
-
-    return (
-      <div className="space-y-4">
-        <div className="border border-green-500 p-4 rounded-lg">
-          <p className="text-lg">{story}</p>
-        </div>
-        <div className="space-y-4">
-          {questions.map((question, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <span className="font-semibold">{index + 1}.</span>
-              <p className="flex-grow">{question}</p>
-              <RadioGroup
-                value={answers[index]}
-                onValueChange={(value) => handleAnswerChange(index, value)}
-                className="flex space-x-4"
-              >
-                {/* True Option */}
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value="true"
-                    id={`true-${index}`}
-                    className="w-4 h-4 rounded-full border border-gray-400 checked:bg-blue-600"
-                    onClick={() => handleAnswerChange(index, "true")}
-
-                  />
-                  <Label htmlFor={`true-${index}`} className="cursor-pointer">
-                    True
-                  </Label>
-                </div>
-
-                {/* False Option */}
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem
-                    value="false"
-                    id={`false-${index}`}
-                    className="w-4 h-4 rounded-full border border-gray-400 checked:bg-red-600"
-                    onClick={() => handleAnswerChange(index, "false")}
-                  />
-                  <Label htmlFor={`false-${index}`} className="cursor-pointer">
-                    False
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          ))}
-        </div>
-        <img
-          src={image}
-          alt={imageAlt}
-          className="w-full h-32 object-contain"
-        />
-      </div>
-    );
-  }
-};
+}
 
 export default Exercise2_0002;

@@ -3,16 +3,21 @@ import { motion } from 'framer-motion';
 import { Check, CheckCircleIcon } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
+
 /**
  * Props for the AnimatedCompleteButton component.
  * @property {() => void} onClick - Function to call when the button is clicked.
  * @property {boolean} isAlreadyComplete - Boolean indicating if the task is already complete.
  * @property {string} className - Additional CSS class to apply to the button.
+ * @property {string} displayText - Text to display on the button.
+ * @property {boolean} isExercise - Boolean indicating if the task is an exercise.
  */
 interface AnimatedCompleteButtonProps {
   onClick: () => void;
   isAlreadyComplete: boolean;
   className?: string;
+  displayText?: string;
+  isExercise?: boolean;
 }
 
 /**
@@ -22,13 +27,13 @@ interface AnimatedCompleteButtonProps {
  * @param {AnimatedCompleteButtonProps} props - The props for the component.
  * @returns {JSX.Element} The rendered button component.
  */
-const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick, isAlreadyComplete, className }) => {
-  const [isCompleted, setIsCompleted] = useState(isAlreadyComplete);
+const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick, isAlreadyComplete, className, displayText, isExercise }: AnimatedCompleteButtonProps): JSX.Element => {
+  const shouldShowCompleted = isExercise ? false : isAlreadyComplete;
+  const [isCompleted, setIsCompleted] = useState(shouldShowCompleted);
   const [isIntermediate, setIsIntermediate] = useState(false);
-
   useEffect(() => {
-    setIsCompleted(isAlreadyComplete);
-  }, [isAlreadyComplete]);
+    setIsCompleted(shouldShowCompleted);
+  }, [shouldShowCompleted]);
 
   /**
    * Handles the button click event.
@@ -40,7 +45,12 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
       setIsIntermediate(true);
       setTimeout(() => {
         setIsIntermediate(false);
-        setIsCompleted(true);
+        if (isExercise) {
+          setIsCompleted(false);
+          isAlreadyComplete = true;
+        } else {
+          setIsCompleted(true);
+        }
         onClick();
       }, 1000); // Intermediate step duration
     }
@@ -51,7 +61,7 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
       onClick={handleClick}
       className={cn(
         "relative overflow-hidden font-semibold text-white",
-        "w-40 h-12 rounded-full",
+        "w-52 h-12 rounded-full",
         isCompleted
           ? "bg-gradient-to-r from-blue-500 to-purple-600"
           : isIntermediate
@@ -83,7 +93,17 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
             <CheckCircleIcon className="w-5 h-5 mr-2" />
           )}
         </motion.div>
-        {isCompleted ? 'Completed' : 'Complete'}
+        {(() => {
+          if (isCompleted) {
+            return 'Completed';
+          } else if (isExercise && isAlreadyComplete) {
+            return "Submit Again";
+          } else if (isExercise ) {
+            return displayText;
+          } else {
+            return 'Complete';
+          }
+        })()}
       </span>
     </motion.button>
   );

@@ -113,20 +113,25 @@ export interface ExtraPointsAward {
 }
 
 
+export interface LessonDetails {
+    lessonCode: string;
+    is_complete: boolean;
+} 
+
+export interface ExerciseDetails {
+    exerciseCode: string;
+    attempt: number;
+    score: number;
+    answers: string;
+    feedback: string;
+}
+
 export interface PerformanceRecord {
+    _id: string;
     user_id: string;
     moduleCode: string;
-    lessonDetails?: {
-        lessonCode: string;
-        is_complete: boolean;
-    };
-    exerciseDetails?: {
-        excerciseCode: string;
-        attempt: number;
-        score: number;
-        answers: string;
-        feedback: string;
-    };
+    lessonDetails?: Partial<LessonDetails>;
+    exerciseDetails?: Partial<ExerciseDetails>;
     created_at: string;
     updated_at: string;
 }

@@ -10,11 +10,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import { Button } from "@/components/ui/button"
 import {  CardContent } from "@/components/ui/card"
-import { toast } from "@/hooks/use-toast";
 import LessonContainer from "@/components/LessonContainer";
 
 
-//TODO: Implement the Checking of Answers Properly
 const foodItems = [
   { id: 'cake', src: cake, alt: 'Birthday Cake' },
   { id: 'rice', src: rice, alt: 'Rice Bowl' },
@@ -22,11 +20,12 @@ const foodItems = [
   { id: 'omlette', src: omelette, alt: 'Omlette' },
   { id: 'salad1', src: salad, alt: 'Salad Bowl 1' },
   { id: 'salad2', src: salad, alt: 'Salad Bowl 2' },
+  { id: 'salad3', src: salad, alt: 'Salad Bowl 3' },
   { id: 'chicken', src: chicken, alt: 'Chicken' },
 ]
 
 const sentences = [
-  { id: 'josh', text: 'Josh cooked an omelette and prepared a salad', slots: 2, correctAnswers: ['egg', 'salad1'] },
+  { id: 'josh', text: 'Josh cooked an omelette and prepared a salad', slots: 2, correctAnswers: ['omlette', 'salad1'] },
   { id: 'bingo', text: 'Bingo prepared two salads', slots: 2, correctAnswers: ['salad1', 'salad2'] },
   { id: 'leo', text: 'Leo prepared a meal with rice and chicken', slots: 2, correctAnswers: ['rice', 'chicken'] },
 ]
@@ -80,9 +79,11 @@ const DroppableSlot = ({ onDrop, children }: DroppableSlotProps) => {
 
 export default function FoodSentenceGame() {
   const [availableItems, setAvailableItems] = useState(foodItems)
+  const [isComplete, setIsComplete] = useState(false)
   const [answers, setAnswers] = useState(
     Object.fromEntries(sentences.map(sentence => [sentence.id, Array(sentence.slots).fill(null)]))
   )
+  const [answersLog, setAnswersLog] = useState<{sentence: string, answers: string, correct: boolean}[]>([])
 
   interface HandleDropParams {
     sentenceId: string;
@@ -100,37 +101,39 @@ export default function FoodSentenceGame() {
   }
 
   const checkAnswers = () => {
-    let allCorrect = true
+    setIsComplete(true)
+    let score = 0
+    const localAnswersLog: {sentence: string, answers: string, correct: boolean}[] = []
     sentences.forEach(sentence => {
-      const isCorrect = sentence.correctAnswers.every(
-        (answer, index) => answers[sentence.id][index] === answer
-      )
-      if (!isCorrect) allCorrect = false
+      const userAnswers = answers[sentence.id]
+      console.log(userAnswers)
+      console.log(sentence.correctAnswers)
+      const correct = userAnswers.every((answer, index) => answer && answer.replace(/\d+$/, '') === sentence.correctAnswers[index].replace(/\d+$/, ''))
+      if (correct) score += 1
+      setAnswersLog(prev => [...prev, { sentence: sentence.text, answers: userAnswers.join(', '), correct }])
+      localAnswersLog.push({ sentence: sentence.text, answers: userAnswers.join(', '), correct })
+      console.log({ sentence: sentence.text, answers: userAnswers.join(', '), correct })
+      console.log(answersLog)
     })
 
-    if (allCorrect) {
-      toast({
-        title: "Congratulations!",
-        description: "All answers are correct!",
-        variant: "default",
-      })
-    } else {
-      toast({
-        title: "Oops!",
-        description: "Some answers are incorrect. Try again!",
-        variant: "destructive",
-      })
-    }
+    const answersMarkdown = localAnswersLog.map(log => 
+      `**Sentence:** ${log.sentence}\n**Your Answers:** ${log.answers}\n**Correct:** ${log.correct ? 'Yes' : 'No'}\n`
+    ).join('\n\n')
+    console.log(answersMarkdown, score / sentences.length * 100)
+
+    return {percentScore: score / sentences.length * 100 ,answers: answersMarkdown}
   }
 
   const resetGame = () => {
+    setIsComplete(false)
+    setAnswersLog([])
     setAvailableItems(foodItems)
     setAnswers(Object.fromEntries(sentences.map(sentence => [sentence.id, Array(sentence.slots).fill(null)])))
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <LessonContainer title="Food Sentence Game" overrideClass="max-w-4xl">
+      <LessonContainer title="Food Sentence Game" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={checkAnswers}>
           <CardContent className="p-6">
             <p className="text-lg text-center mb-6">Drag the images to complete the sentences</p>
             <div className="flex justify-center space-x-4 mb-8">
@@ -154,14 +157,17 @@ export default function FoodSentenceGame() {
                       )}
                     </DroppableSlot>
                   ))}
+                  {isComplete && (
+                  <span className={`ml-4 ${answersLog.find(log => log.sentence === sentence.text)?.correct ? 'text-green-500' : 'text-red-500'}`}>
+                    {answersLog.find(log => log.sentence === sentence.text)?.correct ? '✔️' : '❌'}
+                  </span>
+                )}
                 </div>
+                
               </div>
             ))}
 
             <div className="flex justify-center space-x-4 mt-8">
-              <Button onClick={checkAnswers} className="bg-green-500 hover:bg-green-600 text-white">
-                Check Answers
-              </Button>
               <Button onClick={resetGame} variant="outline" className="bg-blue-100 hover:bg-blue-200 text-blue-800">
                 Reset
               </Button>

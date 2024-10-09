@@ -11,7 +11,7 @@ import { ArrowLeft, Book, Layers, Lock, Settings, Trophy } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAuthStore from "@/store/authStore";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import useLearningStore from "@/store/learningStore";
 import { useClassroomStore } from "@/store/classroomStore";
 
@@ -19,12 +19,14 @@ export default function SpaceExplorerModule() {
   const [isGuest, setIsGuest] = useState<boolean>(false);
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const navigate = useNavigate();
-  const [learningModule, fetchLearningModule, moduleLoading, moduleError] =
+  const [learningModule, fetchLearningModule, moduleLoading, moduleError, performanceRecords, fetchPerformanceRecords] =
     useLearningStore((state) => [
       state.learningModule,
       state.fetchLearningModule,
       state.moduleLoading,
       state.moduleError,
+      state.performanceRecords,
+      state.fetchPerformanceRecords,
     ]);
   const classroom = useClassroomStore((state) => state.classroom);
   const allLessonsCompleted = classroom?.progress.find(
@@ -38,7 +40,8 @@ export default function SpaceExplorerModule() {
       setIsGuest(true);
     }
     if (id) {
-      fetchLearningModule(id);
+      fetchLearningModule(id); 
+      fetchPerformanceRecords(id);
     } else {
       navigate("/notFound");
     }
@@ -111,11 +114,6 @@ export default function SpaceExplorerModule() {
           of your journey completed
         </p>
       </motion.div>
-      <motion.div
-        className="col-span-full lg:col-span-2"
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
         <Card className="bg-white border-2 border-purple-200 mt-8">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800 flex items-center">
@@ -164,7 +162,7 @@ export default function SpaceExplorerModule() {
                           <Button variant="secondary">
                             {classroom?.progress.find((progress) =>
                               progress.completedLessons.includes(
-                                lesson.lessonCode
+                                lesson.lessonCode!
                               )
                             ) || isGuest
                               ? "Revisit Lesson"
@@ -179,13 +177,9 @@ export default function SpaceExplorerModule() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
 
-      <motion.div
-        className="col-span-full lg:col-span-2"
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
+
+   
         <Card className="bg-white border-2  mt-8 border-purple-200">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800 flex items-center">
@@ -197,7 +191,7 @@ export default function SpaceExplorerModule() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {learningModule?.exercises.map((exercise) => (
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: !allLessonsCompleted ? 1 : 1.05, }}
                   transition={{ type: "spring", stiffness: 300 }}
                   key={exercise.exerciseCode}
                 >
@@ -214,7 +208,10 @@ export default function SpaceExplorerModule() {
                         progress.completedExercises.includes(
                           exercise.exerciseCode ? exercise.exerciseCode : ""
                         )
-                      ) && <p>Score: Not Implemented 💎</p>}
+                      ) && <p>Score (Coins Earned): {performanceRecords?.find(
+                        (record) => record.exerciseDetails?.exerciseCode === exercise.exerciseCode
+                      )?.exerciseDetails?.score?.toFixed(0) || 0
+                      } 💎</p>}
                     </CardContent>
                     <CardFooter>
                       <Link
@@ -260,7 +257,6 @@ export default function SpaceExplorerModule() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
     </div>
   );
 }

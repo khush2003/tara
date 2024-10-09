@@ -5,8 +5,6 @@ import verify from "./verifyToken";
 import { AuthenticatedRequest } from "./auth.routes";
 import PerformanceRecord from "../models/performance_record.model";
 import Classroom from "../models/classroom.model";
-import { Types } from "mongoose";
-import { compile } from "joi";
 import { Exercise, LearningModule, Lesson } from "../models/learning_module.model";
 
 const router = express.Router();
@@ -35,6 +33,19 @@ router.post(
     }
   }
 );
+
+router.get("/performanceRecordFromExcerciseDetails/:exerciseCode", verify, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const exerciseCode = req.params.exerciseCode;
+    console.log(req.params.exerciseCode);
+    const { _id } = req.user as jwt.JwtPayload;
+    const performanceRecord = await PerformanceRecord.findOne({"exerciseDetails.exerciseCode": exerciseCode, user_id: _id});
+    return res.status(200).json(performanceRecord);
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error fetching performance record" });
+  }
+});
 
 // Get all performance records of a classroom
 router.get(
@@ -201,7 +212,7 @@ router.put(
   verify,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const { excerciseCode, score, answers, feedback } = req.body;
+      const { exerciseCode, score, answers, feedback } = req.body;
       const performanceRecord = await PerformanceRecord.findById(
         req.params.recordId
       );
@@ -216,7 +227,7 @@ router.put(
           : 1
         : 1;
       performanceRecord.exerciseDetails = {
-        excerciseCode,
+        exerciseCode,
         attempt,
         score,
         answers,
@@ -276,7 +287,7 @@ export const calculateStudentProgress = async (
 
     const completedExercises = performanceRecords
         .filter(record => record.exerciseDetails && record.exerciseDetails.score !== undefined)
-        .map(record => record.exerciseDetails?.excerciseCode);
+        .map(record => record.exerciseDetails?.exerciseCode);
 
     const totalTasks = lessons.length + exercises.length;
     const completedTasks = completedLessons.length + completedExercises.length;

@@ -8,6 +8,11 @@ import useLearningStore from "@/store/learningStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useClassroomStore } from "@/store/classroomStore";
 
+interface ExerciseRecord {
+    answers: string;
+    score: number;
+}
+
 interface LessonContainerProps {
     title: string;
     className?: string;
@@ -15,6 +20,9 @@ interface LessonContainerProps {
     headerTextColor?: string;
     children?: React.ReactNode;
     overrideClass?: string;
+    onSubmit?: () => Partial<ExerciseRecord> | void;
+    isInstantScoredExercise?: boolean;
+    isTeacherScoredExercise?: boolean;
 }
 
 const LessonContainer: React.FC<LessonContainerProps> = ({
@@ -23,6 +31,9 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
     headerBgColor = "bg-green-100",
     headerTextColor = "text-green-800",
     overrideClass = "",
+    onSubmit,
+    isInstantScoredExercise,
+    isTeacherScoredExercise,
     children
 }) => {
     const { id } = useParams();
@@ -30,6 +41,7 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
     const [isComplete, setIsComplete] = useState(false);
     const learningModule = useLearningStore(state => state.learningModule);
     const classroom = useClassroomStore(state => state.classroom);
+    const createPerformanceRecord = useLearningStore(state => state.createPerformanceRecord);
 
     const sortedLessons = learningModule?.lessons.sort((a, b) => {
         const aCode = a.lessonCode?.split(/L|E/)[1] || "0";
@@ -61,9 +73,33 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
 
     const handleComplete = () => {
         setIsComplete(true);
-        console.log("Module marked as complete");
-    };
+        if (onSubmit) {
+            const completionData = onSubmit();
+            if (completionData && isInstantScoredExercise) {
+                console.log("Completion Data", completionData);
+                const maxScore = learningModule?.exercises.find(exercise => exercise.exerciseCode === id)?.maxScore;
+                const scorePercent = completionData.score;
+                console.log(maxScore, scorePercent);
+                const score = (maxScore || 0) * ((scorePercent || 0) / 100);
+                console.log("Score", score);
 
+                createPerformanceRecord(learningModule?.moduleCode || "", undefined, {
+                    exerciseCode: id,
+                    score: score,
+                    answers: completionData.answers
+                })
+            } else if (completionData && isTeacherScoredExercise) {
+                createPerformanceRecord(learningModule?.moduleCode || "", undefined, {
+                    exerciseCode: id,
+                    answers: completionData.answers
+                })
+            }
+        }
+        if (!isInstantScoredExercise && !isTeacherScoredExercise) {
+            console.log("IS LEsson");
+            createPerformanceRecord(learningModule?.moduleCode || "", { lessonCode: id || "", is_complete: true }, undefined);
+        }
+    };
     return (
         <div className={cn(`flex min-h-[85vh] items-center justify-center p-4`, className)}>
             <Card className={cn("w-full max-w-4xl bg-white rounded-3xl shadow-lg overflow-hidden", overrideClass)}>
@@ -81,7 +117,7 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
                                 {children}
                             </motion.div>
                             <div className="flex flex-row justify-between">
-                                <AnimatedCompleteButton onClick={handleComplete} isAlreadyComplete={isAlreadyComplete ? isAlreadyComplete : false} className="mt-10" />
+                                <AnimatedCompleteButton onClick={handleComplete} isExercise={isInstantScoredExercise || isTeacherScoredExercise} isAlreadyComplete={isAlreadyComplete ? isAlreadyComplete : false} className="mt-10" displayText={isInstantScoredExercise ? "Earn Coins" : isTeacherScoredExercise ? "Submit To Teacher" : "Complete"} />
                                 {isLastModule ? (
                                     <AnimatedNextButton onClick={() => { navigate('/dashboard') }} isAlreadyNext={false} className="mt-10" text="Dashboard" />
                                 ) : (

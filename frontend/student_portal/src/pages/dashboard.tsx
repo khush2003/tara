@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
-import LogoutModal from "./logoutmodal";
+import LogoutModal from "../components/logoutmodal";
 import ReactMarkdown from "react-markdown";
 import { useClassroomStore } from "@/store/classroomStore";
 import { useUserStore } from "@/store/userStore";

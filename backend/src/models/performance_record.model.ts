@@ -28,7 +28,7 @@ const PerformanceRecordSchema = new Schema({
         is_complete: { type: Boolean, default: false }
     },
     exerciseDetails: {
-        excerciseCode: { type: String, ref: 'Exercise' },
+        exerciseCode: { type: String, ref: 'Exercise' },
         attempt: { type: Number },
         score: { type: Number },
         answers: { type: String },

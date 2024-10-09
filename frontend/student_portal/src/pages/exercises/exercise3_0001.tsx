@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -78,6 +76,26 @@ export default function Exercise3_0001() {
 
   const handleSubmit = () => {
     setSubmitted(true)
+    
+    const score = getScore();
+    const scorePercent = (score / questions.length) * 100;
+
+    const answersJson = questions.map((question, index) => {
+      const isCorrect = question.correctAnswer === selectedAnswers[index];
+      return {
+      question: question.question,
+      studentAnswer: selectedAnswers[index],
+      isCorrect: isCorrect
+      };
+    });
+
+    // Convert the answers to a markdown string
+    const answersMD = answersJson.map((answer) => {
+      return `- **${answer.question}**: ${answer.isCorrect ? "Correct" : "Incorrect"} - Student Answer: ${answer.studentAnswer}`;
+    }).join("\n");
+
+    return { answers: answersMD, score: scorePercent };
+
   }
 
   const getScore = () => {
@@ -87,7 +105,7 @@ export default function Exercise3_0001() {
   }
 
   return (
-    <LessonContainer title='Bear Quiz for Kids!' className='bg-gradient-to-r from-blue-300 to-sky-300' overrideClass="bg-white" headerBgColor='bg-blue-200' headerTextColor='text-blue-900'>
+    <LessonContainer title='Bear Quiz for Kids!' className='bg-gradient-to-r from-blue-300 to-sky-300' overrideClass="bg-white" headerBgColor='bg-blue-200' headerTextColor='text-blue-900' isInstantScoredExercise onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {questions.map((question) => (
           <Card key={question.id} className="bg-blue-100 p-4 rounded-xl shadow-lg">
@@ -106,12 +124,12 @@ export default function Exercise3_0001() {
                   >
                     {option.text}
                   </Label>
-                  {submitted && (
+                  {submitted && option.id === selectedAnswers[question.id - 1] && (
                     option.id === question.correctAnswer ? (
                       <CheckCircle className="text-green-500 ml-2" />
-                    ) : option.id === selectedAnswers[question.id - 1] ? (
+                    ) : (
                       <XCircle className="text-red-500 ml-2" />
-                    ) : null
+                    )
                   )}
                 </div>
               ))}
@@ -128,7 +146,7 @@ export default function Exercise3_0001() {
           Submit Answers
         </Button>
       </div>
-      {submitted && (
+      {/* {submitted && (
         <div className="mt-6 p-4 bg-yellow-100 rounded-md text-center">
           <p className="text-2xl font-bold text-yellow-800">
             Great job! You got {getScore()} out of {questions.length} correct!
@@ -137,7 +155,7 @@ export default function Exercise3_0001() {
             {getScore() === questions.length ? "Perfect score! You're a bear expert!" : "Keep learning about bears!"}
           </p>
         </div>
-      )}
+      )} */}
       
     </LessonContainer>
   )

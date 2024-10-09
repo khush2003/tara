@@ -85,8 +85,17 @@ export default function Exercise3_0002() {
     setCreatedAnimal([])
   }
 
+  const handleSubmit = () => {
+    const answerMD = createdAnimal.map((id) => {
+      const animal = animals.find((a) => a.id === id)
+      return `- ${animal?.alt}`
+    }).join("\n")
+
+    return { answers: answerMD }
+  }
+
   return (
-    <LessonContainer title="Create This Mythological Animal">
+    <LessonContainer title="Create This Mythological Animal" isTeacherScoredExercise onSubmit={handleSubmit}>
     <DndProvider backend={HTML5Backend}>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Drag And Drop To Make This Mythological Animal</h1>
