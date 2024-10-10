@@ -26,13 +26,13 @@ export default function RegisterPage() {
     }, [isLoggedIn, navigate]);
 
     const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (password !== retype) {
             setError("Passwords do not match");
             setIsError(true);
             return;
         }
         setIsLoading(true);
-        e.preventDefault();
         try {
             const error = await register(name, email, password);
             if (error) {
