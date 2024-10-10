@@ -6,6 +6,7 @@ import User from "../models/user.model";
 import { AuthenticatedRequest } from "./auth.routes";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { calculateStudentProgress } from "./performanceRecords.routes";
+import PerformanceRecord from "../models/performance_record.model";
 import verify from "./verifyToken";
 
 const router = express.Router();
@@ -281,9 +282,9 @@ router.get("/classroomsTeacher", verify, async (req: AuthenticatedRequest, res: 
         const teacherId = (req.user as JwtPayload)._id;
 
         const classrooms = await Classroom.find({ teacher_id: teacherId }).lean();
-
+        const newClassrooms = classrooms.map(classroom => ({ ...classroom }));
         let tempClassrooms: any = [];
-        for (const classroom of classrooms) {
+        for (const classroom of newClassrooms) {
             const progress = [];
             for (const module of classroom.learning_modules) {
                 const students = classroom.students_enrolled;
@@ -315,7 +316,14 @@ router.get("/classroomsTeacher", verify, async (req: AuthenticatedRequest, res: 
                     moduleCode: classroom.today_lesson,
                 });
             }
-            tempClassrooms.push({ ...classroom, progress });
+            // Also, populate performance records, for each module in classroom 
+            const performanceRecords = await PerformanceRecord.find({
+              user_id: { $in: classroom.students_enrolled },
+              moduleCode: { $in: classroom.learning_modules.map((module: any) => module.moduleCode) }
+            }).lean();
+
+
+            tempClassrooms.push({ ...classroom, progress, performance_records: performanceRecords });
         }
 
         if (!classrooms) {
@@ -783,9 +791,24 @@ router.put("/awardExtraPoints", async (req, res) => {
             return res.status(404).json({ error: "Classroom not found" });
         }
 
+
         classroom.extra_points_award.push({ student_id, points, reason });
         const newClassroom = classroom.toObject();
         await classroom.save();
+
+        // Update the student's game points
+        const student = await User.findById(student_id);
+        if (student) {
+            if (student.student_details) {
+                student.student_details.game_points += points;
+            } else {
+                student.student_details = { ...(student.student_details || {}), game_points: points };
+            }
+            await student.save();
+        }
+        
+
+
         // Populate other related info
         const progress = [];
         for (const module of newClassroom.learning_modules) {

@@ -193,6 +193,21 @@ router.get(
     }
 );
 
+// Get user profile by id
+router.get(
+    "/profileFromID/:id",
+    verify,
+    async (req: AuthenticatedRequest, res: Response) => {
+        const { id } = req.params;
+        try {
+            const user = await User.findById(id);
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+);
+
 // Update user profile
 router.put("/me", verify, async (req: AuthenticatedRequest, res: Response) => {
     try {

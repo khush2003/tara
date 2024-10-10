@@ -137,15 +137,6 @@ export default function Exercise3_0001() {
           </Card>
         ))}
       </div>
-      <div className="mt-8 text-center">
-        <Button
-          onClick={handleSubmit}
-          disabled={submitted}
-          className="px-6 py-3 text-xl bg-green-500 hover:bg-green-600 text-white rounded-full transition duration-300 ease-in-out transform hover:scale-105"
-        >
-          Submit Answers
-        </Button>
-      </div>
       {/* {submitted && (
         <div className="mt-6 p-4 bg-yellow-100 rounded-md text-center">
           <p className="text-2xl font-bold text-yellow-800">

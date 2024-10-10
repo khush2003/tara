@@ -121,7 +121,7 @@ router.put(
   verify,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const { feedback } = req.body;
+      const { feedback, score } = req.body;
       const performanceRecord = await PerformanceRecord.findById(
         req.params.recordId
       );
@@ -132,6 +132,7 @@ router.put(
 
       if (performanceRecord.exerciseDetails) {
         performanceRecord.exerciseDetails.feedback = feedback;
+        performanceRecord.exerciseDetails.score = score;
       } else {
         return res.status(400).json({
           error:

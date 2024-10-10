@@ -43,7 +43,7 @@ const useLearningStore = create<LearningStore>((set) => ({
                 const data1: PerformanceRecord | null = await response.json();
                 if (data1){
                     if (data1?.exerciseDetails) {
-                        exerciseDetails = {...data1.exerciseDetails, attempt: data1.exerciseDetails.attempt? data1.exerciseDetails.attempt+1 : 1, answers: data1.exerciseDetails.answers? data1.exerciseDetails.answers + "\n Next Attempt: \n" +  exerciseDetails.answers: exerciseDetails.answers, score: exerciseDetails.score};
+                        exerciseDetails = {...data1.exerciseDetails, attempt: data1.exerciseDetails.attempt? data1.exerciseDetails.attempt+1 : 1, answers: data1.exerciseDetails.answers? data1.exerciseDetails.answers + "\n\n ## Next Attempt: \n\n" +  exerciseDetails.answers: exerciseDetails.answers, score: exerciseDetails.score};
                     }
                     if (!response.ok) throw new Error('Failed to get exercise record');
     
@@ -66,7 +66,7 @@ const useLearningStore = create<LearningStore>((set) => ({
                             'Content-Type': 'application/json',
                             'auth-token': `${token}`,
                         },
-                        body: JSON.stringify({ moduleCode, lessonDetails, exerciseDetails }),
+                        body: JSON.stringify({ moduleCode, lessonDetails, exerciseDetails: {...exerciseDetails, attempt: 1} }),
                     });
                     if (!response.ok) throw new Error('Failed to create performance record');
                     const data = await response.json();
