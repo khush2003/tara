@@ -3,10 +3,14 @@ export interface User {
     name: string;
     email: string;
     profilePicture: string;
-    student_details: {
+    student_details?: {
         game_points: number;
         classroom_code: string;
         game_hours_left: number;
+    };
+    teacher_details?: {
+        school: string;
+        classrooms: string[];
     };
     role: string;
 }
@@ -58,9 +62,13 @@ export interface Classroom {
     performance_records: (string | PerformanceRecord)[]; // Array of performance record IDs or performance records
     students_enrolled: string[];
     teacher_id: string;
-    today_lesson: LearningModule;
+    today_lesson?: LearningModule;
     updatedAt: string;
-    progress: ProgressRecord[]
+    progress: ProgressRecord[],
+    game_restriction_period: {
+        start: Date;
+        end: Date;
+    }
     __v: number;
     _id: string;
 }
@@ -74,6 +82,8 @@ export interface ProgressRecord {
     completedExercises: string[];
     moduleCode: string;
     progressPercentage: number;
+    studentId: string;
+    studentName: string;
 }
 
 export interface ExtraPointsAward {

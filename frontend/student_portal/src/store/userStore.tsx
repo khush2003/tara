@@ -73,6 +73,9 @@ export const useUserStore = create<UserStore>((set) => ({
         try {
             const response = await fetch(BACKEND_API_URL + `/classroom/addStudentToClassroom`, {
                 method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ classroom_code: classroomId, student_id: userId } ),
             });
             if (!response.ok) throw new Error("Failed to add user to classroom");

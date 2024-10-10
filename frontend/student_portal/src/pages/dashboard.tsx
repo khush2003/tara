@@ -81,6 +81,7 @@ export default function DashboardPage() {
         );
     }
 
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 p-4 sm:p-6 lg:p-8">
             <DashboardHeader
@@ -126,11 +127,11 @@ export default function DashboardPage() {
                             <div>
                                 <p className="text-2xl font-bold mb-2">
                                     Your Coins:{" "}
-                                    {user?.student_details.game_points} 💎
+                                    {user?.student_details?.game_points} 💎
                                 </p>
                                 <p className="text-lg">
                                     Playtime Left:{" "}
-                                    {user?.student_details.game_hours_left}{" "}
+                                    {user?.student_details?.game_hours_left}{" "}
                                     space minutes
                                 </p>
                                 <div className="w-full py-1 flex justify-between">
@@ -138,7 +139,7 @@ export default function DashboardPage() {
                                         value={
                                             user
                                                 ? (user.student_details
-                                                      .game_hours_left /
+                                                      ?.game_hours_left /
                                                       60) *
                                                   100
                                                 : (60 / 60) * 100
@@ -206,7 +207,7 @@ export default function DashboardPage() {
                                 <span className="flex items-center">
                                     <BookOpen className="mr-2 h-6 w-6 text-purple-600" />
                                     Today's Tara Lesson:{" "}
-                                    {classroom?.today_lesson.name ||
+                                    {classroom?.today_lesson?.name ||
                                         "No lesson today"}
                                 </span>
                                 <Button
@@ -214,7 +215,7 @@ export default function DashboardPage() {
                                     onClick={() =>
                                         navigate(
                                             "/learningModule/" +
-                                                classroom?.today_lesson
+                                                classroom?.today_lesson?
                                                     .moduleCode
                                             
                                         )
@@ -223,7 +224,7 @@ export default function DashboardPage() {
                                     className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full"
                                 >
                                     {classroom?.progress.find(
-                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                    (p) => p.moduleCode === classroom.today_lesson?.moduleCode
                                 )?.progressPercentage === 100 ? "Review" : "Let's Learn!"}
                                 </Button>
                             </CardTitle>
@@ -231,14 +232,14 @@ export default function DashboardPage() {
                         <CardContent>
                             <Progress
                                 value={classroom?.progress.find(
-                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                    (p) => p.moduleCode === classroom.today_lesson?.moduleCode
                                 )?.progressPercentage || 0}
                                 className="h-4 bg-purple-100"
                             />
                             <p className="text-lg text-gray-600 mt-2">
                                 {" "}
                                 {isGuest ? "0" : classroom?.progress.find(
-                                    (p) => p.moduleCode === classroom.today_lesson.moduleCode
+                                    (p) => p.moduleCode === classroom.today_lesson?.moduleCode
                                 )?.progressPercentage || 0}% of your journey
                                 completed
                             </p>
