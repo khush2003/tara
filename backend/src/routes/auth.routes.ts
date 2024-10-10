@@ -65,6 +65,7 @@ router.post("/registerStudent", async (req: Request, res: Response) => {
     }
 });
 
+
 // Login user
 router.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -106,6 +107,59 @@ router.post("/login", async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+
+// Login user
+router.post("/loginTeacher", async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res
+                .status(400)
+                .json({
+                    message: "User does not exist! Please register first!",
+                });
+        }
+
+        if (user.role !== "teacher") {
+            return res
+                .status(400)
+                .json({
+                    message: "User is not a teacher! Please use a teacher account to login!",
+                });
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
+        // Create a JWT token
+        const JWT_SECRET = process.env.JWT_SECRET;
+        if (!JWT_SECRET) {
+            return res.status(500).json({ message: "Server error" });
+        }
+
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+
+        res.header("auth-token", token).json({
+            message: "Login successful",
+            token,
+            user_id: user._id, // Include username in response
+            name: user.name,
+            email: user.email,
+        });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 
 // Get user logged in status
 router.get("/me", verify, async (req: AuthenticatedRequest, res: Response) => {
