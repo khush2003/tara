@@ -114,7 +114,7 @@ export default function DashboardPage() {
                                     Game Zone
                                 </span>
                                 <Button
-                                    disabled={isGuest}
+                                    disabled={isGuest || user?.student_details?.game_hours_left === 0 || classroom?.is_game_active === false}
                                     onClick={() => navigate("/gameintro")}
                                     variant="secondary"
                                     className="bg-white text-purple-600 hover:bg-purple-100 text-lg px-6 py-2 rounded-full"

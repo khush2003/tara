@@ -136,8 +136,9 @@ export default function EnhancedLearningHomePage() {
                                     <div>
                                         <motion.div
                                             className="bg-gradient-to-br from-fuchsia-200 to-fuchsia-300 text-fuchsia-700 p-5 rounded-2xl shadow-md"
-                                            whileHover={{ scale: 1.02 }}
+                                            whileHover={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false? 1 : 1.02 }}
                                             transition={{ type: "spring", stiffness: 300 }}
+                                            
                                         >
                                             <div className="flex items-center space-x-3 mb-2">
                                                 <GamepadIcon className=" w-6 h-6" />
@@ -146,12 +147,15 @@ export default function EnhancedLearningHomePage() {
                                             <p className=" mb-2 text-md">Your Coins: {user?.student_details.game_points || 0} 💎</p>
                                             <motion.button
                                                 className="w-full bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 hover:from-fuchsia-600 hover:to-fuchsia-700 text-white py-2 rounded-xl font-bold text-md shadow-sm"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                disabled={
-                                                    isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false
-                                                }
-                                                onClick={() => navigate("/gameintro")}
+                                                whileHover={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false? 1:  1.05 }}
+                                                whileTap={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false ? 1 : 0.95 }}
+                                                onClick={() => {
+                                                    if (isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false) {
+                                                        alert("Game is not active");
+                                                    } else {
+                                                        navigate("/gameintro")
+                                                    }
+                                                }}
                                             >
                                                 Play Now!
                                             </motion.button>
