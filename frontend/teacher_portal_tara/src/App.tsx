@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import useAuthStore from './stores/authStore';
 import { useEffect } from 'react';
+import ClassCreationPage from './pages/ClassCreationPage';
 
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-
+          <Route path="/createClass" element={<ClassCreationPage />} />
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </Router>

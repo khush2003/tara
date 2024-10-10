@@ -21,7 +21,7 @@ export default function RegisterPage() {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     useEffect(() => {
         if (isLoggedIn) {
-            navigate("/dashboard");
+            navigate("/createClass");
         }
     }, [isLoggedIn, navigate]);
 

@@ -66,6 +66,27 @@ router.get('/learning-modules', async (req, res) => {
     }
 });
 
+// Get all learning module with lessons and exercises
+router.get('/learning-modules-full', async (req, res) => {
+    try {
+        const learningModules = await LearningModule.find();
+
+        // Manually populate the lessons and exercises by lessonCode and exerciseCode
+        for (let i = 0; i < learningModules.length; i++) {
+            learningModules[i].lessons = await Lesson.find({
+                lessonCode: { $in: learningModules[i].lessons } // Match lessonCode
+            });
+            learningModules[i].exercises = await Exercise.find({
+                exerciseCode: { $in: learningModules[i].exercises } // Match exerciseCode
+            });
+        }
+
+        return res.status(200).json(learningModules);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error fetching learning modules' });
+    }
+});
+
 // Get a learning module by module code
 router.get('/learning-modules/:moduleCode', async (req, res) => {
     try {
