@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import ContentContainer from "@/components/ContentContainer";
 import useLearningStore from "@/stores/learningStore";
 import useClassroomStore from "@/stores/classroomStore";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Classroom } from "@/types/dbTypes";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster"
@@ -54,6 +54,7 @@ export default function ClassDetailsPage() {
 
     const { toast } = useToast()
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [todaysLesson, setTodaysLesson] = useState(
         classrooms?.find((classroom) => classroom.classroom_code === id)?.today_lesson?.name || "No Lesson Set"
@@ -315,7 +316,7 @@ export default function ClassDetailsPage() {
                                                                     <p className="text-sm text-gray-500">ID: {studentProgress?.studentId}</p>
                                                                 </div>
                                                             </div>
-                                                            <Button variant="outline">View Progress Details</Button>
+                                                            <Button onClick={() => navigate("/studentDetails/" + studentProgress?.studentId + "/" + classInfo?.classroom_code)} variant="outline">View Progress Details</Button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -451,13 +452,13 @@ export default function ClassDetailsPage() {
                                                                         </div>
                                                                     </Button>
                                                                 </DialogTrigger>
-                                                                <DialogContent>
+                                                                <DialogContent className="max-w-3xl">
                                                                     <DialogHeader>
                                                                         <DialogTitle>{lesson.title}</DialogTitle>
                                                                         <DialogDescription>{lesson.description}</DialogDescription>
                                                                     </DialogHeader>
                                                                     <div className="mt-4">
-                                                                        <p>Lesson content would be displayed here.</p>
+                                                                        <img src={"/public/" + lesson.lessonCode + ".png"} alt={lesson.title} className="w-full h-auto" />
                                                                     </div>
                                                                 </DialogContent>
                                                             </Dialog>
@@ -477,13 +478,13 @@ export default function ClassDetailsPage() {
                                                                         </div>
                                                                     </Button>
                                                                 </DialogTrigger>
-                                                                <DialogContent>
+                                                                <DialogContent className="max-w-3xl">
                                                                     <DialogHeader>
                                                                         <DialogTitle>{exercise.title}</DialogTitle>
                                                                         <DialogDescription>{exercise.description}</DialogDescription>
                                                                     </DialogHeader>
                                                                     <div className="mt-4">
-                                                                        <p>Exercise content would be displayed here.</p>
+                                                                    <img src={"/public/" + exercise.exerciseCode + ".png"} alt={exercise.title} className="w-full h-auto" />
                                                                     </div>
                                                                 </DialogContent>
                                                             </Dialog>

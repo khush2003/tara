@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import ClassCreationPage from './pages/ClassCreationPage';
 import DashboardPage from './pages/DashboardPage';
 import ClassDetailsPage from './pages/ClassDetailPage';
+import StudentProgressDetails from './pages/StudentDetail';
+import UserSettings from './pages/SettingsPage';
 
 
 function App() {
@@ -21,11 +23,14 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/createClass" element={<ClassCreationPage />} />
           <Route path='/dashboard' element={<DashboardPage />} />
           <Route path='/classDetails/:id' element={<ClassDetailsPage />} />
+          <Route path="/studentDetails/:id/:classCode" element={<StudentProgressDetails />} />
           <Route path="*" element={<div>Not Found</div>} />
+          <Route path="/settings" element={<UserSettings />} />
         </Routes>
       </Router>
     </AnimatePresence>

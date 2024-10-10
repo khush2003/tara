@@ -12,6 +12,7 @@ interface ClassroomStore {
     setIsGameActive: (classroomCode: string, isGameActive: boolean, callFunction?: () => void) => void;
     updateLearningModules: (classroomCode: string, learningModules: string[], callFunction?: () => void) => void;
     awardExtraPoints: (classroomCode: string, studentId: string, points: number, reason: string, callFunction?: () => void) => void;
+    addFeedback: (performanceRecordId: string, feedback: string, score:number, callFunction?: () => void) => void;
     fetchAllClassrooms: () => Promise<void>;
 }
 
@@ -252,6 +253,50 @@ const useClassroomStore = create<ClassroomStore>((set) => ({
                 set({ classroomError: 'Error awarding extra points: ' + error.message });
             });
     },
+    addFeedback: (performanceRecordId: string, feedback: string, score: number,  callFunction?: () => void) => {
+        const token = useAuthStore.getState().accessToken;
+
+        fetch(BACKEND_API_URL + `/performance/performanceRecords/` + performanceRecordId +  '/addFeedback', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'auth-token': `${token}`,
+            },
+            body: JSON.stringify({  feedback, score }),
+        })
+            .then(async (response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to add feedback');
+                }
+                const data = await response.json();
+                set((state) => {
+                    if (!state.classrooms) return state;
+                    const updatedClassrooms = state.classrooms.map((classroom) => {
+                        const updatedPerformanceRecords = classroom.performance_records.map((performanceRecord) => {
+                            if (typeof performanceRecord === 'string') {
+                                return performanceRecord;
+                            }
+                            if (performanceRecord._id === performanceRecordId) {
+                                return {
+                                    ...performanceRecord,
+                                    feedback: data.feedback,
+                                };
+                            }
+                            return performanceRecord;
+                        });
+                        return {
+                            ...classroom,
+                            performance_records: updatedPerformanceRecords,
+                        };
+                    });
+                    if (callFunction) callFunction();
+                    return { ...state, classrooms: updatedClassrooms };
+                });
+            })
+            .catch((error) => {
+                set({ classroomError: 'Error adding feedback: ' + error.message });
+            });
+    }
 }));
 
 export default useClassroomStore;

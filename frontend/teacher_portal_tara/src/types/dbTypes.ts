@@ -1,5 +1,6 @@
 
 export interface User {
+    _id: string;
     name: string;
     email: string;
     profilePicture: string;
@@ -59,7 +60,7 @@ export interface Classroom {
     announcement: string;
     is_game_active: boolean;
     learning_modules: LearningModule[];
-    performance_records: (string | PerformanceRecord)[]; // Array of performance record IDs or performance records
+    performance_records: PerformanceRecord[]; // Array of performance record IDs or performance records
     students_enrolled: string[];
     teacher_id: string;
     today_lesson?: LearningModule;
