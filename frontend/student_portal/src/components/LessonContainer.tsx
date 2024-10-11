@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,6 +7,7 @@ import AnimatedNextButton from "./AnimatedNextButton";
 import useLearningStore from "@/store/learningStore";
 import { useNavigate, useParams } from "react-router-dom";
 import { useClassroomStore } from "@/store/classroomStore";
+import { ExerciseDetails } from "@/types/dbTypes";
 
 interface ExerciseRecord {
     answers: string;
@@ -42,6 +43,12 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
     const learningModule = useLearningStore(state => state.learningModule);
     const classroom = useClassroomStore(state => state.classroom);
     const createPerformanceRecord = useLearningStore(state => state.createPerformanceRecord);
+    const [performanceRecords, fetchPerformanceRecords] = useLearningStore(state => [state.performanceRecords, state.fetchPerformanceRecords]);
+    useEffect(() => {
+            if (id && id.includes('E')) {
+                fetchPerformanceRecords();
+            }
+    }, [fetchPerformanceRecords, id]);
 
     const sortedLessons = learningModule?.lessons.sort((a, b) => {
         const aCode = a.lessonCode?.split(/L|E/)[1] || "0";
@@ -116,6 +123,12 @@ const LessonContainer: React.FC<LessonContainerProps> = ({
                                 transition={{ duration: 0.5 }}>
                                 {children}
                             </motion.div>
+                            {performanceRecords?.find(record => record.exerciseDetails?.exerciseCode === id)?.exerciseDetails?.feedback && performanceRecords?.find(record => record.exerciseDetails?.exerciseCode === id)?.exerciseDetails?.feedback != "" && (
+                        <div className="my-4">
+                            <h2 className="text-lg font-semibold text-gray-800 mb-4">Teacher Feedback: </h2>
+                            <p className="text-sm text-gray-600">{performanceRecords?.find(record => record.exerciseDetails?.exerciseCode === id)?.exerciseDetails?.feedback}</p>
+                        </div>
+                    )}
                             <div className="flex flex-row justify-between">
                                 <AnimatedCompleteButton onClick={handleComplete} isExercise={isInstantScoredExercise || isTeacherScoredExercise} isAlreadyComplete={isAlreadyComplete ? isAlreadyComplete : false} className="mt-10" displayText={isInstantScoredExercise ? "Earn Coins" : isTeacherScoredExercise ? "Submit To Teacher" : "Complete"} />
                                 {isLastModule ? (

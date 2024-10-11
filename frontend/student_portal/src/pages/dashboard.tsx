@@ -127,7 +127,7 @@ export default function DashboardPage() {
                             <div>
                                 <p className="text-2xl font-bold mb-2">
                                     Your Coins:{" "}
-                                    {user?.student_details?.game_points} 💎
+                                    {user?.student_details?.game_points.toFixed(0) || 0} 💎
                                 </p>
                                 <p className="text-lg">
                                     Playtime Left:{" "}

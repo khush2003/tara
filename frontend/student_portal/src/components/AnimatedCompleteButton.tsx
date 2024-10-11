@@ -98,7 +98,7 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
             return 'Completed';
           } else if (isExercise && isAlreadyComplete) {
             return "Submit Again";
-          } else if (isExercise ) {
+          } else if (isExercise) {
             return displayText;
           } else {
             return 'Complete';

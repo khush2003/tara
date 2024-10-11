@@ -9,7 +9,6 @@ const ChatModule = () => {
 
 
     const toggleChat = () => setChatOpen(!chatOpen);
-    const MotionButton = motion.create(Button);
     return (
         <>
             <motion.div
@@ -17,15 +16,14 @@ const ChatModule = () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
             >
-                <MotionButton
-                    size="lg"
-                    className="rounded-full w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 text-white"
+                <motion.button
+                    className="rounded-full items-center justify-center w-16 px-4 h-16 bg-gradient-to-r from-pink-500 to-purple-500 text-white"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={toggleChat}
                 >
                     <MessageCircle className="h-8 w-8" />
-                </MotionButton>
+                </motion.button>
             </motion.div>
 
             <AnimatePresence>
@@ -34,19 +32,19 @@ const ChatModule = () => {
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 50 }}
-                        className="fixed bottom-20 right-6 w-96 bg-white rounded-3xl shadow-lg overflow-hidden max-h-[70vh]"
+                        className="fixed bottom-32 right-6 w-96 bg-white rounded-3xl shadow-lg overflow-hidden max-h-[70vh]"
                     >
                         <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 flex justify-between items-center">
                             <h3 className="font-bold">Chat with Tara</h3>
-                            <MotionButton
-                                variant="ghost"
+                            <motion.button
+                                
                                 size="icon"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={toggleChat}
                             >
                                 <X className="h-4 w-4" />
-                            </MotionButton>
+                            </motion.button>
                         </div>
                         <ChatInterface />
                     </motion.div>

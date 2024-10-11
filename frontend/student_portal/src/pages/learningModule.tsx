@@ -29,12 +29,13 @@ export default function SpaceExplorerModule() {
       state.fetchPerformanceRecords,
     ]);
   const classroom = useClassroomStore((state) => state.classroom);
-  const allLessonsCompleted = classroom?.progress.find(
-    (progress) =>
-      progress.completedLessons.length === learningModule?.lessons.length
-  );
-
   const { id } = useParams();
+  
+  const allLessonsCompleted = classroom?.progress
+    .filter((progress) => progress.moduleCode === id)
+    .some((progress) => progress.completedLessons.length === learningModule?.lessons.length);
+
+ 
   useEffect(() => {
     if (!isLoggedIn) {
       setIsGuest(true);

@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import { ExerciseDetails, LearningModule, LessonDetails, PerformanceRecord} from '@/types/dbTypes';
 import useAuthStore, { BACKEND_API_URL } from './authStore';
 import { useClassroomStore } from './classroomStore';
+import { useUserStore } from './userStore';
 
 interface LearningStore {
     learningModule: LearningModule | null;
@@ -10,7 +11,7 @@ interface LearningStore {
     performanceRecords: PerformanceRecord[] | null;
     fetchLearningModule: (moduleCode: string) => Promise<void>;
     createPerformanceRecord: (moduleCode: string, lessonDetails?: LessonDetails, exerciseDetails?: Partial<ExerciseDetails>) => Promise<void>;
-    fetchPerformanceRecords: (moduleCode: string) => Promise<void>;
+    fetchPerformanceRecords: () => Promise<void>;
 }
 
 const useLearningStore = create<LearningStore>((set) => ({
@@ -60,6 +61,7 @@ const useLearningStore = create<LearningStore>((set) => ({
                     }));
                     console.log(response2);
                 } else {
+                    // First attempt
                     const response = await fetch(BACKEND_API_URL + `/performance/createRecord`, {
                         method: 'POST',
                         headers: {
@@ -73,9 +75,19 @@ const useLearningStore = create<LearningStore>((set) => ({
                     set((state) => ({
                         performanceRecords: state.performanceRecords ? [...state.performanceRecords, data] : [data],
                     }));
+                    // Set user score to the new score
+                    const user = useUserStore.getState().user;
+                    if (user) {
+                        const updatedUser = {
+                            ...user,
+                            student_details: {...user.student_details, game_points: user.student_details.game_points ? user.student_details.game_points + (exerciseDetails.score || 0) : (exerciseDetails.score || 0)},
+                        };
+                        useUserStore.setState({ user: updatedUser });
+                    }
                     console.log(data);
                 }
             } else {
+                // Lesson
                 const response = await fetch(BACKEND_API_URL + `/performance/createRecord`, {
                     method: 'POST',
                     headers: {

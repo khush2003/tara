@@ -183,7 +183,7 @@ export default function StudentProgressDetails() {
                                 <p className="text-gray-500">ID: {student?._id}</p>
                                 <div className="flex items-center mt-2">
                                     <Award className="w-6 h-6 text-yellow-500 mr-2" />
-                                    <p className="text-xl font-semibold">Total Points: {student?.student_details?.game_points}</p>
+                                    <p className="text-xl font-semibold">Total Points: {student?.student_details?.game_points.toFixed(0) || 0}</p>
                                 </div>
                             </div>
                         </div>

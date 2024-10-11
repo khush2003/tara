@@ -144,7 +144,7 @@ export default function EnhancedLearningHomePage() {
                                                 <GamepadIcon className=" w-6 h-6" />
                                                 <h3 className="font-bold text-xl">Game Zone</h3>
                                             </div>
-                                            <p className=" mb-2 text-md">Your Coins: {user?.student_details.game_points || 0} 💎</p>
+                                            <p className=" mb-2 text-md">Your Coins: {user?.student_details.game_points.toFixed(0) || 0} 💎</p>
                                             <motion.button
                                                 className="w-full bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 hover:from-fuchsia-600 hover:to-fuchsia-700 text-white py-2 rounded-xl font-bold text-md shadow-sm"
                                                 whileHover={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false? 1:  1.05 }}

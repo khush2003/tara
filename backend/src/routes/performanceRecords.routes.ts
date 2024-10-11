@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from "./auth.routes";
 import PerformanceRecord from "../models/performance_record.model";
 import Classroom from "../models/classroom.model";
 import { Exercise, LearningModule, Lesson } from "../models/learning_module.model";
+import User from "../models/user.model";
 
 const router = express.Router();
 
@@ -24,6 +25,19 @@ router.post(
       });
 
       await performanceRecord.save();
+
+      // If it has exercise details, update the student points in user collection
+      if (exerciseDetails) {
+        const user = await User.findById((req.user as jwt.JwtPayload)._id);
+
+        if (user && user.student_details && exerciseDetails.attempt === 1) {
+          user.student_details.game_points = (user.student_details.game_points || 0) + (exerciseDetails.score || 0);
+          await user.save();
+        }
+      }
+
+
+
       return res.status(201).json(performanceRecord);
     } catch (error) {
       console.error("Error:", error);

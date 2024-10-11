@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle } from 'lucide-react'
 import LessonContainer from '@/components/LessonContainer'
 import { Card } from '@/components/ui/card'

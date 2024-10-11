@@ -36,7 +36,7 @@ router.post('/createLearningModule', async (req, res) => {
         await learningModule.save();
         return res.status(201).json(learningModule);
     } catch (error) {
-        return res.status(500).json({ error: 'Error creating learning module' });
+        return res.status(500).json({ error: 'Error creating learning module' + (error as Error).message });
     }
 });
 // Request
@@ -155,7 +155,7 @@ router.post('/createExercise', async (req, res) => {
         await exercise.save();
         return res.status(201).json(exercise);
     } catch (error) {
-        return res.status(500).json({ error: 'Error creating exercise' });
+        return res.status(500).json({ error: 'Error creating exercise' + (error as Error).message });
     }
 });
 
