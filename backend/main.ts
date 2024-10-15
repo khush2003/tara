@@ -53,7 +53,8 @@ app.onError((err, c) => {
   return c.text(`An Error has occured!: ${err}`, 500)
 })
 
-const apiRoutes = app.basePath('/api/v1').route('/users', userRoutes)
+const apiRoutes = app.basePath('/api/v1')
+.route('/users', userRoutes)
 
 Deno.serve({
   port: parseInt(port),

@@ -1,10 +1,11 @@
 import { Hono } from "@hono/hono"
+import { User } from "../models/user.model.ts";
 
-
-const expenseRoute = new Hono()
-    .get("/", (c) => {
-        return c.text("Welcome to user routes!")
+const userRoutes = new Hono()
+    .get("/", async (c) => {
+        const users = await User.find();
+        return c.json(users);
     });
 
-export default expenseRoute;
+export default userRoutes;
 
