@@ -1,6 +1,7 @@
 # Models
 This file has all the v1 models in a easy to read format.
 
+> HydratedDocument type from mongoose adds things like _id to the interface
 
 ## Collection: `User`
 

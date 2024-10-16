@@ -1,25 +1,19 @@
 import { Hono } from '@hono/hono'
 import mongoose from 'mongoose';
 
-import { jwt } from '@hono/hono/jwt'
-import type { JwtVariables } from '@hono/hono/jwt'
+import userRoutes from "./routes/user.ts";
+import authRoutes, { jwtMiddleware } from "./routes/auth.ts";
+import { unitRoutes } from "./routes/unit.ts";
+import { classroomRoutes } from "./routes/classroom.ts";
+import { pointslogRoutes } from "./routes/pointslog.ts";
 
-import userRoutes from "./routes/users.ts";
-import authRoutes from "./routes/auth.ts";
-
-type Variables = JwtVariables
 
 const port = Deno.env.get('PORT') || '3000'
-const app = new Hono<{ Variables: Variables }>()
+const app = new Hono()
 
 // For logging and seeing the time taken for each request and response cycle
 // import { logger } from '@hono/hono/logger'
 // app.use('*', logger())
-
-export const jwtMiddleware = jwt({
-  secret: Deno.env.get('JWT_SECRET') || 'secret',
-})
-
 
 // MongoDB connection
 let conn: typeof mongoose;
@@ -49,23 +43,24 @@ app.use("*", async (_c, next) => {
 });
 
 
+app.use("/api/v1/user/*", jwtMiddleware);
+// TODO: Other routes that require authentication
 
 
 app.notFound((c) => {
   return c.text('404 Page or API Not Found', 404)
 })
 
-app.onError((err, c) => {
-  console.error(`${err}`)
-  return c.text(`An Error has occured!: ${err}`, 500)
-})
 
 
 // Routes
 
 const apiRoutes = app.basePath('/api/v1')
-.route('/users', userRoutes)
+.route('/user', userRoutes)
 .route('/auth', authRoutes)
+.route('/unit', unitRoutes)
+.route('/classroom', classroomRoutes)
+.route('pointslog', pointslogRoutes)
 
 Deno.serve({
   port: parseInt(port),

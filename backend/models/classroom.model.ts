@@ -1,7 +1,39 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, type ObjectId } from 'mongoose';
 
 
-const ClassroomSchema = new Schema({
+interface IClassroom {
+    name: string;
+    students_enrolled: [{
+        student: ObjectId;
+        is_new_exercise_submission: boolean;
+    }];
+    teachers_joined: [{
+        teacher: ObjectId;
+        name: string;
+    }];
+    creator: ObjectId;
+    class_join_code: number;
+    is_game_blocked: boolean;
+    game_restriction_period: {
+        start: Date;
+        end: Date;
+    };
+    is_recently_updated_announcement: boolean;
+    announcement: string;
+    today_unit: {
+        title: string;
+        unit: ObjectId;
+    };
+    chosen_units: [{
+        name: string;
+        description: string;
+        difficulity: string;
+        skills: string[];
+        unit: ObjectId;
+    }];
+}
+
+const ClassroomSchema = new Schema<IClassroom>({
     name: { type: String, required: true },
     students_enrolled: [
         {
@@ -39,6 +71,5 @@ const ClassroomSchema = new Schema({
     ]
 });
 
-const Classroom = mongoose.model('Classroom', ClassroomSchema);
-
-export default Classroom;
+export const Classroom = mongoose.model<IClassroom>('Classroom', ClassroomSchema);
+export type { IClassroom };

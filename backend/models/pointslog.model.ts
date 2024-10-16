@@ -1,7 +1,18 @@
+import type { ObjectId } from "mongoose";
 import mongoose, { Schema } from 'mongoose';
 
+// HydratedDocument adds all additional things like _id, __v, etc.
+interface IPointsLog {
+    user: ObjectId;
+    classroom: ObjectId;
+    giver: ObjectId;
+    is_add: boolean;
+    amount: number;
+    details: string;
+    type: string;
+}
 
-const PointsLogSchema: Schema = new Schema({
+const PointsLogSchema: Schema = new Schema<IPointsLog>({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     classroom: { type: mongoose.Schema.Types.ObjectId, ref: 'Classroom', required: true },
     giver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -15,6 +26,5 @@ const PointsLogSchema: Schema = new Schema({
     },
 }, { timestamps: true });
 
-const PointsLog = mongoose.model('PointsLog', PointsLogSchema);
-
-export default PointsLog;
+export const PointsLog = mongoose.model<IPointsLog>('PointsLog', PointsLogSchema);
+export type { IPointsLog };
