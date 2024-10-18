@@ -25,7 +25,7 @@ interface IExercise {
 interface IUnit {
     name: string;
     description: string;
-    difficulity: string;
+    difficulty: string;
     skills: string[];
     related_units: ObjectId[];
     prerequisites: ObjectId[];
@@ -57,9 +57,9 @@ const ExerciseSchema = new Schema<IExercise>({
 
 const UnitSchema = new Schema<IUnit>({
     name: { type: String, required: true },
-    description: { type: String },
-    difficulity: { type: String },
-    skills: { type: [String] },
+    description: { type: String, required: true },
+    difficulty: { type: String, enum: ["easy", "medium", "hard"], required: true },
+    skills: { type: [String], required: true },
     related_units: [{ type: Schema.Types.ObjectId, ref: 'Unit' }],
     prerequisites: [{ type: Schema.Types.ObjectId, ref: 'Unit' }],
     lessons: [LessonSchema],
@@ -67,4 +67,5 @@ const UnitSchema = new Schema<IUnit>({
 });
 
 export const Unit = mongoose.model<IUnit>('Unit', UnitSchema);
+export {UnitSchema, LessonSchema, ExerciseSchema };
 export type { IExercise, ILesson, IUnit };
