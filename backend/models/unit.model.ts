@@ -31,14 +31,15 @@ interface IUnit {
     prerequisites: ObjectId[];
     lessons: ILesson[];
     exercises: IExercise[];
+    is_premium: boolean;
 }
 
 
 
 const LessonSchema = new Schema<ILesson>({
     title: { type: String, required: true },
-    description: { type: String },
-    instruction: { type: String },
+    description: { type: String, required: true },
+    instruction: { type: String, required: true },
     lesson_type: { type: String, enum: ["flashcards", "text", "image"] },
     lesson_content: { type: [Schema.Types.Mixed] },
     varients: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }]
@@ -46,8 +47,8 @@ const LessonSchema = new Schema<ILesson>({
 
 const ExerciseSchema = new Schema<IExercise>({
     title: { type: String, required: true },
-    description: { type: String },
-    instruction: { type: String },
+    description: { type: String , required: true },
+    instruction: { type: String, required: true },
     exercise_type: { type: String, enum: ["blanks", "drag_drop", "mcq", "true_false"] },
     exercise_content: { type: [Schema.Types.Mixed] },
     is_instant_scored: { type: Boolean, default: false },
@@ -63,7 +64,8 @@ const UnitSchema = new Schema<IUnit>({
     related_units: [{ type: Schema.Types.ObjectId, ref: 'Unit' }],
     prerequisites: [{ type: Schema.Types.ObjectId, ref: 'Unit' }],
     lessons: [LessonSchema],
-    exercises: [ExerciseSchema]
+    exercises: [ExerciseSchema],
+    is_premium: { type: Boolean, default: false, required: true }
 });
 
 export const Unit = mongoose.model<IUnit>('Unit', UnitSchema);

@@ -150,6 +150,7 @@ collection Classroom {
 | skills                   | string[]                                  | List of skills covered in the unit.                                         |
 | related_units            | [id, Ref Unit]                            | References to related units.                                                |
 | prerequisites            | [id, Ref Unit]                            | References to prerequisite units.                                           |
+| is_premium			   | boolean								   | Is the Unit Premium?														 |
 | lessons                  | embedded Lesson[]                         | Embedded documents containing lesson details.                               |
 | lessons.title            | string                                    | The title of the lesson.                                                    |
 | lessons.description      | string                                    | The description of the lesson.                                              |
@@ -176,6 +177,7 @@ collection Unit{
 	skills: string[]
 	related_units: [id, Ref Unit]
 	prerequisites: [id, Ref Unit]
+	is_premium: boolean
 	lessons: embedded Lesson{
 		title: string
 		description: string
