@@ -22,7 +22,7 @@ This file has all the v1 models in a easy to read format.
 | recommended              | embedded Recommendations                  | Embedded document containing recommended lessons and exercises.             |
 | recommended.lessons      | {name: string, id: id, Ref Lesson, extra_points }[] | List of recommended lessons with extra points.                              |
 | recommended.exercises    | {name: string, id: id, Ref Exercise, extra_points}[] | List of recommended exercises with extra points.                            |
-| new_exercise_submission  | {exercise: id, Ref Exercise, submission: Ref Exercise_Submission} | Details of the new exercise submission.                                     |
+| new_exercise_submission  | [{exercise: id, Ref Exercise, class: Ref Classroom}] | List of new exercise submissions.                                     |
 | learning_preferences     | string[]                                  | List of learning preferences for the user.                                  |
 | class_progress_info      | embedded Class_Progress_Info              | Embedded document containing class progress information.                    |
 | class_progress_info.lessons_completed | [id, Ref Lesson]             | List of completed lessons.                                                  |
@@ -60,10 +60,10 @@ collection User {
 		lessons: {name: string, id: id, Ref Lesson, extra_points }[]
 		exercises: {name: string, id: id, Ref Exercise, extra_points}[]]
 	}
-	new_exercise_submission: {
+	new_exercise_submission: [{
 		exercise: id, Ref Exercise
 		submission: Ref Exercise_Submission
-	}
+	}]
 	learning_preferences: string[],
 	class_progress_info: embedded Class_Progress_Info{
 		lessons_completed: [id, Ref Lesson]
@@ -133,7 +133,7 @@ collection Classroom {
 	chosen_units: {
 		name: string
 		description: string
-		difficulity: string
+		difficulty: string
 		skills: string[]
 		unit: id, Ref Unit
 	}[]
@@ -167,13 +167,13 @@ collection Classroom {
 | exercises.is_instant_scored | bool                                    | Indicates if the exercise is instantly scored.                              |
 | exercises.correct_answers | JSON Object                              | The correct answers for the exercise.                                       |
 | exercises.variants       | [id, Ref Exercise]                        | References to variant exercises.                                            |
-
+| exercises.max_score		| number | maximum score of the exercise |
 ### Pseudo Schema
 ```
 collection Unit{
 	name: string
 	description: string
-	difficulity: string
+	difficulty: string
 	skills: string[]
 	related_units: [id, Ref Unit]
 	prerequisites: [id, Ref Unit]
@@ -194,7 +194,8 @@ collection Unit{
 		exercise_content: [JSON Objects]
 		is_instant_scored: bool
 		correct_answers: JSON Object
-		varients: [id, Ref Exercise]
+		varients: [id, Ref Exercise],
+		max_score: number
 	}[]
 }
 ```

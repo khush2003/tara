@@ -215,8 +215,7 @@ export default function DashboardPage() {
                                     onClick={() =>
                                         navigate(
                                             "/learningModule/" +
-                                                classroom?.today_lesson?
-                                                    .moduleCode
+                                                classroom?.today_lesson?.moduleCode
                                             
                                         )
                                     }

@@ -22,6 +22,7 @@ import ChatInterface from './pages/chat';
 import NewLearningHome from './pages/learningModule';
 import EnhancedLearningHomePage from './pages/learningHome';
 import { AnimatePresence } from 'framer-motion';
+import ApiDocsViewer from './pages/api';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -56,6 +57,7 @@ const App: React.FC = () => {
           <Route path="/chat" element={<ChatInterface />} />
           <Route path="/learning/:id" element={<EnhancedLearningHomePage />} />
           <Route path="/learningModule/:id" element={<NewLearningHome />} />
+          <Route path="/docs" element={<ApiDocsViewer />} />
         </Routes>
       </Router>
     </AnimatePresence>

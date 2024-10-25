@@ -5,11 +5,11 @@ interface IClassroom {
     name: string;
     students_enrolled: [{
         student: ObjectId;
-        is_new_exercise_submission: boolean;
+        is_new_exercise_submission: boolean; //  Duplicate derivative of new_exercise_submission
     }];
     teachers_joined: [{
         teacher: ObjectId;
-        name: string;
+        name: string; //  Duplicate of user name
     }];
     creator: ObjectId;
     class_join_code: number;
@@ -18,16 +18,16 @@ interface IClassroom {
         start: Date;
         end: Date;
     };
-    is_recently_updated_announcement: boolean;
+    is_recently_updated_announcement: boolean; // Duplicate derivative of is_recently_updated_announcement
     announcement: string;
     today_unit: {
-        title: string;
+        title: string; // Duplicate of unit name
         unit: ObjectId;
     };
-    chosen_units: [{
+    chosen_units: [{ // Duplicate of unit info
         name: string;
         description: string;
-        difficulity: string;
+        difficulty: string;
         skills: string[];
         unit: ObjectId;
     }];
@@ -38,7 +38,7 @@ const ClassroomSchema = new Schema<IClassroom>({
     students_enrolled: [
         {
             student: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-            is_new_exercise_submission: { type: Boolean, default: false }
+            is_new_exercise_submission: { type: Boolean, default: false, required: true }   
         }
     ],
     teachers_joined: [
@@ -48,23 +48,23 @@ const ClassroomSchema = new Schema<IClassroom>({
         }
     ],
     creator: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    class_join_code: { type: Number, required: true, unique: true },
+    class_join_code: { type: Number, unique: true },
     is_game_blocked: { type: Boolean, default: false },
     game_restriction_period: {
-        start: { type: Date, required: true },
-        end: { type: Date, required: true }
+        start: { type: Date},
+        end: { type: Date }
     },
     is_recently_updated_announcement: { type: Boolean, default: false },
     announcement: { type: String, default: '' },
     today_unit: {
-        title: { type: String, required: true },
-        unit: { type: Schema.Types.ObjectId, ref: 'Unit', required: true }
+        title: { type: String },
+        unit: { type: Schema.Types.ObjectId, ref: 'Unit' }
     },
     chosen_units: [
         {
             name: { type: String, required: true },
             description: { type: String, required: true },
-            difficulity: { type: String, required: true },
+            difficulty: { type: String, required: true },
             skills: { type: [String], required: true },
             unit: { type: Schema.Types.ObjectId, ref: 'Unit', required: true }
         }
@@ -73,3 +73,4 @@ const ClassroomSchema = new Schema<IClassroom>({
 
 export const Classroom = mongoose.model<IClassroom>('Classroom', ClassroomSchema);
 export type { IClassroom };
+export { ClassroomSchema };

@@ -20,6 +20,7 @@ interface IExercise {
     is_instant_scored: boolean;
     correct_answers: Mixed;
     varients: ObjectId[];
+    max_score: number;
 }
 
 interface IUnit {
@@ -53,7 +54,8 @@ const ExerciseSchema = new Schema<IExercise>({
     exercise_content: { type: [Schema.Types.Mixed] },
     is_instant_scored: { type: Boolean, default: false },
     correct_answers: { type: Schema.Types.Mixed },
-    varients: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }]
+    varients: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
+    max_score: { type: Number, required: true }
 }, { _id: true });
 
 const UnitSchema = new Schema<IUnit>({
@@ -67,6 +69,9 @@ const UnitSchema = new Schema<IUnit>({
     exercises: [ExerciseSchema],
     is_premium: { type: Boolean, default: false, required: true }
 });
+
+// Create compound index for id and is_premium
+UnitSchema.index({ _id: 1, is_premium: -1 });
 
 export const Unit = mongoose.model<IUnit>('Unit', UnitSchema);
 export {UnitSchema, LessonSchema, ExerciseSchema };

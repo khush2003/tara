@@ -22,24 +22,26 @@ interface IRecommendations {
 interface IExerciseSubmission {
     exercise: ObjectId;
     max_score: number;
-    coins_earned: number;
-    best_score: number;
-    feedback: string;
+    coins_earned?: number;
+    best_score?: number;
+    feedback?: string;
     attempts: [{
         attempt_number: number;
-        score: number;
+        score?: number;
         answers: string;
     }];
     last_attempt_at: Date;
 }
 
 interface IClassProgressInfo {
-    lessons_completed: ObjectId[];
-    exercises: [IExerciseSubmission];
+    lessons_completed?: ObjectId[];
+    exercises?: [IExerciseSubmission];
     unit: {
         id: ObjectId;
-        name: string;
+        name: string; // Duplicate of unit name 
     };
+    num_lessons: number; // Duplicate of lessons_completed.length
+    num_exercises: number; //  Duplicate of exercises.length
     progress_percent: number;
     class: ObjectId;
 }
@@ -55,10 +57,10 @@ interface IUser {
     game_profile: IGameProfile;
     is_feedback_available: boolean;
     recommended: IRecommendations;
-    new_exercise_submission: {
+    new_exercise_submission: Array<{
         exercise: ObjectId;
-        submission: ObjectId;
-    };
+        class: ObjectId;
+    }>;
     learning_preferences: string[];
     class_progress_info: [IClassProgressInfo];
 }
@@ -84,15 +86,15 @@ const RecommendationsSchema = new Schema<IRecommendations>({
 
 
 const ExerciseSubmissionSchema = new Schema<IExerciseSubmission>({
-    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
-    max_score: { type: Number, default: 0 },
-    coins_earned: { type: Number, default: 0 },
-    best_score: { type: Number, default: 0 },
+    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise', unique: true, required: true },
+    max_score: { type: Number, default: 0, required: true }, //  Duplicate of exercse max score
+    coins_earned: { type: Number },
+    best_score: { type: Number },
     feedback: { type: String },
     attempts: [{
-        attempt_number: { type: Number },
+        attempt_number: { type: Number, required: true },
         score: { type: Number },
-        answers: { type: String }
+        answers: { type: String, required: true }
     }],
     last_attempt_at: { type: Date }
 }, { _id: true });
@@ -105,6 +107,8 @@ const ClassProgressInfoSchema = new Schema<IClassProgressInfo>({
         id: { type: Schema.Types.ObjectId, ref: 'Unit' },
         name: { type: String }
     },
+    num_lessons: { type: Number, default: 0 },
+    num_exercises: { type: Number, default: 0 },
     progress_percent: { type: Number, default: 0 },
     class: { type: Schema.Types.ObjectId, ref: 'Classroom' }
 }, { _id: true });
@@ -123,14 +127,15 @@ const UserSchema = new Schema<IUser>({
     game_profile: { type: GameProfileSchema},
     is_feedback_available: { type: Boolean, default: false },
     recommended: {type: RecommendationsSchema},
-    new_exercise_submission: {
+    new_exercise_submission: [{
         exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
-        submission: { type: Schema.Types.ObjectId, ref: 'Exercise_Submission' }
-    },
+        class: { type: Schema.Types.ObjectId, ref: 'Classroom' }
+    }],
     learning_preferences: [{ type: String }],
     class_progress_info: [{ type: ClassProgressInfoSchema }]
 });
 
 export const User =  mongoose.model<IUser>('User', UserSchema);
 export type { IUser, IGameProfile, IRecommendations, IExerciseSubmission, IClassProgressInfo };
+export { UserSchema, GameProfileSchema, RecommendationsSchema, ExerciseSubmissionSchema, ClassProgressInfoSchema };
 

@@ -12,19 +12,35 @@ interface IPointsLog {
     type: string;
 }
 
+
+export enum PointsLogType {
+    EXTRA_POINTS = 'extra_points',
+    GAME_SPENDING = 'game_spending',
+    INSTANT_EXERCISE = 'instant_exercise',
+    TEACHER_SCORED = 'teacher_scored',
+}
+// TODO: Switch Enums from string to enum definitions everywhere
+
 const PointsLogSchema: Schema = new Schema<IPointsLog>({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     classroom: { type: mongoose.Schema.Types.ObjectId, ref: 'Classroom', required: true },
-    giver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    giver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     is_add: { type: Boolean, required: true },
     amount: { type: Number, required: true },
-    details: { type: String, required: true },
+    details: { type: String },
     type: { 
         type: String, 
-        enum: ['extra_points', 'game_spending', 'instant_exercise', 'teacher_scored'], 
+        enum: PointsLogType,
         required: true 
     },
 }, { timestamps: true });
 
+PointsLogSchema.index({ user: 1, classroom: 1 });
+PointsLogSchema.index({ user: 1 });
+PointsLogSchema.index({ classroom: 1 });
+PointsLogSchema.index({ classroom: 1, type: 1 });
+PointsLogSchema.index({ user: 1, type: 1 });
+
 export const PointsLog = mongoose.model<IPointsLog>('PointsLog', PointsLogSchema);
 export type { IPointsLog };
+export { PointsLogSchema };
