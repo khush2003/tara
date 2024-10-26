@@ -7,7 +7,6 @@ import type { JwtVariables } from "@hono/hono/jwt";
 
 // All routes in pointslogRoutes have jwtMiddleware applied, to ensure that only authenticated users can access them
 
-// TODO: Future, add checks on each endpoint to ensure that only the appropriate users can access them, so that no other authenticated user can alter another user's information
 
 export const pointslogRoutes = new Hono<{ Variables: JwtVariables }>()
     .post("/create", schemaValidatorFromMongoose(PointsLogSchema, "pointslog"), async (c) => {

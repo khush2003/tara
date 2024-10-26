@@ -1,10 +1,9 @@
 import { Hono } from "@hono/hono";
-import { User, type IUser } from "../models/user.model.ts";
+import { User} from "../models/user.model.ts";
 import { jwt, type JwtVariables, sign } from "@hono/hono/jwt";
 import type { JWTPayload } from "@hono/hono/utils/jwt/types";
 import { hash, verify } from "@felix/bcrypt";
 import { HTTPException } from "@hono/hono/http-exception";
-import type { HydratedDocument } from "mongoose";
 import { validateJsonMiddleware } from "../utils/customFunction.ts";
 import { z } from "zod";
 
@@ -147,7 +146,6 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
             if (!user) {
                 return c.text("Invalid email", 401);
             }
-            console.log(`${password}, ${user.password}`);
             const correctPassword = await verify(password, user.password);
             if (!correctPassword) {
                 return c.text("Invalid password", 401);
@@ -181,7 +179,10 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
         return c.json(userWithoutPassword);
     })
 
-    .put("/updatePassword", jwtMiddleware, async (c) => {
+    .put("/updatePassword", jwtMiddleware, validateJsonMiddleware(z.object({
+        oldPassword: z.string().min(6),
+        password: z.string().min(6),
+    })), async (c) => {
         const payload: {
             id: string;
             exp: number;
@@ -191,15 +192,12 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
             return c.text("Unauthorized", 401);
         }
 
-        const user = await User.findById(payload.id);
+        const user = await User.findById(payload.id).select("password");
         if (!user) {
             return c.text("User does not exist", 401);
         }
 
-        const { oldPassword, password } = await c.req.json();
-        if (!password || !oldPassword) {
-            return c.text("Please enter your old and new passwords!", 400);
-        }
+        const { oldPassword, password } = await c.req.valid("json");
 
         const correctPassword = await verify(oldPassword, user.password);
         if (!correctPassword) {

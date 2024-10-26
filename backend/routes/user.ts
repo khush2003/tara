@@ -1,11 +1,10 @@
 import { Hono } from "@hono/hono";
-import { ExerciseSubmissionSchema, User, UserSchema, type IClassProgressInfo, type IExerciseSubmission, type IGameProfile, type IUser } from "../models/user.model.ts";
+import {  User, type IClassProgressInfo, type IExerciseSubmission, type IGameProfile } from "../models/user.model.ts";
 import { type JwtVariables } from "@hono/hono/jwt";
 import type { HydratedDocument } from "mongoose";
-import { schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/customFunction.ts";
+import {validateJsonMiddleware } from "../utils/customFunction.ts";
 import mongoose from "mongoose";
 import { Unit, type IExercise, type ILesson } from "../models/unit.model.ts";
-import { ExerciseSchema } from "../models/unit.model.ts";
 import { Classroom } from "../models/classroom.model.ts";
 import { PointsLog, PointsLogType } from "../models/pointslog.model.ts";
 import { z } from "zod";
@@ -170,8 +169,6 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                 if (name != user.name && user.role == "teacher") {
                     // for all classrooms that the teacher is in, update the teacher joined name
                     const userClassrooms = user.classroom;
-                    console.log(userClassrooms);
-                    console.log(await Classroom.find({ _id: { $in: userClassrooms } }));
                     const [updatedUser, _classroom] = await Promise.all([
                         User.findByIdAndUpdate(payload.id, {
                             name,
@@ -429,7 +426,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         // TODO: Future, Exercise or lesson and unit must be in classroom.chosen_unit
 
         const user = await User.findById(payload.id).select(["class_progress_info", "game_profile.game_points", "new_exercise_submission", "classroom"]);
-        if (!user) return c.text("Invalid ID", 400);
+        if (!user) return c.text("Invalid user ID", 400);
 
         const classroom = await Classroom.findById(classId).select("students_enrolled");
         if (!classroom) return c.text("Invalid class ID", 400);
@@ -648,7 +645,6 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         if (!class_progress) {
             return c.text("Invalid class progress ID", 400);
         }
-        console.log(class_progress);
         const exerciseSubmission = class_progress.exercises?.find((exercise) => (exercise as HydratedDocument<IExerciseSubmission>)._id.toString() === exercise_submission_id);
 
         if (!exerciseSubmission) {

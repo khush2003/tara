@@ -47,7 +47,7 @@ const ClassroomSchema = new Schema<IClassroom>({
             name: { type: String, required: true }
         }
     ],
-    creator: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    creator: { type: Schema.Types.ObjectId, ref: 'User' },
     class_join_code: { type: Number, unique: true },
     is_game_blocked: { type: Boolean, default: false },
     game_restriction_period: {

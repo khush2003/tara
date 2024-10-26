@@ -32,7 +32,6 @@ export const schemaValidatorFromMongoose = (schema: mongoose.Schema, propertyNam
         errorMSG +=  validationErrors.join(", ");
         return c.text(errorMSG, 400);
     }
-    console.log(value);
     if  (propertyName) {return { [propertyName]: value }} else return value;
 });
 

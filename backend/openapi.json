@@ -1,0 +1,5401 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Classroom API",
+    "version": "1.0.0",
+    "description": "API endpoints for managing classrooms, units, and announcements."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3005/api/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "All endpoints related to authentication"
+    },
+    {
+      "name": "Classroom",
+      "description": "Endpoints for managing classrooms"
+    },
+    {
+      "name": "Unit",
+      "description": "Endpoints for managing units"
+    },
+    {
+      "name": "User",
+      "description": "Endpoints for managing users"
+    }
+  ],
+  "paths": {
+    "/auth/registerStudent": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new student",
+        "description": "Creates a new student user profile with game profile information. Ensures the email is unique before registration.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "abc112@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "123123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Khush"
+                  },
+                  "school": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "ABC"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name",
+                  "school"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Khush"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "abc112@gmail.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "student"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "ABC"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "game_minutes_left": {
+                          "type": "integer",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671c7b089b922e7c6ff4e857"
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "_id": {
+                      "type": "string",
+                      "example": "671c7b089b922e7c6ff4e856"
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "This email is already registered! Please login or use a different email."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to validation error or other issues",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Error: Some error description"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/registerAdmin": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new admin",
+        "description": "Registers a new admin account after verifying the registration code and ensuring email uniqueness. Optional school information can be provided.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "admin123@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "securePassword123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Admin Name"
+                  },
+                  "registerCode": {
+                    "type": "string",
+                    "example": "secureRegisterCode"
+                  },
+                  "school": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "XYZ School"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name",
+                  "registerCode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Admin Name"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "admin123@example.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "admin"
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "XYZ School"
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "game_minutes_left": {
+                          "type": "integer",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671c7b089b922e7c6ff4e857"
+                        }
+                      }
+                    },
+                    "_id": {
+                      "type": "string",
+                      "example": "671c7b089b922e7c6ff4e856"
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid registration code",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid register code, please contact staff if you want to make an admin account!"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "This email is already registered! Please login or use a different email."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to validation error or other issues",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Error: Some error description"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/registerTeacher": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new teacher",
+        "description": "Registers a new teacher account, provided required fields (email, password, and name) are specified. Validates email uniqueness before registration.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "teacherJohn@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "securePassword"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Jane Doe"
+                  },
+                  "school": {
+                    "type": "string",
+                    "example": "ABC"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Teacher successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "Jane Doe"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "teacherJohn@example.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "teacher"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "ABC"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "game_minutes_left": {
+                          "type": "integer",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671c80de26bdfcd3cc82fef2"
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "_id": {
+                      "type": "string",
+                      "example": "671c80de26bdfcd3cc82fef1"
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing required fields or validation error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Email, password and name are required"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "This email is already registered! Please login or use a different email."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login a user",
+        "description": "Authenticates a user by validating email and password, then returns a JWT token if successful.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "abc11@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "123123"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTY3OTE3YmZkMzQ1ZmRjYWE5ZTZkOSIsImV4cCI6MTczMDAwNzc3NzYzNH0.MeC--L2Fco_1tmTR7hTQLfuWI7PKVnDUBt7_Cqih-QM"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to missing email or password",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Email and password are required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized due to invalid email or password",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": {
+                    "invalidEmail": "Invalid email",
+                    "invalidPassword": "Invalid password"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get user profile",
+        "description": "Fetches the profile information of the currently authenticated user based on the provided JWT token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167917bfd345fdcaa9e6d9"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "JohnBABABAaBaA"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "abc11@gmail.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "student"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "example": "http://www.google.com"
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "AAAA"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167897bfd345fdcaa9e6d5",
+                        "671a66e1571368e9f19f63e1"
+                      ]
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "integer",
+                          "example": 170
+                        },
+                        "game_minutes_left": {
+                          "type": "integer",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "67167917bfd345fdcaa9e6da"
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lessons_completed": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "671b25c35294d0a1912972cd"
+                            ]
+                          },
+                          "exercises": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "exercise": {
+                                  "type": "string",
+                                  "example": "671b25e15294d0a1912972dc"
+                                },
+                                "max_score": {
+                                  "type": "integer",
+                                  "example": 40
+                                },
+                                "best_score": {
+                                  "type": "integer",
+                                  "example": 40
+                                },
+                                "coins_earned": {
+                                  "type": "integer",
+                                  "example": 50
+                                },
+                                "feedback": {
+                                  "type": "string",
+                                  "example": "Good Job My BOYYYYYY HAHAHAHAHA"
+                                },
+                                "last_attempt_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "example": "2024-10-25T05:06:10.483Z"
+                                },
+                                "attempts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "attempt_number": {
+                                        "type": "integer",
+                                        "example": 1
+                                      },
+                                      "score": {
+                                        "type": "integer",
+                                        "example": 40
+                                      },
+                                      "answers": {
+                                        "type": "string",
+                                        "example": "Question 1 : dslknd \n\n nlknl"
+                                      },
+                                      "_id": {
+                                        "type": "string",
+                                        "example": "671b262c5294d0a191297300"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "unit": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "67167d198309b1415c2bfb6a"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Unit 1"
+                              }
+                            }
+                          },
+                          "num_lessons": {
+                            "type": "integer",
+                            "example": 3
+                          },
+                          "num_exercises": {
+                            "type": "integer",
+                            "example": 3
+                          },
+                          "progress_percent": {
+                            "type": "integer",
+                            "example": 50
+                          },
+                          "class": {
+                            "type": "string",
+                            "example": "671a66e1571368e9f19f63e1"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671b262c5294d0a1912972fe"
+                          }
+                        }
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request due to invalid token or non-existent user",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/updatePassword": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update user password",
+        "description": "Allows an authenticated user to update their password by providing the current password and a new password.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "112212"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "123123"
+                  }
+                },
+                "required": [
+                  "oldPassword",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Password updated successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request due to invalid token or incorrect old password",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": {
+                    "invalid_token": {
+                      "summary": "Invalid token or missing user ID",
+                      "value": "Unauthorized"
+                    },
+                    "incorrect_old_password": {
+                      "summary": "Incorrect old password",
+                      "value": "Invalid old password!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/create": {
+      "post": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Create a new classroom",
+        "description": "Allows teachers to create a new classroom with a unique join code. Only users with the 'teacher' role are authorized to create classrooms.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "classroom": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "New Classroom 422",
+                        "description": "The name of the classroom to be created."
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "classroom": {
+                  "name": "New Classroom 422"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Classroom created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "New Classroom 422"
+                    },
+                    "teachers_joined": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "teacher": {
+                            "type": "string",
+                            "example": "671c80de26bdfcd3cc82fef1"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Jane Doe"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671c85e8caed2dcb14d04f5c"
+                          }
+                        }
+                      }
+                    },
+                    "creator": {
+                      "type": "string",
+                      "example": "671c80de26bdfcd3cc82fef1"
+                    },
+                    "class_join_code": {
+                      "type": "integer",
+                      "example": 390284
+                    },
+                    "is_game_blocked": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "is_recently_updated_announcement": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "announcement": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "_id": {
+                      "type": "string",
+                      "example": "671c85e8caed2dcb14d04f5b"
+                    },
+                    "students_enrolled": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": []
+                    },
+                    "chosen_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                },
+                "example": {
+                  "name": "New Classroom 422",
+                  "teachers_joined": [
+                    {
+                      "teacher": "671c80de26bdfcd3cc82fef1",
+                      "name": "Jane Doe",
+                      "_id": "671c85e8caed2dcb14d04f5c"
+                    }
+                  ],
+                  "creator": "671c80de26bdfcd3cc82fef1",
+                  "class_join_code": 390284,
+                  "is_game_blocked": false,
+                  "is_recently_updated_announcement": false,
+                  "announcement": "",
+                  "_id": "671c85e8caed2dcb14d04f5b",
+                  "students_enrolled": [],
+                  "chosen_units": [],
+                  "__v": 0
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request due to missing or incorrect fields, or unauthorized user",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": {
+                    "invalid_user": "Invalid user",
+                    "non_teacher": "Only teachers can create classrooms"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - only teachers are authorized to create classrooms",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Only teachers can create classrooms"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/join/{code}": {
+      "post": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Join a classroom",
+        "description": "Allows a user to join a classroom using a unique join code. The user must be authenticated via JWT.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "390284"
+            },
+            "description": "The unique join code for the classroom"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully joined the classroom",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671a66e1571368e9f19f63e1"
+                    },
+                    "students_enrolled": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "student": {
+                            "type": "string",
+                            "example": "67167917bfd345fdcaa9e6d9"
+                          },
+                          "is_new_exercise_submission": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671a75f1b1f3983b05bab129"
+                          }
+                        }
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                },
+                "example": {
+                  "_id": "671a66e1571368e9f19f63e1",
+                  "students_enrolled": [
+                    {
+                      "student": "67167917bfd345fdcaa9e6d9",
+                      "is_new_exercise_submission": true,
+                      "_id": "671a75f1b1f3983b05bab129"
+                    },
+                    {
+                      "student": "671a72fd6454976b4f49d33e",
+                      "is_new_exercise_submission": false,
+                      "_id": "671a767fb1f3983b05bab136"
+                    },
+                    {
+                      "student": "671c7b089b922e7c6ff4e856",
+                      "is_new_exercise_submission": false,
+                      "_id": "671c897b8ac5aae2277a4cf0"
+                    }
+                  ],
+                  "__v": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request due to invalid classroom code or user",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": {
+                    "invalid_classroom_code": "Invalid classroom code",
+                    "invalid_user": "Invalid user",
+                    "already_enrolled": "You are already enrolled in this classroom"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/{id}": {
+      "get": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Get Classroom by ID",
+        "description": "Fetches a classroom's details using its unique ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "671a66e1571368e9f19f63e1"
+            },
+            "description": "The unique ID of the classroom to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the classroom details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671a66e1571368e9f19f63e1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "New Classroom 422"
+                    },
+                    "teachers_joined": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "teacher": {
+                            "type": "string",
+                            "example": "671676d074e61c8caab29ce7"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "JohnBABABAaBaA"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671a66e1571368e9f19f63e2"
+                          }
+                        }
+                      }
+                    },
+                    "creator": {
+                      "type": "string",
+                      "example": "670f81cd4e8ab9575369b6f9"
+                    },
+                    "class_join_code": {
+                      "type": "number",
+                      "example": 994102
+                    },
+                    "is_game_blocked": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "is_recently_updated_announcement": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "announcement": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "students_enrolled": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "student": {
+                            "type": "string",
+                            "example": "67167917bfd345fdcaa9e6d9"
+                          },
+                          "is_new_exercise_submission": {
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671a75f1b1f3983b05bab129"
+                          }
+                        }
+                      }
+                    },
+                    "chosen_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID format",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid ID"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Classroom not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Classroom not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/multiple": {
+      "post": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Get Multiple Classrooms by IDs",
+        "description": "Fetches multiple classrooms based on an array of unique classroom IDs.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "67167897bfd345fdcaa9e6d5"
+                    },
+                    "example": [
+                      "67167897bfd345fdcaa9e6d5",
+                      "671a66e1571368e9f19f63e1"
+                    ]
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved classrooms.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "67167897bfd345fdcaa9e6d5"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "New Classroom 2"
+                      },
+                      "creator": {
+                        "type": "string",
+                        "example": "670f81cd4e8ab9575369b6f9"
+                      },
+                      "class_join_code": {
+                        "type": "number",
+                        "example": 217768
+                      },
+                      "is_game_blocked": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "is_recently_updated_announcement": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "announcement": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "students_enrolled": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "student": {
+                              "type": "string",
+                              "example": "671676d074e61c8caab29ce7"
+                            },
+                            "is_new_exercise_submission": {
+                              "type": "boolean",
+                              "example": false
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "6716795fbfd345fdcaa9e6df"
+                            }
+                          }
+                        }
+                      },
+                      "teachers_joined": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "teacher": {
+                              "type": "string",
+                              "example": "671676d074e61c8caab29ce7"
+                            },
+                            "name": {
+                              "type": "string",
+                              "example": "JohnBABABAaBaA"
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "671a66e1571368e9f19f63e2"
+                            }
+                          }
+                        }
+                      },
+                      "chosen_units": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "example": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid IDs provided",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid IDs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/setTodayUnit/{id}": {
+      "put": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Set Today's Unit for a Classroom",
+        "description": "Updates the 'today_unit' field for a specified classroom by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "6719e2f13e63104a4ab55cf6"
+            },
+            "description": "The ID of the classroom to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Unit 2"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "example": "671b25a55294d0a1912972ca",
+                    "description": "A string representing the unit ID (must be a valid MongoDB ObjectId format)."
+                  }
+                },
+                "required": [
+                  "title",
+                  "unit"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated today's unit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "6719e2f13e63104a4ab55cf6"
+                    },
+                    "today_unit": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Unit 2"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "example": "671b25a55294d0a1912972ca"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or unit ID format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid ID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/setAnnouncement/{id}": {
+      "put": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Set Announcement for a Classroom",
+        "description": "Updates the announcement for a specified classroom by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "6719e2f13e63104a4ab55cf6"
+            },
+            "description": "The ID of the classroom to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "announcement": {
+                    "type": "string",
+                    "example": "New"
+                  }
+                },
+                "required": [
+                  "announcement"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated the announcement.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "6719e2f13e63104a4ab55cf6"
+                    },
+                    "announcement": {
+                      "type": "string",
+                      "example": "New"
+                    },
+                    "is_recently_updated_announcement": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid ID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/setGameBlock/{id}": {
+      "put": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Set Game Block Status for a Classroom",
+        "description": "Updates the game block status for a specified classroom by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "6719e2f13e63104a4ab55cf6"
+            },
+            "description": "The ID of the classroom to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "is_game_blocked": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "is_game_blocked"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated the game block status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "6719e2f13e63104a4ab55cf6"
+                    },
+                    "is_game_blocked": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid ID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classroom/setGameRestrictionPeriod/{id}": {
+      "put": {
+        "tags": [
+          "Classroom"
+        ],
+        "summary": "Set Game Restriction Period for a Classroom",
+        "description": "Updates the game restriction period for a specified classroom by ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "6719e2f13e63104a4ab55cf6"
+            },
+            "description": "The ID of the classroom to update."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2014-11-03T19:38:34.203Z"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2014-11-03T21:38:34.203Z"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated the game restriction period.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "6719e2f13e63104a4ab55cf6"
+                    },
+                    "game_restriction_period": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2014-11-03T19:38:34.203Z"
+                        },
+                        "end": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2014-11-03T21:38:34.203Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or date format.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid ID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/single/nonPremium/{id}": {
+      "get": {
+        "tags": [
+          "Unit"
+        ],
+        "summary": "Get a Single Non-Premium Unit by ID",
+        "description": "Retrieves a unit by its ID, only if it is not premium.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "67167d198309b1415c2bfb6a"
+            },
+            "description": "The ID of the unit to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the unit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167d198309b1415c2bfb6a"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Unit 1"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Unit 1 description"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "example": "easy"
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "related_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "is_premium": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Lesson 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Lesson 1 Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Lesson 1 Instruction"
+                          },
+                          "lesson_content": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "varients": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "67167d9e8309b1415c2bfb71"
+                          }
+                        }
+                      }
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Exercise 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Exercise Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Do it like this"
+                          },
+                          "exercise_content": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "is_instant_scored": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "varients": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "max_score": {
+                            "type": "integer",
+                            "example": 30
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "67167e218309b1415c2bfb7c"
+                          }
+                        }
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 4
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "This unit is premium.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "This unit is premium"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/all": {
+      "get": {
+        "tags": [
+          "Unit"
+        ],
+        "summary": "Get All Units",
+        "description": "Retrieves a list of all units in the system. Requires JWT authentication.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all units.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "67167d738309b1415c2bfb6e"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Unit 2"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Unit 1 description"
+                      },
+                      "difficulty": {
+                        "type": "string",
+                        "example": "medium"
+                      },
+                      "skills": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "vocab"
+                        }
+                      },
+                      "related_units": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "67167d198309b1415c2bfb6a"
+                        }
+                      },
+                      "prerequisites": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "67167d198309b1415c2bfb6a"
+                        }
+                      },
+                      "is_premium": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "lessons": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Lesson 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Lesson 1 Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Lesson 1 Instruction"
+                            },
+                            "lesson_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167db88309b1415c2bfb74"
+                            }
+                          }
+                        }
+                      },
+                      "exercises": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Exercise 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Exercise Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Do it like this"
+                            },
+                            "exercise_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "is_instant_scored": {
+                              "type": "boolean",
+                              "example": false
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "max_score": {
+                              "type": "integer",
+                              "example": 35
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167e458309b1415c2bfb8c"
+                            }
+                          }
+                        }
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "example": 4
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "unit/single/{id}": {
+      "get": {
+        "tags": [
+          "Unit"
+        ],
+        "summary": "Get Single Unit",
+        "description": "Retrieves a single unit by its ID. Requires JWT authentication.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "671b25a55294d0a1912972ca"
+            },
+            "description": "The ID of the unit to retrieve."
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the unit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671b25a55294d0a1912972ca"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Test Uni 1"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Test Unit 1 description"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "example": "medium"
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "vocab"
+                      }
+                    },
+                    "related_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "67167d198309b1415c2bfb6a"
+                      }
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "67167d198309b1415c2bfb6a"
+                      }
+                    },
+                    "is_premium": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Lesson 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Lesson 1 Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Lesson 1 Instruction"
+                          },
+                          "lesson_content": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "varients": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671b25c35294d0a1912972cd"
+                          }
+                        }
+                      }
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Exercise 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Exercise Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Do it like this"
+                          },
+                          "exercise_content": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "is_instant_scored": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "varients": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "max_score": {
+                            "type": "integer",
+                            "example": 40
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671b25e15294d0a1912972dc"
+                          }
+                        }
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 6
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unit not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unit not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/all/nonPremium": {
+      "get": {
+        "summary": "Get All Non-Premium Units",
+        "description": "Retrieves all units that are not premium.",
+        "tags": [
+          "Unit"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all non-premium units.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "67134e02551973634b7f95dc"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Unit 1"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Unit 1 description"
+                      },
+                      "difficulty": {
+                        "type": "string",
+                        "example": "easy"
+                      },
+                      "skills": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "related_units": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "prerequisites": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "is_premium": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "lessons": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Lesson 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Lesson 1 Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Lesson 1 Instruction"
+                            },
+                            "lesson_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167d9e8309b1415c2bfb71"
+                            }
+                          }
+                        }
+                      },
+                      "exercises": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Exercise 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Exercise Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Do it like this"
+                            },
+                            "exercise_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "is_instant_scored": {
+                              "type": "boolean",
+                              "example": false
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "max_score": {
+                              "type": "integer",
+                              "example": 30
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167e218309b1415c2bfb7c"
+                            }
+                          }
+                        }
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "example": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/create": {
+      "post": {
+        "summary": "Create a New Unit",
+        "description": "Allows an admin user to create a new unit.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Unit"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Test Unit 1"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Test Unit 1 description"
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "example": "medium"
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "vocab",
+                      "grammer"
+                    ]
+                  },
+                  "related_units": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "67167d198309b1415c2bfb6a"
+                    ]
+                  },
+                  "prerequisites": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "67167d198309b1415c2bfb6a"
+                    ]
+                  },
+                  "is_premium": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "difficulty",
+                  "skills",
+                  "related_units",
+                  "prerequisites",
+                  "is_premium"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Unit successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671c9c78311efdc4161709f1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Test Unit 1"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Test Unit 1 description"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "example": "medium"
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "vocab",
+                        "grammer"
+                      ]
+                    },
+                    "related_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "is_premium": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": []
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user or input data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Only admins can create units.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Only admins can create units"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/lesson/create": {
+      "post": {
+        "summary": "Create a New Lesson",
+        "description": "Allows an admin user to create a new lesson associated with a specific unit.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Unit"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "example": "671c9c78311efdc4161709f1"
+                  },
+                  "lesson": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "Lesson 1"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Lesson 1 Description"
+                      },
+                      "instruction": {
+                        "type": "string",
+                        "example": "Lesson 1 Instruction"
+                      },
+                      "lesson_type": {
+                        "type": "string",
+                        "enum": [
+                          "flashcards",
+                          "text",
+                          "image"
+                        ],
+                        "example": "text"
+                      },
+                      "lesson_content": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          ""
+                        ]
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "instruction",
+                      "lesson_type",
+                      "lesson_content"
+                    ]
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "lesson"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lesson successfully created and added to the unit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671c9c78311efdc4161709f1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Test Unit 1"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Test Unit 1 description"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "example": "medium"
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "vocab",
+                        "grammer"
+                      ]
+                    },
+                    "related_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "is_premium": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Lesson 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Lesson 1 Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Lesson 1 Instruction"
+                          },
+                          "lesson_type": {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "video",
+                              "quiz"
+                            ],
+                            "example": "text"
+                          },
+                          "lesson_content": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              ""
+                            ]
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671c9d6429f3100dbdd381f0"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "title": "Lesson 1",
+                          "description": "Lesson 1 Description",
+                          "instruction": "Lesson 1 Instruction",
+                          "lesson_type": "text",
+                          "lesson_content": [
+                            ""
+                          ],
+                          "_id": "671c9d6429f3100dbdd381f0"
+                        }
+                      ]
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid unit ID or user input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid unit ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Only admins can create lessons.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Only admins can create lessons"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unit/exercise/create": {
+      "post": {
+        "summary": "Create a New Exercise",
+        "description": "Allows an admin user to create a new exercise associated with a specific unit.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Unit"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unit_id": {
+                    "type": "string",
+                    "example": "671c9c78311efdc4161709f1"
+                  },
+                  "exercise": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "Exercise 1"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Exercise Description"
+                      },
+                      "instruction": {
+                        "type": "string",
+                        "example": "Do it like this"
+                      },
+                      "max_score": {
+                        "type": "integer",
+                        "example": 10
+                      },
+                      "exercise_type": {
+                        "type": "string",
+                        "enum": [
+                          "blanks",
+                          "drag_drop",
+                          "mcq",
+                          "true_false"
+                        ],
+                        "example": "mcq"
+                      },
+                      "exercise_content": {
+                        "type": "string",
+                        "example": " "
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "description",
+                      "instruction",
+                      "max_score",
+                      "exercise_type",
+                      "exercise_content"
+                    ]
+                  }
+                },
+                "required": [
+                  "unit_id",
+                  "exercise"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Exercise successfully created and added to the unit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671c9c78311efdc4161709f1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Test Unit 1"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Test Unit 1 description"
+                    },
+                    "difficulty": {
+                      "type": "string",
+                      "example": "medium"
+                    },
+                    "skills": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "vocab",
+                        "grammer"
+                      ]
+                    },
+                    "related_units": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "prerequisites": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "67167d198309b1415c2bfb6a"
+                      ]
+                    },
+                    "is_premium": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      },
+                      "example": [
+                        {
+                          "title": "Lesson 1",
+                          "description": "Lesson 1 Description",
+                          "instruction": "Lesson 1 Instruction",
+                          "lesson_type": "text",
+                          "lesson_content": [
+                            ""
+                          ],
+                          "varients": [],
+                          "_id": "671c9d6429f3100dbdd381f0"
+                        }
+                      ]
+                    },
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Exercise 1"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Exercise Description"
+                          },
+                          "instruction": {
+                            "type": "string",
+                            "example": "Do it like this"
+                          },
+                          "exercise_type": {
+                            "type": "string",
+                            "enum": [
+                              "blanks",
+                              "drag_drop",
+                              "mcq",
+                              "true_false"
+                            ],
+                            "example": "mcq"
+                          },
+                          "exercise_content": {
+                            "type": "string",
+                            "example": " "
+                          },
+                          "is_instant_scored": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "varients": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "max_score": {
+                            "type": "integer",
+                            "example": 10
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671c9ec97a7f454bc1603c0b"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "title": "Exercise 1",
+                          "description": "Exercise Description",
+                          "instruction": "Do it like this",
+                          "exercise_type": "mcq",
+                          "exercise_content": " ",
+                          "is_instant_scored": false,
+                          "varients": [],
+                          "max_score": 10,
+                          "_id": "671c9ec97a7f454bc1603c0b"
+                        }
+                      ]
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid unit ID or user input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid unit ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Only admins can create exercises.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Only admins can create exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "Get User by ID",
+        "description": "Fetches the user details by their ID. Password is excluded from the response.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "671c80de26bdfcd3cc82fef1"
+            },
+            "description": "The ID of the user to retrieve."
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "671c80de26bdfcd3cc82fef1"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Jane Doe"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "teacherJohn@example.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "teacher"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "ABC"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "671c85491aaca0002a5e2655",
+                        "671c857b0048559f533c7e3b",
+                        "671c85a50048559f533c7e46",
+                        "671c85cfd54f92e127f21698",
+                        "671c85e8caed2dcb14d04f5b"
+                      ]
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "game_minutes_left": {
+                          "type": "integer",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671c80de26bdfcd3cc82fef2"
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/multiple": {
+      "post": {
+        "summary": "Get Multiple Users by IDs",
+        "description": "Fetches multiple user details based on the provided IDs. Passwords are excluded from the response.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "671c80de26bdfcd3cc82fef1"
+                    },
+                    "description": "Array of user IDs to retrieve."
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Users fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "671c80de26bdfcd3cc82fef1"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Jane Doe"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "teacherJohn@example.com"
+                      },
+                      "role": {
+                        "type": "string",
+                        "example": "teacher"
+                      },
+                      "profile_picture": {
+                        "type": "string",
+                        "example": ""
+                      },
+                      "school": {
+                        "type": "string",
+                        "example": "ABC"
+                      },
+                      "classroom": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "671c85491aaca0002a5e2655",
+                          "671c857b0048559f533c7e3b",
+                          "671c85a50048559f533c7e46",
+                          "671c85cfd54f92e127f21698",
+                          "671c85e8caed2dcb14d04f5b"
+                        ]
+                      },
+                      "game_profile": {
+                        "type": "object",
+                        "properties": {
+                          "game_points": {
+                            "type": "integer",
+                            "example": 0
+                          },
+                          "game_minutes_left": {
+                            "type": "integer",
+                            "example": 60
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671c80de26bdfcd3cc82fef2"
+                          }
+                        }
+                      },
+                      "is_feedback_available": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "learning_preferences": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": []
+                      },
+                      "new_exercise_submission": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": []
+                      },
+                      "class_progress_info": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": []
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "example": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid IDs provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/setProfilePicture": {
+      "put": {
+        "summary": "Set User Profile Picture",
+        "description": "Allows users to set or update their profile picture URL.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "profile_picture": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "The URL of the profile picture.",
+                    "example": "http://www.examplepicture.com"
+                  }
+                },
+                "required": [
+                  "profile_picture"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile picture updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "format": "url",
+                      "example": "http://www.examplepicture.com"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user or input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/setSchool": {
+      "put": {
+        "summary": "Set User School",
+        "description": "Allows users to set or update their school name.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "school": {
+                    "type": "string",
+                    "description": "The name of the school.",
+                    "example": "AAAA"
+                  }
+                },
+                "required": [
+                  "school"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "School updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "AAAA"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user or input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "put": {
+        "summary": "Update User Information",
+        "description": "Allows users to update their information including name, email, profile picture, school, game profile, feedback availability, and learning preferences. Also updates the user's information stored in other collections.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "User's name.",
+                    "example": "JohnBABABAaBaA"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "User's email.",
+                    "example": "admin@gmail.com"
+                  },
+                  "profile_picture": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "URL of the user's profile picture.",
+                    "example": "http://www.examplepicture.com"
+                  },
+                  "school": {
+                    "type": "string",
+                    "description": "User's school name.",
+                    "example": "AAAA"
+                  },
+                  "game_profile": {
+                    "type": "object",
+                    "properties": {
+                      "game_points": {
+                        "type": "number",
+                        "description": "User's game points.",
+                        "example": 0
+                      },
+                      "game_minutes_left": {
+                        "type": "number",
+                        "description": "Minutes left in the game.",
+                        "example": 60
+                      }
+                    }
+                  },
+                  "is_feedback_available": {
+                    "type": "boolean",
+                    "description": "Indicates if feedback is available.",
+                    "example": false
+                  },
+                  "learning_preferences": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "User's learning preferences.",
+                    "example": [
+                      "preference1",
+                      "preference2"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "JohnBABABAaBaA"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "admin@gmail.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "admin"
+                    },
+                    "profile_picture": {
+                      "type": "string",
+                      "example": "http://www.examplepicture.com"
+                    },
+                    "school": {
+                      "type": "string",
+                      "example": "AAAA"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "number",
+                          "example": 0
+                        },
+                        "game_minutes_left": {
+                          "type": "number",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "67167b0b8309b1415c2bfb65"
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user or input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/addPoints/{id}": {
+      "post": {
+        "summary": "Add Points to User",
+        "description": "Allows adding points to a user's game profile and logging the transaction.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to whom points will be added.",
+            "schema": {
+              "type": "string",
+              "example": "67167917bfd345fdcaa9e6d9"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Amount of points to add.",
+                    "example": 30
+                  },
+                  "classroom": {
+                    "type": "string",
+                    "description": "ID of the classroom associated with the points.",
+                    "example": "671a66e1571368e9f19f63e1"
+                  },
+                  "giver": {
+                    "type": "string",
+                    "description": "ID of the user giving the points (optional).",
+                    "example": "671676d074e61c8caab29ce7"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "extra_points",
+                      "participation_points",
+                      "bonus_points"
+                    ],
+                    "description": "Type of points being added.",
+                    "example": "extra_points"
+                  },
+                  "details": {
+                    "type": "string",
+                    "description": "Additional details about the points transaction (optional).",
+                    "example": "Testing Points"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "classroom",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Points added successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67167917bfd345fdcaa9e6d9"
+                        },
+                        "game_profile": {
+                          "type": "object",
+                          "properties": {
+                            "game_points": {
+                              "type": "number",
+                              "example": 200
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "pointsLog": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "string",
+                          "example": "67167917bfd345fdcaa9e6d9"
+                        },
+                        "classroom": {
+                          "type": "string",
+                          "example": "671a66e1571368e9f19f63e1"
+                        },
+                        "giver": {
+                          "type": "string",
+                          "example": "671676d074e61c8caab29ce7"
+                        },
+                        "is_add": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "amount": {
+                          "type": "number",
+                          "example": 30
+                        },
+                        "details": {
+                          "type": "string",
+                          "example": "Testing Points"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "extra_points"
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671ca3a60e3e7081f5348bbc"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-10-26T08:09:10.115Z"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-10-26T08:09:10.115Z"
+                        },
+                        "__v": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or error in processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/substractPoints/{id}": {
+      "post": {
+        "summary": "Subtract Points from User",
+        "description": "Allows subtracting points from a user's game profile and logging the transaction.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user from whom points will be subtracted.",
+            "schema": {
+              "type": "string",
+              "example": "67167917bfd345fdcaa9e6d9"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Amount of points to subtract.",
+                    "example": 50
+                  },
+                  "classroom": {
+                    "type": "string",
+                    "description": "ID of the classroom associated with the points.",
+                    "example": "671a66e1571368e9f19f63e1"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "game_spending",
+                      "penalty_points",
+                      "other_types"
+                    ],
+                    "description": "Type of points being subtracted.",
+                    "example": "game_spending"
+                  },
+                  "details": {
+                    "type": "string",
+                    "description": "Additional details about the points transaction (optional).",
+                    "example": "Testing Points"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "classroom",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Points subtracted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67167917bfd345fdcaa9e6d9"
+                        },
+                        "game_profile": {
+                          "type": "object",
+                          "properties": {
+                            "game_points": {
+                              "type": "number",
+                              "example": 150
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "pointsLog": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "string",
+                          "example": "67167917bfd345fdcaa9e6d9"
+                        },
+                        "classroom": {
+                          "type": "string",
+                          "example": "671a66e1571368e9f19f63e1"
+                        },
+                        "is_add": {
+                          "type": "boolean",
+                          "example": false
+                        },
+                        "amount": {
+                          "type": "number",
+                          "example": 50
+                        },
+                        "details": {
+                          "type": "string",
+                          "example": "Testing Points"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "game_spending"
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "671ca3f539db154dfbe11e72"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-10-26T08:10:29.200Z"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-10-26T08:10:29.200Z"
+                        },
+                        "__v": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or error in processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/setLearningPreferences": {
+      "put": {
+        "summary": "Set Learning Preferences for User",
+        "description": "Updates the learning preferences for a user.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "learning_preferences": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of learning preferences for the user.",
+                    "example": [
+                      "AWARD",
+                      "NewAWARD"
+                    ]
+                  }
+                },
+                "required": [
+                  "learning_preferences"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Learning preferences updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "learning_preferences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "AWARD",
+                        "NewAWARD"
+                      ]
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or error in processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ]
+      }
+    },
+    "/completeLesson": {
+      "put": {
+        "summary": "Complete a Lesson",
+        "description": "Marks a lesson as completed for a user in a specific class and unit.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lessonId": {
+                    "type": "string",
+                    "description": "The ID of the lesson to be completed.",
+                    "example": "671b25c35294d0a1912972cd"
+                  },
+                  "classId": {
+                    "type": "string",
+                    "description": "The ID of the class the user is enrolled in.",
+                    "example": "671a66e1571368e9f19f63e1"
+                  },
+                  "unitId": {
+                    "type": "string",
+                    "description": "The ID of the unit that contains the lesson.",
+                    "example": "671b25a55294d0a1912972ca"
+                  }
+                },
+                "required": [
+                  "lessonId",
+                  "classId",
+                  "unitId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lesson completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "classroom": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "671a66e1571368e9f19f63e1"
+                      ]
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "lessons_completed": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "671b25c35294d0a1912972cd"
+                            ]
+                          },
+                          "unit": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "671b25a55294d0a1912972ca"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Test Uni 1"
+                              }
+                            }
+                          },
+                          "num_lessons": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "num_exercises": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "progress_percent": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 12.5
+                          },
+                          "class": {
+                            "type": "string",
+                            "example": "671a66e1571368e9f19f63e1"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671ca56945609dfa2553f0df"
+                          },
+                          "exercises": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID or error in processing the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ]
+      }
+    },
+    "/user/submitExercise": {
+      "post": {
+        "summary": "Submit an Exercise Attempt",
+        "description": "Allows a user to submit an attempt for an exercise, including their answers and score.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "description": "JWT Bearer token for authorization",
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "exerciseId": {
+                    "type": "string",
+                    "description": "The ID of the exercise being submitted.",
+                    "example": "671b25e65294d0a1912972e3"
+                  },
+                  "attempt": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "number",
+                        "description": "The score obtained for the attempt.",
+                        "example": 50
+                      },
+                      "answers": {
+                        "type": "string",
+                        "description": "The user's answers for the exercise.",
+                        "example": "Question 1 : dslknd \n\n nlknl"
+                      }
+                    }
+                  },
+                  "unitId": {
+                    "type": "string",
+                    "description": "The ID of the unit to which the exercise belongs.",
+                    "example": "671b25a55294d0a1912972ca"
+                  },
+                  "classId": {
+                    "type": "string",
+                    "description": "The ID of the class in which the exercise is submitted.",
+                    "example": "671a66e1571368e9f19f63e1"
+                  }
+                },
+                "required": [
+                  "exerciseId",
+                  "attempt",
+                  "unitId",
+                  "classId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise submission successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67167b0b8309b1415c2bfb64"
+                        },
+                        "classroom": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "671a66e1571368e9f19f63e1"
+                          ]
+                        },
+                        "game_profile": {
+                          "type": "object",
+                          "properties": {
+                            "game_points": {
+                              "type": "number",
+                              "example": 50
+                            }
+                          }
+                        },
+                        "new_exercise_submission": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "exercise": {
+                                "type": "string",
+                                "example": "671b25e65294d0a1912972e3"
+                              },
+                              "class": {
+                                "type": "string",
+                                "example": "671a66e1571368e9f19f63e1"
+                              },
+                              "_id": {
+                                "type": "string",
+                                "example": "671ca625bd4729a40967c695"
+                              }
+                            }
+                          }
+                        },
+                        "class_progress_info": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "unit": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "example": "671b25a55294d0a1912972ca"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "example": "Test Uni 1"
+                                  }
+                                }
+                              },
+                              "lessons_completed": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "example": [
+                                  "671b25c35294d0a1912972cd"
+                                ]
+                              },
+                              "num_lessons": {
+                                "type": "integer",
+                                "example": 4
+                              },
+                              "num_exercises": {
+                                "type": "integer",
+                                "example": 4
+                              },
+                              "progress_percent": {
+                                "type": "number",
+                                "example": 25
+                              },
+                              "class": {
+                                "type": "string",
+                                "example": "671a66e1571368e9f19f63e1"
+                              },
+                              "_id": {
+                                "type": "string",
+                                "example": "671ca56945609dfa2553f0df"
+                              },
+                              "exercises": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "exercise": {
+                                      "type": "string",
+                                      "example": "671b25e65294d0a1912972e3"
+                                    },
+                                    "max_score": {
+                                      "type": "number",
+                                      "example": 50
+                                    },
+                                    "coins_earned": {
+                                      "type": "number",
+                                      "example": 50
+                                    },
+                                    "best_score": {
+                                      "type": "number",
+                                      "example": 50
+                                    },
+                                    "attempts": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "attempt_number": {
+                                            "type": "integer",
+                                            "example": 1
+                                          },
+                                          "score": {
+                                            "type": "number",
+                                            "example": 50
+                                          },
+                                          "answers": {
+                                            "type": "string",
+                                            "example": "Question 1 : dslknd \n\n nlknl"
+                                          },
+                                          "_id": {
+                                            "type": "string",
+                                            "example": "671ca625bd4729a40967c692"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "last_attempt_at": {
+                                      "type": "string",
+                                      "format": "date-time",
+                                      "example": "2024-10-26T08:19:49.616Z"
+                                    }
+                                  }
+                                }
+                              },
+                              "__v": {
+                                "type": "integer",
+                                "example": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "classroom": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "671a66e1571368e9f19f63e1"
+                        },
+                        "students_enrolled": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "student": {
+                                "type": "string",
+                                "example": "67167917bfd345fdcaa9e6d9"
+                              },
+                              "is_new_exercise_submission": {
+                                "type": "boolean",
+                                "example": true
+                              },
+                              "_id": {
+                                "type": "string",
+                                "example": "671a75f1b1f3983b05bab129"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "user/setFeedback": {
+      "put": {
+        "summary": "Set Feedback for Exercise Submission",
+        "description": "Allows a user to set feedback on a specific exercise submission.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your_jwt_token_here"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "exercise_submission_id": {
+                    "type": "string",
+                    "description": "The ID of the exercise submission.",
+                    "example": "671ca625bd4729a40967c691"
+                  },
+                  "class_progress_info_id": {
+                    "type": "string",
+                    "description": "The ID of the class progress info.",
+                    "example": "671ca56945609dfa2553f0df"
+                  },
+                  "feedback": {
+                    "type": "string",
+                    "description": "The feedback for the exercise submission.",
+                    "example": "Well done! Try this exercise again, if you do better, I will give you extra points !!!"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "The ID of the user.",
+                    "example": "67167b0b8309b1415c2bfb64"
+                  }
+                },
+                "required": [
+                  "exercise_submission_id",
+                  "class_progress_info_id",
+                  "feedback",
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "unit": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "671b25a55294d0a1912972ca"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Test Uni 1"
+                              }
+                            }
+                          },
+                          "lessons_completed": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "671b25c35294d0a1912972cd"
+                            ]
+                          },
+                          "num_lessons": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "num_exercises": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "progress_percent": {
+                            "type": "number",
+                            "example": 25
+                          },
+                          "class": {
+                            "type": "string",
+                            "example": "671a66e1571368e9f19f63e1"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671ca56945609dfa2553f0df"
+                          },
+                          "exercises": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "exercise": {
+                                  "type": "string",
+                                  "example": "671b25e65294d0a1912972e3"
+                                },
+                                "max_score": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "coins_earned": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "best_score": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "attempts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "attempt_number": {
+                                        "type": "integer",
+                                        "example": 1
+                                      },
+                                      "score": {
+                                        "type": "number",
+                                        "example": 50
+                                      },
+                                      "answers": {
+                                        "type": "string",
+                                        "example": "Question 1 : dslknd \n\n nlknl"
+                                      },
+                                      "_id": {
+                                        "type": "string",
+                                        "example": "671ca625bd4729a40967c692"
+                                      }
+                                    }
+                                  }
+                                },
+                                "last_attempt_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "example": "2024-10-26T08:19:49.616Z"
+                                },
+                                "_id": {
+                                  "type": "string",
+                                  "example": "671ca625bd4729a40967c691"
+                                },
+                                "feedback": {
+                                  "type": "string",
+                                  "example": "Well done! Try this exercise again, if you do better, I will give you extra points !!!"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "is_feedback_available": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/scoreExerciseSubmission": {
+      "put": {
+        "summary": "Score an Exercise Submission",
+        "description": "Allows a user to score a specific exercise submission.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your_jwt_token_here"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "exercise_submission_id": {
+                    "type": "string",
+                    "description": "The ID of the exercise submission.",
+                    "example": "671ca625bd4729a40967c691"
+                  },
+                  "class_progress_info_id": {
+                    "type": "string",
+                    "description": "The ID of the class progress info.",
+                    "example": "671ca56945609dfa2553f0df"
+                  },
+                  "score": {
+                    "type": "number",
+                    "description": "The score to assign to the exercise submission.",
+                    "example": 30
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "The ID of the user.",
+                    "example": "67167b0b8309b1415c2bfb64"
+                  }
+                },
+                "required": [
+                  "exercise_submission_id",
+                  "class_progress_info_id",
+                  "score",
+                  "user_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Score updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "game_profile": {
+                      "type": "object",
+                      "properties": {
+                        "game_points": {
+                          "type": "number",
+                          "example": 50
+                        },
+                        "game_minutes_left": {
+                          "type": "number",
+                          "example": 60
+                        },
+                        "_id": {
+                          "type": "string",
+                          "example": "67167b0b8309b1415c2bfb65"
+                        }
+                      }
+                    },
+                    "class_progress_info": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "unit": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "671b25a55294d0a1912972ca"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "Test Uni 1"
+                              }
+                            }
+                          },
+                          "lessons_completed": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": [
+                              "671b25c35294d0a1912972cd"
+                            ]
+                          },
+                          "num_lessons": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "num_exercises": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "progress_percent": {
+                            "type": "number",
+                            "example": 25
+                          },
+                          "class": {
+                            "type": "string",
+                            "example": "671a66e1571368e9f19f63e1"
+                          },
+                          "_id": {
+                            "type": "string",
+                            "example": "671ca56945609dfa2553f0df"
+                          },
+                          "exercises": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "exercise": {
+                                  "type": "string",
+                                  "example": "671b25e65294d0a1912972e3"
+                                },
+                                "max_score": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "coins_earned": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "best_score": {
+                                  "type": "number",
+                                  "example": 50
+                                },
+                                "attempts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "attempt_number": {
+                                        "type": "integer",
+                                        "example": 1
+                                      },
+                                      "score": {
+                                        "type": "number",
+                                        "example": 30
+                                      },
+                                      "answers": {
+                                        "type": "string",
+                                        "example": "Question 1 : dslknd \n\n nlknl"
+                                      },
+                                      "_id": {
+                                        "type": "string",
+                                        "example": "671ca625bd4729a40967c692"
+                                      }
+                                    }
+                                  }
+                                },
+                                "last_attempt_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "example": "2024-10-26T08:19:49.616Z"
+                                },
+                                "_id": {
+                                  "type": "string",
+                                  "example": "671ca625bd4729a40967c691"
+                                },
+                                "feedback": {
+                                  "type": "string",
+                                  "example": "Well done! Try this exercise again, if you do better, I will give you extra points !!!"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/resetNewExerciseSubmission": {
+      "put": {
+        "summary": "Reset New Exercise Submission",
+        "description": "Resets the new exercise submissions for a user.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your_jwt_token_here"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New exercise submissions reset successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "67167b0b8309b1415c2bfb64"
+                    },
+                    "new_exercise_submission": {
+                      "type": "array",
+                      "items": {},
+                      "example": []
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid ID"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

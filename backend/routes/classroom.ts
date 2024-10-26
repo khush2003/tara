@@ -1,12 +1,10 @@
 import { Hono } from "@hono/hono";
-import type { HydratedDocument } from "mongoose";
 import {  schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/customFunction.ts";
 import { Classroom, ClassroomSchema, type IClassroom } from "../models/classroom.model.ts";
-import { User, type IUser } from "../models/user.model.ts";
+import { User } from "../models/user.model.ts";
 import type { JwtVariables } from "@hono/hono/jwt";
 import type { ObjectId } from "mongoose";
 import { Unit } from "../models/unit.model.ts";
-import { getNewToken } from "../routes/auth.ts";
 
 import { z } from "zod";
 
@@ -41,7 +39,7 @@ export const classroomRoutes = new Hono<{ Variables: JwtVariables }>()
             return c.text("Invalid user", 400);
         }
 
-        const user = await User.findById(payload.id).select(["role", "classroom"]);
+        const user = await User.findById(payload.id).select(["role", "classroom", "name"]);
         if (!user) {
             return c.text("Invalid user", 400);
         }
@@ -53,7 +51,9 @@ export const classroomRoutes = new Hono<{ Variables: JwtVariables }>()
         const classroomCode = await createUniqueClassroomCode();
         classroom.class_join_code = classroomCode;
         classroom.teachers_joined = [{ teacher: user.id, name: user.name }];
+        classroom.creator = user.id;
         const new_classroom = new Classroom(classroom);
+
 
         user.classroom.push(new_classroom.id);
 
@@ -87,7 +87,6 @@ export const classroomRoutes = new Hono<{ Variables: JwtVariables }>()
         }
         classroom.students_enrolled.push({ student: db_user.id, is_new_exercise_submission: false });
         db_user.classroom.push(classroom.id);
-        console.log(classroom.students_enrolled);
 
         // Parallel save for performance
         await Promise.all([classroom.save(), db_user.save()]);

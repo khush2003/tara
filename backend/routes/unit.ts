@@ -5,7 +5,7 @@ import type { ILesson } from "../models/unit.model.ts";
 import { schemaValidatorFromMongoose } from "../utils/customFunction.ts";
 import { jwtMiddleware } from "./auth.ts";
 import type { JwtVariables } from "@hono/hono/jwt";
-import { User, type IUser } from "../models/user.model.ts";
+import { User } from "../models/user.model.ts";
 
 
 // TODO: Future, make sure to update reduandent unit information on classroom and student when making changes to units
@@ -24,7 +24,6 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
         return c.json(units);
     })
     .get("/single/:id", jwtMiddleware, async (c) => {
-        console.log("Not this one")
         const unit = await Unit.findById(c.req.param("id")).lean();
         return c.json(unit);
     })

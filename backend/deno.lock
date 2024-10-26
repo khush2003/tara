@@ -12,6 +12,7 @@
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "jsr:@std/path@0.221": "0.221.0",
     "npm:@hono/zod-validator@~0.4.1": "0.4.1_hono@4.6.5_zod@3.23.8",
+    "npm:@scalar/hono-api-reference@~0.5.156": "0.5.156_hono@4.6.5",
     "npm:@types/node@*": "22.5.4",
     "npm:bull@^4.16.3": "4.16.3",
     "npm:create-hono@*": "0.14.1",
@@ -147,6 +148,23 @@
         "wrap-ansi@7.0.0"
       ]
     },
+    "@scalar/hono-api-reference@0.5.156_hono@4.6.5": {
+      "integrity": "sha512-/byPVH0rs40qxuOInnikDeq+19wQZ0NIq0K3WJMNBeZvr0lpGqsBf4frj0soon8UAVq/uZnOMcK6jwcC50a0bg==",
+      "dependencies": [
+        "@scalar/types",
+        "hono"
+      ]
+    },
+    "@scalar/openapi-types@0.1.4": {
+      "integrity": "sha512-+wRXgmqzgDnj8Dxqf4OOPMPo4or/LRd1Bsy4pnrIW0yBt8rKSdtBb+jH/aRnhgDDmKVjWxJ+KFk7WlSKvZwNTw=="
+    },
+    "@scalar/types@0.0.17": {
+      "integrity": "sha512-wUrvNnYFMULsHENX/9TP3oyECRTtZsP06mOZU+RlWg9sRtzWVTjlBCahkgUETL93J+Bz2RLFSKVgPyNN4fpIpA==",
+      "dependencies": [
+        "@scalar/openapi-types",
+        "@unhead/schema"
+      ]
+    },
     "@types/node@22.5.4": {
       "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
       "dependencies": [
@@ -167,6 +185,13 @@
       "dependencies": [
         "debug",
         "typescript"
+      ]
+    },
+    "@unhead/schema@1.11.10": {
+      "integrity": "sha512-lXh7cm5XtFaw3gc+ZVXTSfIHXiBpAywbjtEiOsz5TR4GxOjj2rtfOAl4C3Difk1yupP6L2otYmOZdn/i8EXSJg==",
+      "dependencies": [
+        "hookable",
+        "zhead"
       ]
     },
     "ansi-escapes@4.3.2": {
@@ -458,6 +483,9 @@
     },
     "hono@4.6.5": {
       "integrity": "sha512-qsmN3V5fgtwdKARGLgwwHvcdLKursMd+YOt69eGpl1dUCJb8mCd7hZfyZnBYjxCegBG7qkJRQRUy2oO25yHcyQ=="
+    },
+    "hookable@5.5.3": {
+      "integrity": "sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ=="
     },
     "iconv-lite@0.4.24": {
       "integrity": "sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==",
@@ -978,6 +1006,9 @@
         "strip-ansi"
       ]
     },
+    "zhead@2.2.4": {
+      "integrity": "sha512-8F0OI5dpWIA5IGG5NHUg9staDwz/ZPxZtvGVf01j7vHqSyZ0raHY+78atOVxRqb73AotX22uV1pXt3gYSstGag=="
+    },
     "zod@3.23.8": {
       "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
     }
@@ -997,6 +1028,7 @@
       "jsr:@hono/hono@^4.6.4",
       "jsr:@std/assert@1",
       "npm:@hono/zod-validator@~0.4.1",
+      "npm:@scalar/hono-api-reference@~0.5.156",
       "npm:bull@^4.16.3",
       "npm:mongodb@^6.9.0",
       "npm:mongoose@^8.7.1",
