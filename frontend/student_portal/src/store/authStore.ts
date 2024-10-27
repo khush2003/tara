@@ -4,6 +4,10 @@ import { persist, PersistOptions } from "zustand/middleware";
 import { useUserStore } from "./userStore";
 import useLearningStore from "./learningStore";
 import { useClassroomStore } from "./classroomStore";
+import {ApiRoutes} from "../../../../backend/src/app";
+import { hc } from "hono/client";
+
+const client = hc<ApiRoutes>("/");
 
 export const BACKEND_API_URL = "http://localhost:8080";
 
@@ -48,6 +52,8 @@ const useAuthStore = create<AuthState>(
             // Login action
             login: async (email, password) => {
                 try {
+                    const response2 = await client.api.v1.auth["login"].$post({ json: {email, password}});
+                    const data2 = await response2.json();
                     const response = await fetch(
                         BACKEND_API_URL + "/auth/login",
                         {

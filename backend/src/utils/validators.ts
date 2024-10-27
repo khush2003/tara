@@ -1,4 +1,4 @@
-import { validator } from "@hono/hono/validator";
+import { validator } from "hono/validator";
 import type mongoose from "mongoose";
 
 export const schemaValidatorFromMongoose = (schema: mongoose.Schema, propertyName?: string) => 
@@ -83,12 +83,3 @@ export const validateJsonMiddleware = (schema: z.ZodSchema) =>
     // If validation passes, return the parsed data
     return result.data;
   });
-
-export async function catchError<T>(promise: Promise<T>): Promise<[T | undefined, Error | undefined]> {
-    try {
-      const data = await promise;
-      return [data, undefined] as [T, undefined];
-    } catch (err) {
-      return [undefined, err] as [undefined, Error];
-    }
-}

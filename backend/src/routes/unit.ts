@@ -1,10 +1,10 @@
-import { Hono } from "@hono/hono"
+import { Hono } from "hono"
 // import type { HydratedDocument } from "mongoose";
 import { ExerciseSchema, LessonSchema, Unit, UnitSchema } from "../models/unit.model.ts";
 import type { ILesson } from "../models/unit.model.ts";
-import { schemaValidatorFromMongoose } from "../utils/customFunction.ts";
-import { jwtMiddleware } from "./auth.ts";
-import type { JwtVariables } from "@hono/hono/jwt";
+import { schemaValidatorFromMongoose } from "../utils/validators.ts";
+import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
+import type { JwtVariables } from "hono/jwt";
 import { User } from "../models/user.model.ts";
 
 

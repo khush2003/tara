@@ -1,8 +1,8 @@
-import { Hono } from "@hono/hono";
+import { Hono } from "hono";
 import {  User, type IClassProgressInfo, type IExerciseSubmission, type IGameProfile } from "../models/user.model.ts";
-import { type JwtVariables } from "@hono/hono/jwt";
+import { type JwtVariables } from "hono/jwt";
 import type { HydratedDocument } from "mongoose";
-import {validateJsonMiddleware } from "../utils/customFunction.ts";
+import {validateJsonMiddleware } from "../utils/validators.ts";
 import mongoose from "mongoose";
 import { Unit, type IExercise, type ILesson } from "../models/unit.model.ts";
 import { Classroom } from "../models/classroom.model.ts";

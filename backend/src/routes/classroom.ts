@@ -1,8 +1,8 @@
-import { Hono } from "@hono/hono";
-import {  schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/customFunction.ts";
+import { Hono } from "hono";
+import {  schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/validators.ts";
 import { Classroom, ClassroomSchema, type IClassroom } from "../models/classroom.model.ts";
 import { User } from "../models/user.model.ts";
-import type { JwtVariables } from "@hono/hono/jwt";
+import type { JwtVariables } from "hono/jwt";
 import type { ObjectId } from "mongoose";
 import { Unit } from "../models/unit.model.ts";
 

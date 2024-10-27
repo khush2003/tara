@@ -1,15 +1,21 @@
-import { Hono } from "@hono/hono";
+import { Hono } from "hono";
 import { User} from "../models/user.model.ts";
-import { jwt, type JwtVariables, sign } from "@hono/hono/jwt";
-import type { JWTPayload } from "@hono/hono/utils/jwt/types";
-import { hash, verify } from "@felix/bcrypt";
-import { HTTPException } from "@hono/hono/http-exception";
-import { validateJsonMiddleware } from "../utils/customFunction.ts";
+import { type JwtVariables, sign } from "hono/jwt";
+import type { JWTPayload } from "hono/utils/jwt/types";
+import { HTTPException } from "hono/http-exception";
+import { validateJsonMiddleware } from "../utils/validators.ts";
 import { z } from "zod";
+import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
 
-export const jwtMiddleware = jwt({
-    secret: Deno.env.get("JWT_SECRET") || "secret",
-});
+
+
+async function hash(password: string) {
+    return Bun.password.hash(password);
+}
+
+async function verify(password: string, hashed: string) {
+    return Bun.password.verify(password, hashed);
+}
 
 const authRoutes = new Hono<{ Variables: JwtVariables }>()
     .post(
@@ -23,7 +29,7 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
             })
         ),
         async (c) => {
-            const { email, password, name, school } = await c.req.valid("json");
+            const { email, password, name, school } = c.req.valid("json");
 
             const existing = await User.exists({ email }).lean();
             if (existing) {
@@ -214,7 +220,7 @@ export default authRoutes;
 
 
 export async function getNewToken(userId: string): Promise<[string | undefined, HTTPException | undefined]> {
-    const secret = Deno.env.get("JWT_SECRET");
+    const secret = Bun.env.JWT_SECRET;
     if (!secret) {
         return [undefined, new HTTPException(500, { message: "Internal Error: JWT_SECRET is not defined in environment variables" })];
     }

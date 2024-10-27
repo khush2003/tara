@@ -1,9 +1,9 @@
-import { Hono } from "@hono/hono"
+import { Hono } from "hono"
 // import type { HydratedDocument } from "mongoose";
-import { schemaValidatorFromMongoose } from "../utils/customFunction.ts";
+import { schemaValidatorFromMongoose } from "../utils/validators.ts";
 import { PointsLog, PointsLogSchema, type IPointsLog } from "../models/pointslog.model.ts";
 import { User } from "../models/user.model.ts";
-import type { JwtVariables } from "@hono/hono/jwt";
+import type { JwtVariables } from "hono/jwt";
 
 // All routes in pointslogRoutes have jwtMiddleware applied, to ensure that only authenticated users can access them
 
