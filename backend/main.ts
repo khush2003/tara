@@ -1,22 +1,17 @@
-import { Hono } from '@hono/hono'
+import { Hono, type Env, type MiddlewareHandler } from '@hono/hono'
 import mongoose from 'mongoose';
-
 import userRoutes from "./routes/user.ts";
 import authRoutes, { jwtMiddleware } from "./routes/auth.ts";
 import { unitRoutes } from "./routes/unit.ts";
 import { classroomRoutes } from "./routes/classroom.ts";
 import { pointslogRoutes } from "./routes/pointslog.ts";
-
 import { secureHeaders } from '@hono/hono/secure-headers'
-
 import { apiReference } from '@scalar/hono-api-reference'
-
 import openapi from "./openapi.json" with { type: "json" }
 
 const port = Deno.env.get('PORT') || '3000'
 const app = new Hono()
 
-// For logging and seeing the time taken for each request and response cycle
 import { logger } from '@hono/hono/logger'
 app.use('*', logger())
 
@@ -67,16 +62,10 @@ app.get("/api/v1/reference", apiReference({
   spec: {
     url: 'openapi.json',
   }
-}))
+}) as unknown as MiddlewareHandler<Env>)
 
 // Routes
 
-const apiRoutes = app.basePath('/api/v1')
-.route('/user', userRoutes)
-.route('/auth', authRoutes)
-.route('/unit', unitRoutes)
-.route('/classroom', classroomRoutes)
-.route('pointslog', pointslogRoutes)
 
 app.get("/openapi.json", (c) => {
   return c.json(openapi)
@@ -86,16 +75,25 @@ app.get("api/v1/openapi.json", (c) => {
   return c.json(openapi)
 })
 
-app.get("/reference", apiReference<BlankEnv>({
+app.get("/reference", apiReference({
   theme: "alternate",
   spec: {
     url: 'openapi.json',
   }
-}))
+}) as unknown as MiddlewareHandler<Env>)
+
+const apiRoutes = app.basePath('/api/v1')
+.route('/user', userRoutes)
+.route('/auth', authRoutes)
+.route('/unit', unitRoutes)
+.route('/classroom', classroomRoutes)
+.route('pointslog', pointslogRoutes)
 
 Deno.serve({
   port: parseInt(port),
 }, app.fetch)
+
+type ApiRoutes = typeof apiRoutes
 
 await connectToMongo(Deno.env.get('MONGODB_URI') || '');
 
@@ -140,6 +138,5 @@ Deno.cron( "Resetting game minutes for all users" , '0 0 * * *', () => {
   enqueueGameResetInBatches(1000);
 });
 // ----------------------------------------------------------------
-
-export type ApiRoutes = typeof apiRoutes
-
+export { apiRoutes };
+export type { ApiRoutes };
