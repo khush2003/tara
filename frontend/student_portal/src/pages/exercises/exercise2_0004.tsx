@@ -1,5 +1,5 @@
 import React from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 import { CheckCircle, XCircle } from "lucide-react";
 
 // Begin, cut, warmup, delicious, clean, pointy, soft
@@ -65,7 +65,7 @@ const Exercise2_0004: React.FC = () => {
     };
 
     return (
-        <LessonContainer title="Exercise: Scambled Senteces!" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleAnswerCheck}>
+        <ContentContainer title="Exercise: Scambled Senteces!" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleAnswerCheck}>
             <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700">Let's rewrite the sentences in the correct order</h2>
             <div className="grid grid-cols-2 gap-4 px-10">
                 {scrambled.map((synonym, index) => (
@@ -87,7 +87,7 @@ const Exercise2_0004: React.FC = () => {
                     </div>
                 ))}
             </div>
-        </LessonContainer>
+        </ContentContainer>
     );
 };
 

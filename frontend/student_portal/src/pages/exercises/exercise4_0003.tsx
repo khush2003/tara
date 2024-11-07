@@ -5,7 +5,7 @@ import img1 from '@/assets/img_match_1.png'
 import img2 from '@/assets/img_match_2.png'
 import img3 from '@/assets/img_match_3.png'
 import img4 from '@/assets/img_match_4.png'
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 
 
 const descriptions = [
@@ -79,7 +79,7 @@ const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
   }
 
   return (
-    <LessonContainer title="Match the Image to the Description" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleSubmit}>
+    <ContentContainer title="Match the Image to the Description" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleSubmit}>
     <Card className="w-full max-w-4xl mx-auto">
       <CardContent className="p-6">
         <h1 className="text-lg font-medium text-gray-800 mb-4">Click and drag an image to the correct desciption of the image</h1>
@@ -118,6 +118,6 @@ const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
         </div>
       </CardContent>
     </Card>
-    </LessonContainer>
+    </ContentContainer>
   )
 }

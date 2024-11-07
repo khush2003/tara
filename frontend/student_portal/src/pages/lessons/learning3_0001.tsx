@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 
 const lessonContent = [
  
@@ -23,7 +23,7 @@ export default function Learning3_0001() {
   }
 
   return (
-    <LessonContainer title="Learn about Bears">
+    <ContentContainer title="Learn about Bears">
       <AnimatePresence>
             {lessonContent.slice(0, visibleContent).map((content, index) => (
               <motion.p
@@ -43,7 +43,7 @@ export default function Learning3_0001() {
               Learn More
             </Button>
           )}
-    </LessonContainer>
+    </ContentContainer>
   )
 }
 

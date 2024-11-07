@@ -1,5 +1,5 @@
 import React from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 // Begin, cut, warmup, delicious, clean, pointy, soft
 const synonyms = [
@@ -49,7 +49,7 @@ const Exercise1_0001: React.FC = () => {
  
 
   return (
-    <LessonContainer title="Exercise: Synonyms!" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleAnswerCheck}>
+    <ContentContainer title="Exercise: Synonyms!" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={handleAnswerCheck}>
         
           <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700">
             Find the synonyms in the text
@@ -89,7 +89,7 @@ const Exercise1_0001: React.FC = () => {
             <div className="mt-8 text-center">
             </div>
         
-      </LessonContainer>
+      </ContentContainer>
   );
 };
 

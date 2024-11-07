@@ -9,7 +9,7 @@ import lion from '@/assets/lion.png'
 import lizard from '@/assets/lizard.png'
 import snake from '@/assets/snake.png'
 import whale from '@/assets/whale.png'
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 
 const animals = [
   { id: 'dog', src: dog, alt: 'Dog' },
@@ -95,7 +95,7 @@ export default function Exercise3_0002() {
   }
 
   return (
-    <LessonContainer title="Create This Mythological Animal" isTeacherScoredExercise onSubmit={handleSubmit}>
+    <ContentContainer title="Create This Mythological Animal" isTeacherScoredExercise onSubmit={handleSubmit}>
     <DndProvider backend={HTML5Backend}>
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Drag And Drop To Make This Mythological Animal</h1>
@@ -141,6 +141,6 @@ export default function Exercise3_0002() {
         </div>
       </div>
     </DndProvider>
-    </LessonContainer>
+    </ContentContainer>
   )
 }

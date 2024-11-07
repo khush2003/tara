@@ -31,20 +31,24 @@ export interface LearningModule {
 export interface Lesson {
     title: string;
     description: string;
-    lessonCode: string;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+    instruction: string;
+    lesson_type: string;
+    lesson_content: object[];
+    _id: string;
 }
 
 export interface Exercise {
     title: string;
     description: string;
-    exerciseCode: string;
-    maxScore: number;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+    instruction: string;
+    exercise_type: string;
+    exercise_content: object[];
+    is_instant_scored: boolean;
+    correct_answers: object;
+    varients: string[];
+    max_score: number;
+    order: number;
+    _id: string;
 }
 
 export interface Classroom {

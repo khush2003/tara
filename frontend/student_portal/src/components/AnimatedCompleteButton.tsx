@@ -52,7 +52,7 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
           setIsCompleted(true);
         }
         onClick();
-      }, 1000); // Intermediate step duration
+      }, 500); // Intermediate step duration
     }
   };
 

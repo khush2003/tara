@@ -10,7 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import { Button } from "@/components/ui/button"
 import {  CardContent } from "@/components/ui/card"
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 
 const foodItems = [
@@ -133,7 +133,7 @@ export default function FoodSentenceGame() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <LessonContainer title="Food Sentence Game" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={checkAnswers}>
+      <ContentContainer title="Food Sentence Game" overrideClass="max-w-4xl" isInstantScoredExercise onSubmit={checkAnswers}>
           <CardContent className="p-6">
             <p className="text-lg text-center mb-6">Drag the images to complete the sentences</p>
             <div className="flex justify-center space-x-4 mb-8">
@@ -173,7 +173,7 @@ export default function FoodSentenceGame() {
               </Button>
             </div>
           </CardContent>
-      </LessonContainer>
+      </ContentContainer>
       </DndProvider>
   )
 }

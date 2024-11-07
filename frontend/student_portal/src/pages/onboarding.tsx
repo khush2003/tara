@@ -8,7 +8,6 @@ import useAuthStore from "@/store/authStore";
 
 const OnboardingPage: React.FC = () => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-    // const logOut = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
     useEffect(() => {
         if (isLoggedIn) {

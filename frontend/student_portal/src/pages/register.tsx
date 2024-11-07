@@ -13,6 +13,7 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
+    const [school, setSchool] = useState("");
     const [retype, setRetype] = useState("");
     const [error, setError] = useState("");
     const [isError, setIsError] = useState(false);
@@ -34,7 +35,7 @@ export default function RegisterPage() {
         }
         setIsLoading(true);
         try {
-            const error = await register(name, email, password);
+            const error = await register(name, email, password, school);
             if (error) {
                 setError(error);
                 setIsError(true);
@@ -85,6 +86,22 @@ export default function RegisterPage() {
                                 className="mt-1 text-lg p-3 rounded-xl"
                                 required
                                 onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <Label
+                                htmlFor="school"
+                                className="text-lg font-medium text-gray-700"
+                            >
+                                Enter your school name
+                            </Label>
+                            <Input
+                                id="school"
+                                type="text"
+                                placeholder="My School"
+                                className="mt-1 text-lg p-3 rounded-xl"
+                                required
+                                onChange={(e) => setSchool(e.target.value)}
                             />
                         </div>
                         <div>

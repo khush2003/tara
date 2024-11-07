@@ -1,16 +1,16 @@
 import React from "react";
 import unit2 from "../../assets/unit2.png";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 const Learning2_0001: React.FC = () => {
 
   return (
     
-      <LessonContainer title="Was and Were Limericks" overrideClass="max-w-6xl">
+      <ContentContainer title="Was and Were Limericks" overrideClass="max-w-6xl">
           <div className="text-center mb-6">
            <img src={unit2} alt="" />
           </div>
-         </LessonContainer>
+         </ContentContainer>
         
   );
 };

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 import { Card } from '@/components/ui/card'
 
 export default function Exercise3_0003() {
@@ -41,7 +41,7 @@ export default function Exercise3_0003() {
   }
 
   return (
-   <LessonContainer title="Animal Riddles" isInstantScoredExercise onSubmit={handleSubmit} >
+   <ContentContainer title="Animal Riddles" isInstantScoredExercise onSubmit={handleSubmit} >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {riddles.map((riddle, index) => (
           <Card key={index} className="bg-white p-4 rounded-lg shadow">
@@ -63,6 +63,6 @@ export default function Exercise3_0003() {
         ))}
       </div>
 
-      </LessonContainer>
+      </ContentContainer>
   )
 }

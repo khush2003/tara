@@ -9,7 +9,7 @@ import egg from "../../assets/TARA flashcards/egg.png";
 import rice from "../../assets/TARA flashcards/rice.png";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 // ID: 0001L0001
 
@@ -78,7 +78,7 @@ export default function Learning1_0001() {
     };
 
     return (
-        <LessonContainer
+        <ContentContainer
             title="Cooking Vocabulary"
             className="bg-gradient-to-l from-yellow-100 to-orange-200"
             headerBgColor="bg-orange-100"
@@ -152,6 +152,6 @@ export default function Learning1_0001() {
                     </motion.div>
                 ))}
             </div>
-        </LessonContainer>
+        </ContentContainer>
     );
 }

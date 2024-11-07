@@ -4,53 +4,37 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookOpen, Settings, ChevronLeft, ChevronRight, Trophy, GamepadIcon, Book, Dumbbell, Lock, Layout, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import PageContent from "@/components/PageContent";
 import ChatModule from "@/components/ChatModule";
-import useLearningStore from "@/store/learningStore";
-import { useUserStore } from "@/store/userStore";
 import useAuthStore from "@/store/authStore";
-import { useClassroomStore } from "@/store/classroomStore";
+import { useClassroom } from "@/hooks/useClassroom";
+import { useUser } from "@/hooks/useUser";
+import { useUnits } from "@/hooks/useUnit";
+import { Exercise, Lesson } from "@/types/dbTypes";
+import ContentContainer from "@/components/ContentContainer";
 
 export default function EnhancedLearningHomePage() {
-    const [learningModule, fetchLearningModule, moduleLoading, moduleError] = useLearningStore((state) => [
-        state.learningModule,
-        state.fetchLearningModule,
-        state.moduleLoading,
-        state.moduleError,
-    ]);
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const { user, fetchCurrentUser, userError, userLoading } = useUserStore();
-    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const [isGuest, setIsGuest] = useState(false);
-    const [classroom, fetchClassroomDetails, classroomLoading, classroomError] = useClassroomStore((state) => [
-        state.classroom,
-        state.fetchClassroom,
-        state.classroomLoading,
-        state.classroomError,
-    ]);
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     const [hoverTimer, setHoverTimer] = useState<number | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const { unitId, contentId, classroomId } = useParams();
+    const navigate = useNavigate();
+
+    const { data: classroom, isLoading: classroomLoading, error: classroomError } = useClassroom(classroomId);
+
+    const { data: user, isLoading: userLoading, error: userError } = useUser();
+
+    const { data: units, isLoading: unitsLoading, error: unitsError } = useUnits(classroomId);
 
     useEffect(() => {
-        if (!id) {
-            navigate("/learningModule/0001");
-            return;
-        }
-        if (!learningModule) {
-            fetchLearningModule(id.split(/L|E/)[0]);
-        }
-        if (isLoggedIn) {
-            setIsGuest(false);
-            if (!user) {
-                fetchCurrentUser(true);
-            }
-        } else {
+        if (!isLoggedIn) {
             setIsGuest(true);
         }
-    }, [classroom, fetchClassroomDetails, fetchCurrentUser, fetchLearningModule, id, isLoggedIn, learningModule, navigate, user]);
+    }, [isLoggedIn]);
 
-    if (moduleError || userError || classroomError) {
+    if (unitsError || userError || classroomError) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <div className="flex flex-col items-center gap-4">
@@ -63,7 +47,7 @@ export default function EnhancedLearningHomePage() {
         );
     }
 
-    if (moduleLoading || !learningModule || userLoading || classroomLoading) {
+    if (unitsLoading || userLoading || classroomLoading) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <div className="flex flex-col items-center gap-4">
@@ -73,10 +57,18 @@ export default function EnhancedLearningHomePage() {
         );
     }
 
-    const allLessonsCompleted =
-        classroom?.progress.find((p) => p.moduleCode === id?.split(/L|E/)[0])?.completedLessons.length === learningModule?.lessons.length;
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+    const unit = units?.find((unit) => unit._id === unitId);
 
+    const allLessonsCompleted =
+        user?.class_progress_info.find((progress) => {
+            return progress.unit.toString() === unitId && progress.class.toString() === classroomId;
+        })?.lessons_completed?.length === unit?.lessons.length;
+
+    const progress = user?.class_progress_info.find((progress) => {
+        return progress.unit.toString() === unitId && progress.class.toString() === classroom?._id;
+    });
+
+    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const MotionButton = motion.create(Button);
 
     return (
@@ -123,9 +115,7 @@ export default function EnhancedLearningHomePage() {
                                         </motion.div>
                                         <div>
                                             <h2 className="font-bold text-indigo-800 text-xl">{user?.name || "Guest"}</h2>
-                                            <p className="text-sm text-indigo-600">
-                                                Unit {id ? parseInt(id?.split(/[LE]/)[0]) : 0} {learningModule.name}
-                                            </p>
+                                            <p className="text-sm text-indigo-600">Unit {unit?.name}</p>
                                         </div>
                                     </div>
                                     <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.3 }} onClick={() => navigate("/settings")}>
@@ -136,24 +126,42 @@ export default function EnhancedLearningHomePage() {
                                     <div>
                                         <motion.div
                                             className="bg-gradient-to-br from-fuchsia-200 to-fuchsia-300 text-fuchsia-700 p-5 rounded-2xl shadow-md"
-                                            whileHover={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false? 1 : 1.02 }}
+                                            whileHover={{
+                                                scale:
+                                                    isGuest || user?.game_profile.game_minutes_left === 0 || classroom?.is_game_blocked === true
+                                                        ? 1
+                                                        : 1.02,
+                                            }}
                                             transition={{ type: "spring", stiffness: 300 }}
-                                            
                                         >
                                             <div className="flex items-center space-x-3 mb-2">
                                                 <GamepadIcon className=" w-6 h-6" />
                                                 <h3 className="font-bold text-xl">Game Zone</h3>
                                             </div>
-                                            <p className=" mb-2 text-md">Your Coins: {user?.student_details.game_points.toFixed(0) || 0} 💎</p>
+                                            <p className=" mb-2 text-md">Your Coins: {user?.game_profile.game_points.toFixed(0) || 0} 💎</p>
                                             <motion.button
                                                 className="w-full bg-gradient-to-r from-fuchsia-500 to-fuchsia-600 hover:from-fuchsia-600 hover:to-fuchsia-700 text-white py-2 rounded-xl font-bold text-md shadow-sm"
-                                                whileHover={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false? 1:  1.05 }}
-                                                whileTap={{ scale:  isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false ? 1 : 0.95 }}
+                                                whileHover={{
+                                                    scale:
+                                                        isGuest || user?.game_profile.game_minutes_left === 0 || classroom?.is_game_blocked === true
+                                                            ? 1
+                                                            : 1.05,
+                                                }}
+                                                whileTap={{
+                                                    scale:
+                                                        isGuest || user?.game_profile.game_minutes_left === 0 || classroom?.is_game_blocked === true
+                                                            ? 1
+                                                            : 0.95,
+                                                }}
                                                 onClick={() => {
-                                                    if (isGuest || user?.student_details.game_hours_left === 0 || classroom?.is_game_active === false) {
+                                                    if (
+                                                        isGuest ||
+                                                        user?.game_profile.game_minutes_left === 0 ||
+                                                        classroom?.is_game_blocked === true
+                                                    ) {
                                                         alert("Game is not active");
                                                     } else {
-                                                        navigate("/gameintro")
+                                                        navigate("/gameintro");
                                                     }
                                                 }}
                                             >
@@ -170,22 +178,25 @@ export default function EnhancedLearningHomePage() {
                                                 <h3 className="font-bold  text-xl">Lessons</h3>
                                             </div>
                                             <div className="space-y-3">
-                                                {learningModule.lessons.map((lesson, index) => (
-                                                    <motion.button
-                                                        key={index}
-                                                        className="w-full bg-white bg-opacity-95 text-sm py-3 px-4 rounded-xl font-semibold text-left flex items-center space-x-3 shadow-sm"
-                                                        whileHover={{
-                                                            scale: 1.03,
-                                                            backgroundColor: "#f0fdfa",
-                                                        }}
-                                                        whileTap={{ scale: 0.98 }}
-                                                        onClick={() => navigate(`/learning/${lesson.lessonCode}`)}
-                                                        transition={{ type: "spring", stiffness: 300 }}
-                                                    >
-                                                        <BookOpen className="w-4 h-4 text-yellow-500" />
-                                                        <span>{lesson.title}</span>
-                                                    </motion.button>
-                                                ))}
+                                                {unit?.lessons.map((l, index) => {
+                                                    const lesson = l as Lesson;
+                                                    return (
+                                                        <motion.button
+                                                            key={index}
+                                                            className="w-full bg-white bg-opacity-95 text-sm py-3 px-4 rounded-xl font-semibold text-left flex items-center space-x-3 shadow-sm"
+                                                            whileHover={{
+                                                                scale: 1.03,
+                                                                backgroundColor: "#f0fdfa",
+                                                            }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                            onClick={() => navigate(`/learning/${unit._id}/${lesson._id}/${classroomId}`)}
+                                                            transition={{ type: "spring", stiffness: 300 }}
+                                                        >
+                                                            <BookOpen className="w-4 h-4 text-yellow-500" />
+                                                            <span>{lesson.title}</span>
+                                                        </motion.button>
+                                                    );
+                                                })}
                                             </div>
                                         </motion.div>
                                         <motion.div
@@ -198,50 +209,53 @@ export default function EnhancedLearningHomePage() {
                                                 <h3 className="font-bold  text-xl">Exercises</h3>
                                             </div>
                                             <div className="space-y-3">
-                                                {learningModule.exercises.map((exercise, index) => (
-                                                    <motion.button
-                                                        key={index}
-                                                        className="w-full bg-white bg-opacity-95 text-sm font-medium text-amber-700 p-3 rounded-xl  text-left flex flex-col items-left justify-between shadow-sm"
-                                                        whileHover={{
-                                                            scale: !allLessonsCompleted ? 1 : 1.03,
-                                                            backgroundColor: !allLessonsCompleted ? "text-amber-700" : "#fff7ed",
-                                                        }}
-                                                        transition={{ type: "spring", stiffness: 300 }}
-                                                        disabled={!allLessonsCompleted}
-                                                        whileTap={{ scale: !allLessonsCompleted ? 1 : 0.98 }}
-                                                        onHoverStart={() => {
-                                                            if (!allLessonsCompleted) {
-                                                                const timer = setTimeout(() => {
-                                                                    alert("To start an exercise, please complete all lessons first");
-                                                                }, 2000);
-                                                                setHoverTimer(timer as unknown as number);
-                                                            }
-                                                        }}
-                                                        onHoverEnd={() => {
-                                                            clearTimeout(hoverTimer as unknown as number);
-                                                        }}
-                                                        onClick={() => {
-                                                            if (allLessonsCompleted) navigate("/learning/" + exercise.exerciseCode);
-                                                            else {
-                                                                alert("Please complete all lessons first");
-                                                            }
-                                                        }}
-                                                    >
-                                                        <div className="flex w-full flex-row items-center justify-between">
-                                                            <span className="flex items-center space-x-3">
-                                                                {!allLessonsCompleted ? (
-                                                                    <Lock className="w-4 h-4 text-yellow-500" />
-                                                                ) : (
-                                                                    <Trophy className="w-4 h-4 text-yellow-500" />
-                                                                )}
-                                                                <span>{exercise.title}</span>
-                                                            </span>
-                                                            <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
-                                                                {exercise.maxScore} 💎
-                                                            </span>
-                                                        </div>
-                                                    </motion.button>
-                                                ))}
+                                                {unit?.exercises.map((ex, index) => {
+                                                    const exercise = ex as unknown as Exercise;
+                                                    return (
+                                                        <motion.button
+                                                            key={index}
+                                                            className="w-full bg-white bg-opacity-95 text-sm font-medium text-amber-700 p-3 rounded-xl  text-left flex flex-col items-left justify-between shadow-sm"
+                                                            whileHover={{
+                                                                scale: !allLessonsCompleted ? 1 : 1.03,
+                                                                backgroundColor: !allLessonsCompleted ? "text-amber-700" : "#fff7ed",
+                                                            }}
+                                                            transition={{ type: "spring", stiffness: 300 }}
+                                                            disabled={!allLessonsCompleted}
+                                                            whileTap={{ scale: !allLessonsCompleted ? 1 : 0.98 }}
+                                                            onHoverStart={() => {
+                                                                if (!allLessonsCompleted) {
+                                                                    const timer = setTimeout(() => {
+                                                                        alert("To start an exercise, please complete all lessons first");
+                                                                    }, 2000);
+                                                                    setHoverTimer(timer as unknown as number);
+                                                                }
+                                                            }}
+                                                            onHoverEnd={() => {
+                                                                clearTimeout(hoverTimer as unknown as number);
+                                                            }}
+                                                            onClick={() => {
+                                                                if (allLessonsCompleted) navigate("/learning/" + unit._id + "/" + exercise._id + "/" + classroomId);
+                                                                else {
+                                                                    alert("Please complete all lessons first");
+                                                                }
+                                                            }}
+                                                        >
+                                                            <div className="flex w-full flex-row items-center justify-between">
+                                                                <span className="flex items-center space-x-3">
+                                                                    {!allLessonsCompleted ? (
+                                                                        <Lock className="w-4 h-4 text-yellow-500" />
+                                                                    ) : (
+                                                                        <Trophy className="w-4 h-4 text-yellow-500" />
+                                                                    )}
+                                                                    <span>{exercise.title}</span>
+                                                                </span>
+                                                                <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
+                                                                    {exercise.max_score} 💎
+                                                                </span>
+                                                            </div>
+                                                        </motion.button>
+                                                    );
+                                                })}
                                             </div>
                                         </motion.div>
                                         <div className="flex flex-1 items-center space-x-3 mt-4" />
@@ -271,7 +285,7 @@ export default function EnhancedLearningHomePage() {
                                                         backgroundColor: "#fff7ed",
                                                     }}
                                                     whileTap={{ scale: 0.98 }}
-                                                    onClick={() => navigate("/learningModule/" + id?.split(/L|E/)[0])}
+                                                    onClick={() => navigate("/learningModule/" + unit?._id + "/" + classroomId)}
                                                 >
                                                     <ArrowLeft className="w-4 h-4 mr-2" />
                                                     Back to Lesson
@@ -293,10 +307,7 @@ export default function EnhancedLearningHomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    
-                        <PageContent id={id} />
-                        
-                    
+                <ContentContainer />
                 </motion.div>
 
                 <ChatModule />

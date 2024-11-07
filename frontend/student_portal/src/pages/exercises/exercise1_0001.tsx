@@ -1,5 +1,5 @@
 import React from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 // ID: 0001E0001
 const Exercise1_0001: React.FC = () => {
@@ -7,7 +7,7 @@ const Exercise1_0001: React.FC = () => {
  
 
   return (
-    <LessonContainer title="Exercise: Let's Translate!" overrideClass="max-w-4xl" isTeacherScoredExercise onSubmit={
+    <ContentContainer title="Exercise: Let's Translate!" overrideClass="max-w-4xl" isTeacherScoredExercise onSubmit={
       () => {
         return { answers:  translation};
       }
@@ -38,7 +38,7 @@ const Exercise1_0001: React.FC = () => {
           ></textarea>
           
         
-      </LessonContainer>
+      </ContentContainer>
   );
 };
 

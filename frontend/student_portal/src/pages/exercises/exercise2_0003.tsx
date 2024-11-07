@@ -1,5 +1,5 @@
 import React from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 import StorySectionMultiple from "@/components/StorySectionMultiple";
 
 
@@ -13,7 +13,7 @@ const Exercise2_0003: React.FC = () => {
   }
 
   return (
-    <LessonContainer title="Was or Were?" overrideClass="max-w-6xl" onSubmit={handleAnswerCheck} isTeacherScoredExercise>
+    <ContentContainer title="Was or Were?" overrideClass="max-w-6xl" onSubmit={handleAnswerCheck} isTeacherScoredExercise>
             <div className="space-y-6 ">
               <div className={"max-w-lg"}>
               <StorySectionMultiple
@@ -34,7 +34,7 @@ const Exercise2_0003: React.FC = () => {
               />
               </div>
             </div>
-    </LessonContainer>
+    </ContentContainer>
   );
 };
 

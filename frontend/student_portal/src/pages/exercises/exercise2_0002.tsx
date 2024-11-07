@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 import camp from "../../assets/camp.png";
 import zoo from "../../assets/zoo.png";
 import { Card } from "@/components/ui/card"
@@ -79,7 +79,7 @@ const Exercise2_0002: React.FC = () => {
   }
 
   return (
-    <LessonContainer title="Exercise: True or False" overrideClass="max-w-6xl" isInstantScoredExercise onSubmit={handleComplete}>
+    <ContentContainer title="Exercise: True or False" overrideClass="max-w-6xl" isInstantScoredExercise onSubmit={handleComplete}>
             <div className="container mx-auto p-4 space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {exercises.map((exercise) => (
@@ -118,7 +118,7 @@ const Exercise2_0002: React.FC = () => {
         ))}
       </div>
     </div>
-    </LessonContainer>
+    </ContentContainer>
   );
 }
 

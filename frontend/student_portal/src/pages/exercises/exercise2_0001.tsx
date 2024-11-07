@@ -1,7 +1,7 @@
 import React from "react";
 import birds from "../../assets/birds.jpg"; 
 import beach from "../../assets/beach.jpg"; 
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 import StorySection from "@/components/StorySection";
 
 
@@ -15,7 +15,7 @@ const Exercise2_0001: React.FC = () => {
   };
 
   return (
-    <LessonContainer title="Was and Were Limericks" overrideClass="max-w-6xl" isTeacherScoredExercise onSubmit={handleAnswerCheck}>
+    <ContentContainer title="Was and Were Limericks" overrideClass="max-w-6xl" isTeacherScoredExercise onSubmit={handleAnswerCheck}>
             <div className="space-y-6">
               <StorySection
                 text="Yesterday, my family and I _____ (was/were) at the park. The weather _____ (was/were) perfect, and the trees _____ (was/were) full of birds. My favorite part _____ (was/were) the ice cream stand!"
@@ -35,7 +35,7 @@ const Exercise2_0001: React.FC = () => {
               />
             </div>
        
-    </LessonContainer>
+    </ContentContainer>
   );
 };
 

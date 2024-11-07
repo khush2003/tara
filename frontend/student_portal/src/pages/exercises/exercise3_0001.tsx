@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { CheckCircle, XCircle } from 'lucide-react'
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 import { Card } from '@/components/ui/card'
 
 const questions = [
@@ -104,7 +104,7 @@ export default function Exercise3_0001() {
   }
 
   return (
-    <LessonContainer title='Bear Quiz for Kids!' className='bg-gradient-to-r from-blue-300 to-sky-300' overrideClass="bg-white" headerBgColor='bg-blue-200' headerTextColor='text-blue-900' isInstantScoredExercise onSubmit={handleSubmit}>
+    <ContentContainer title='Bear Quiz for Kids!' className='bg-gradient-to-r from-blue-300 to-sky-300' overrideClass="bg-white" headerBgColor='bg-blue-200' headerTextColor='text-blue-900' isInstantScoredExercise onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {questions.map((question) => (
           <Card key={question.id} className="bg-blue-100 p-4 rounded-xl shadow-lg">
@@ -147,6 +147,6 @@ export default function Exercise3_0001() {
         </div>
       )} */}
       
-    </LessonContainer>
+    </ContentContainer>
   )
 }

@@ -1,35 +1,28 @@
 // src/store/authStore.ts
 import { create, StateCreator } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
-import { useUserStore } from "./userStore";
-import useLearningStore from "./learningStore";
-import { useClassroomStore } from "./classroomStore";
 import {ApiRoutes} from "../../../../backend/src/app";
 import { hc } from "hono/client";
+import { mutate } from "swr";
+import { userKey } from "@/hooks/useUser";
+import { unitsKey } from "@/hooks/useUnit";
+import useClassStore from "./classStore";
 
-const client = hc<ApiRoutes>("/");
-
-export const BACKEND_API_URL = "http://localhost:8080";
+export const client = hc<ApiRoutes>("/");
 
 // Define the shape of the state
 interface AuthState {
     accessToken: string | null;
-    user: { user_id: string; name: string; email: string } | null;
     isLoggedIn: boolean;
     login: (email: string, password: string) => Promise<string | void>;
     register: (
         name: string,
         email: string,
         password: string,
-        profilePicture?: string
+        school: string
     ) => Promise<string | void>;
     logout: () => void;
     autoLogin: () => void;
-    updateProfile: (
-        name: string,
-        email: string,
-        profilePicture?: string | undefined
-    ) => Promise<string | void>;
     updatePassword: (
         oldPassword: string,
         newPassword: string
@@ -46,79 +39,54 @@ const useAuthStore = create<AuthState>(
     (persist as AuthPersist)(
         (set, get) => ({
             accessToken: null,
-            user: null,
             isLoggedIn: false,
 
             // Login action
             login: async (email, password) => {
                 try {
-                    const response2 = await client.api.v1.auth["login"].$post({ json: {email, password}});
-                    const data2 = await response2.json();
-                    const response = await fetch(
-                        BACKEND_API_URL + "/auth/login",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ email, password }),
-                        }
-                    );
+                    const response = await client.api.v1.auth["login"].$post({ json: {email, password}});
 
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        return errorData.message || "Login failed";
+                    if (!response.ok){
+                        return await response.text();
                     }
-
                     const data = await response.json();
+                    console.log("Data: " + data.token);
                     set({
                         accessToken: data.token,
-                        user: {
-                            user_id: data.user_id,
-                            name: data.name,
-                            email: data.email,
-                        },
                         isLoggedIn: true,
                     });
+
+                    get().autoLogin();
                 } catch (error) {
                     return (error as Error).message || "An error occurred";
                 }
             },
 
             // Register action
-            register: async (name, email, password, profilePicture?) => {
+            register: async (name, email, password, school) => {
                 try {
-                    const response = await fetch(
-                        BACKEND_API_URL + "/auth/registerStudent",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                name,
-                                email,
-                                password,
-                                profile_picture: profilePicture,
-                            }),
-                        }
-                    );
+                    const response = await client.api.v1.auth.registerStudent.$post({ json: {
+                        name,
+                        email,
+                        password,
+                        school
+                    }})
 
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        return errorData.message || "Registration failed";
+                        return await response.text();
                     }
 
                     const data = await response.json();
+                    console.log("Data: " + data.token);
+                    // Set user data
+
                     set({
                         accessToken: data.token,
-                        user: {
-                            user_id: data.user_id,
-                            name: data.name,
-                            email: data.email,
-                        },
                         isLoggedIn: true,
                     });
+
+                    get().autoLogin();
+
                 } catch (error) {
                     return (error as Error).message || "An error occurred";
                 }
@@ -128,88 +96,58 @@ const useAuthStore = create<AuthState>(
             logout: () => {
                 set({
                     accessToken: null,
-                    user: null,
                     isLoggedIn: false,
                 });
-                // Clear out all other stores
-                useUserStore.setState({ user: null, userLoading: false, userError: null, classroomJoined: null });
-                useLearningStore.setState({ learningModule: null, moduleLoading: false, moduleError: null, performanceRecords: null });
-                useClassroomStore.setState({ classroom: null, classroomLoading: false, classroomError: null });
 
+                // Clear out everything else
+                const classId = useClassStore.getState().classroomId;
+                if (classId) {
+                    mutate('/classroom/' + classId, null, { revalidate: false });
+                    mutate(unitsKey + classId, null, { revalidate: false });
+                }
+                mutate(userKey, null, { revalidate: false });
+                
             },
 
             // Auto-login if token is found in localStorage
             autoLogin: async () => {
                 const token = get().accessToken;
-                // console.log("Token: " + token);
+                console.log("Token: " + token);
                 if (token) {
-                    // Verify token by calling the /me endpoint
-                    const response = await fetch(BACKEND_API_URL + "/auth/me", {
-                        method: "GET",
-                        headers: {
-                            "auth-token": token,
-                        },
-                    });
+                    // Verify token
+                    const response = await client.api.v1.auth.profile.$get({},
+                        {
+                            headers: {
+                                "Authorization" : `Bearer ${token}`
+                            }
+                        }
+                    );
 
                     if (!response.ok) {
-                        throw new Error("Invalid token");
+                        set({
+                            accessToken: null,
+                            isLoggedIn: false,
+                        })
+                        return await response.text();
                     }
                     if (response.ok) {
                         const user = await response.json();
-
+                        mutate(userKey, (currentData) => ({
+                            ...currentData,
+                            ...user
+                        }), {
+                            revalidate: false,
+                        });
                         set({
                             accessToken: token,
-                            user: {
-                                user_id: user._id,
-                                name: user.name,
-                                email: user.email,
-                            },
                             isLoggedIn: true,
                         });
                     } else {
-                        localStorage.removeItem("accessToken");
-                    }
-                }
-            },
-
-            // Update profile action
-            updateProfile: async (name, email, profilePicture?) => {
-                try {
-                    const token = get().accessToken;
-                    console.log("Token: " + token);
-                    if (!token) {
-                        return "User not logged in. Please log in again.";
-                    }
-                    const response = await fetch(BACKEND_API_URL + "/auth/me", {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "auth-token": token,
-                        },
-                        body: JSON.stringify({ name, email, profilePicture }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        return errorData.message || "Update failed";
-                    }
-
-                    if (response.ok) {
-                        const user = await response.json();
                         set({
-                            accessToken: token,
-                            user: {
-                                user_id: user._id,
-                                name: user.name,
-                                email: user.email,
-                            },
-                            isLoggedIn: true,
+                            accessToken: null,
+                            isLoggedIn: false,
                         });
                     }
-
-                    return;
-                } catch (error) {
-                    return (error as Error).message || "An error occurred";
                 }
             },
 
@@ -220,24 +158,22 @@ const useAuthStore = create<AuthState>(
                     if (!token) {
                         return "User not logged in. Please log in again.";
                     }
-                    const response = await fetch(
-                        BACKEND_API_URL + "/auth/me/updatePassword",
+                    const response = await client.api.v1.auth.updatePassword.$put(
                         {
-                            method: "PUT",
-                            headers: {
-                                "auth-token": token,
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
+                            json: {
                                 oldPassword,
-                                password: newPassword,
-                            }),
+                                password: newPassword
+                            }
+                        },
+                        {
+                            headers: {
+                                "Authorization" : `Bearer ${token}`
+                            }
                         }
-                    );
+                    )
 
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        return errorData.message || "Update failed";
+                        return await response.text();
                     }
 
                     return;

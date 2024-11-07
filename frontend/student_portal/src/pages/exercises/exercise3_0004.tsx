@@ -8,7 +8,7 @@ import snail from '@/assets/snail.png'
 import pigeon from '@/assets/pigeon.png'
 import cow from '@/assets/cow.png'
 import monkeys from '@/assets/monkey.png'
-import LessonContainer from '@/components/LessonContainer'
+import ContentContainer from '@/components/ContentContainer'
 
 const animals = [
   { name: 'octopus', image: octopus, thai: 'ปลาหมึก' },
@@ -41,7 +41,7 @@ export default function Exercise3_0004() {
   }
 
   return (
-    <LessonContainer title="Describe the Animals">
+    <ContentContainer title="Describe the Animals">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {animals.map((animal, index) => (
           <motion.div 
@@ -88,6 +88,6 @@ export default function Exercise3_0004() {
           Check My Answers!
         </Button>
       </motion.div>
-    </LessonContainer>
+    </ContentContainer>
   )
 }

@@ -9,7 +9,7 @@ import rainy from"@/assets/rainy.png";
 import windy from"@/assets/windy.png";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import LessonContainer from "@/components/LessonContainer";
+import ContentContainer from "@/components/ContentContainer";
 
 
 // Dummy flashcard data
@@ -77,7 +77,7 @@ export default function Learning4_0001() {
     };
 
     return (
-        <LessonContainer
+        <ContentContainer
             title="Weather and Seasons Vocabulary"
             className="bg-gradient-to-l from-yellow-100 to-orange-200"
             headerBgColor="bg-orange-100"
@@ -151,6 +151,6 @@ export default function Learning4_0001() {
                     </motion.div>
                 ))}
             </div>
-        </LessonContainer>
+        </ContentContainer>
     );
 }
