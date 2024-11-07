@@ -20,12 +20,15 @@ import CrosswordPuzzleViewer from './crosswordExerciseViewer'
 import LessonBuilder from './lessonBuilder'
 import LessonViewer from './lessonDisplay'
 import ContentContainer from "@/components/ContentContainerRaw"
+import { useExerciseStore } from '@/store/exerciseStore';
 
 export default function BuilderDashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const {reset} = useExerciseStore();
 
   const handleRefresh = () => {
     setRefreshKey(prevKey => prevKey + 1);
+    reset();
   };
 
   return (

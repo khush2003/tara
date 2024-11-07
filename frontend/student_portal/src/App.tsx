@@ -38,6 +38,7 @@ import DragAndDropBuilder from './pages/build/dndBuilder';
 import CrosswordPuzzleBuilder from './pages/build/crosswordBuilder';
 import BuilderDashboard from './pages/build/builderDashboard';
 import UploadImage from './pages/build/uploadImage';
+import LearningPreference from './pages/preferences';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -69,9 +70,7 @@ const App: React.FC = () => {
           <Route path="*" element={<div>Not Found</div>} />
           <Route path="/lessonBuilder" element={<LessonContentMaker />} />
           <Route path='/lessonDisplay' element={<LessonDisplay />} />
-
-
-
+          <Route path="/setPreferences" element={<LearningPreference />} />
           <Route path="/mcqBuilder" element={<MCQBuilder />} />
           <Route path="/mcqDisplay" element={<ContentContainer><MCQViewer /></ContentContainer>} />
           <Route path="/twiBuilder" element={<TextWithInputBuilder />} />

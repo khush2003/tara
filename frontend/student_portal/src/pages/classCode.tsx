@@ -26,7 +26,7 @@ export default function LearningCodePage(): JSX.Element {
     e.preventDefault()
     try {
       await addCurrentUserToClassroom(classCode)
-      navigate('/dashboard');
+      navigate('/setPreferences');
     } catch (error) {
       alert((error as Error).message || "Failed to join classroom, check the code and try again");
     }

@@ -8,35 +8,28 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
-import { useToast } from "@/hooks/use-toast"
 import Markdown from 'react-markdown'
 import { Toaster } from '@/components/ui/toaster'
+import { useExerciseStore } from '@/store/exerciseStore'
 
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
 
-interface ExerciseContent {
-  context?: string
-  question?: string
-  answerType: 'textarea' | 'input' | 'none'
-}
-
-interface Exercise {
-  exercise_type: string
-  exercise_content: ExerciseContent[]
-  correct_answers: string[]
-  is_instant_scored: boolean
-  max_score: number
-}
-
 export default function TextWithInputViewer() {
+  const {
+    exercise,
+    score,
+    showConfetti,
+    userAnswers,
+    setUserAnswers,
+    setScore,
+    setSubmitted,
+    unitId,
+    setExercise,
+    handleComplete,
+    setFirstSubmission,
+    submitted,
+} = useExerciseStore()
   const [jsonInput, setJsonInput] = useState('')
-  const [exercise, setExercise] = useState<Exercise | null>(null)
-  const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({})
-  const [score, setScore] = useState<number | null>(null)
-  const [submitted, setSubmitted] = useState<boolean>(false)
-  const [showConfetti, setShowConfetti] = useState<boolean>(false)
-  const [firstSubmission, setFirstSubmission] = useState<boolean>(true)
-  const { toast } = useToast()
 
   const handleJsonSubmit = () => {
     try {
@@ -53,55 +46,12 @@ export default function TextWithInputViewer() {
   }
 
   const handleAnswerChange = (index: any, value: string) => {
-    setUserAnswers(prev => ({ ...prev, [index]: value }))
+    setUserAnswers(({ ...userAnswers, [index]: value }))
     if (submitted) {
       setSubmitted(false)
     }
   }
 
-  const handleSubmit = () => {
-    if (exercise && exercise.exercise_type === 'text_with_input') {
-      let correctCount = 0
-      let answersString = ""
-
-      exercise.exercise_content.forEach((content, index) => {
-        const userAnswer = userAnswers[index] || ''
-        const isCorrect = exercise.correct_answers[index] ? userAnswer.trim().toLowerCase() === exercise.correct_answers[index].trim().toLowerCase() : true
-
-        if (isCorrect) correctCount++
-
-        if (content.question) answersString += `**Question**: ${content.question} \n`
-        if (content.context) answersString += `**Context**: ${content.context}\n`
-        if (content.answerType != 'none') answersString += `**Student's Answer**: ${userAnswer}\n`
-        if (exercise.is_instant_scored && content.answerType != 'none') answersString += `**Is Correct**: ${isCorrect}\n`
-        answersString += "\n"
-      })
-
-      console.log("Student's Answers:\n", answersString)
-      setSubmitted(true)
-      if (exercise.is_instant_scored) {
-        const scorePercentage = (correctCount / exercise.exercise_content.length) * 100
-        const finalScore = Math.round((scorePercentage / 100) * exercise.max_score)
-        setScore(finalScore)
-        
-        if (firstSubmission) {
-          toast({
-            title: "Answers Submitted!",
-            description: `You've earned ${finalScore} out of ${exercise.max_score} points (${scorePercentage.toFixed(2)}%)!`,
-            duration: 3000,
-          })
-          setFirstSubmission(false)
-        }
-
-        if (finalScore == exercise.max_score) {
-          setShowConfetti(true)
-          const timer = setTimeout(() => setShowConfetti(false), 5000)
-          return () => clearTimeout(timer)
-        }
-      }
-      
-    }
-  }
 
   const renderExerciseContent = () => {
     return (
@@ -206,9 +156,9 @@ export default function TextWithInputViewer() {
                   transition={springTransition}
                   className="mt-6"
                 >
-                  <Button onClick={handleSubmit} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
+                  {!unitId && <Button onClick={handleComplete} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
                     {submitted ? "Resubmit Answers" : "Submit Answers"}
-                  </Button>
+                  </Button>}
                 </motion.div>
                 {submitted && (
                   <motion.div

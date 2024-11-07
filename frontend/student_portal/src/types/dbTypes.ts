@@ -32,8 +32,9 @@ export interface Lesson {
     title: string;
     description: string;
     instruction: string;
-    lesson_type: string;
+    lesson_type: "flashcard" | "image" | "text";
     lesson_content: object[];
+    order: number;
     _id: string;
 }
 

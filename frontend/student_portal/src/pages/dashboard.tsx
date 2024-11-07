@@ -33,16 +33,14 @@ export default function DashboardPage() {
 
     useUnits(classroomId);
 
+
+
     useEffect(() => {
-        if (isLoggedIn) {
-            if (!classroomId && !userLoading) {
-                // TODO: Should go to
-                navigate("/learningCode");
-            }
-        } else {
+        console.log("classroom", classroomId);
+        if (!isLoggedIn) {
             setIsGuest(true);
         }
-    }, [classroomId, isLoggedIn, navigate, userLoading]);
+    }, [classroomId, isLoggedIn]);
 
     const handleLogoutCancel = () => {
         setLogoutModalVisible(false); // Hide the modal without logging out
@@ -64,6 +62,20 @@ export default function DashboardPage() {
                         <Skeleton className="flex h-[100px] w-full flex-col gap-4" />
                     </div>
                 ))}
+            </div>
+        );
+    }
+
+    if (!classroomId){
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Button 
+                    onClick={() => navigate("/learningCode")}
+                    variant="secondary" 
+                    className="bg-purple-600 text-white hover:bg-purple-700 text-lg px-6 py-4 rounded-full"
+                >
+                    Join a classroom
+                </Button>
             </div>
         );
     }
@@ -288,7 +300,7 @@ const DashboardHeader = ({
     navigate,
     setLogoutModalVisible,
 }: {
-    user: { name?: string };
+    user: { name?: string, profile_picture?: string };  
     isGuest: boolean;
     navigate: (path: string) => void;
     setLogoutModalVisible: (visible: boolean) => void;
@@ -297,7 +309,7 @@ const DashboardHeader = ({
         <div className="flex items-center space-x-4">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Avatar className="w-16 h-16 border-4 border-purple-400">
-                    <AvatarImage src="/placeholder.svg?height=64&width=64" alt="Student" />
+                    <AvatarImage src={user.profile_picture} alt="Student" />
                     <AvatarFallback>ME</AvatarFallback>
                 </Avatar>
             </motion.div>

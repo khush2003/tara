@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,6 +19,9 @@ import FillInTheBlanksViewer from '@/pages/build/fibViewer';
 import DragAndDropViewer from '@/pages/build/dndViewer';
 import CrosswordPuzzleViewer from '@/pages/build/crosswordExerciseViewer';
 import { useExerciseStore } from "@/store/exerciseStore";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "./ui/toaster";
+import { useEffect } from 'react';
 
 interface LessonContainerProps {
     className?: string;
@@ -34,14 +37,12 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     overrideClass = "",
 }) => {
     const navigate = useNavigate();
-    const [isComplete, setIsComplete] = useState(false);
+    const { toast } = useToast()
 
     const { unitId, contentId, classroomId } = useParams();
 
     const { data: classroom } = useClassroom(classroomId);
-
     const { data: user } = useUser();
-
     const { data: units } = useUnits(classroomId);
 
     const unit = units?.find((unit) => unit._id === unitId);
@@ -72,9 +73,6 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
 
     const feedback = isExercise ? progress?.exercises?.find((e) => e.exercise.toString() == exercise._id)?.feedback : undefined;
 
-    const isLastModule = false; //TODO: Check for last module in the unit
-    const nextContentId = "";
-
     let title;
     if (isExercise) {
         title = exercise.title;
@@ -84,26 +82,48 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
 
     const {
         setExercise,
-        answersString,
-        score,
-        exercise: currentExercise,
-        submitted,
-        firstSubmission,
-        showConfetti,
         handleComplete,
-        reset,
-        scorePercentage,
-        setAnswersString,
-        setSubmitted
+        setFirstSubmission,
+        submitted,
+        setClassId,
+        setContentId,
+        setUnitId,
+        score,
+        error,
+        setLesson
     } = useExerciseStore()
 
-    if (isExercise) {
-        setExercise(exercise)
-        // TODO: Set handle complete in the store file. 
-    } 
+    useEffect(() => {
+        if (classroomId) setClassId(classroomId)
+        if (contentId) setContentId(contentId)
+        if (unitId) setUnitId(unitId)
+    }, [classroomId, contentId, unitId, setClassId, setContentId, setUnitId]);
+    
+    useEffect(() => {
+        if (isExercise) {
+            setExercise(exercise)
+            setFirstSubmission(!isAlreadyComplete)
+        } else {
+            setLesson(lesson)
+        }
+    }, [isExercise, exercise, isAlreadyComplete, setExercise, setFirstSubmission, setLesson, lesson]);
 
     const lessonData = isExercise ? exercise : lesson;
 
+    const nextContentId = (unit?.lessons.find((l) => l.order === lessonData.order + 1) as unknown as Lesson | undefined)?._id || (unit?.exercises.find((e) => e.order === lessonData.order + 1) as unknown as Exercise | undefined)?._id;
+    const isLastModule = !nextContentId;
+
+    function handleCompleteFull(){
+        if (!isAlreadyComplete){
+            toast({
+                title: "Points Earned!",
+                description: `You've earned ${score} points!`,
+                duration: 3000,
+              })
+        }
+          handleComplete()
+    }
+    
     const renderExerciseContent = () => {
         if (!exercise) return null;
       
@@ -144,6 +164,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                     </div>
                                 </div>
                             )}
+                            <Toaster />
 
                             {lessonData.instruction && (
                                 <div className="bg-[#4169E1] pl-6 my-4 p-4 rounded-xl shadow-md">
@@ -158,7 +179,22 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                 exit={{ opacity: 0, y: -20 }}
                                 transition={{ duration: 0.5 }}
                             >
-                                {!isExercise ? <LessonDisplay /> : renderExerciseContent()}
+                                {!isExercise ? <LessonDisplay /> : <>
+                                <p>Your best score: {progress?.exercises?.find(
+                                    (e) => e.exercise.toString() === exercise._id
+                                )?.best_score || "N/A"}</p>
+                                <p>
+                                You have earned: {progress?.exercises?.find(
+                                    (e) => e.exercise.toString() === exercise._id
+                                )?.coins_earned + " Coins" || "N/A"}
+                                </p>
+                                <p>
+                                You have attempted this exercise: {progress?.exercises?.find(
+                                    (e) => e.exercise.toString() === exercise._id
+                                )?.attempts.length || 0} times
+                                </p>
+                                {renderExerciseContent()}
+                                </>}
                             </motion.div>
                             {feedback && (
                                 <div className="my-4">
@@ -166,9 +202,15 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                     <p className="text-sm text-gray-600">{feedback}</p>
                                 </div>
                             )}
+                            {error && (
+                                <div className="my-4">
+                                    <h2 className="text-lg font-semibold text-red-800 mb-4">Error: </h2>
+                                    <p className="text-sm text-red-600">{error}</p>
+                                </div>
+                            )}
                             <div className="flex flex-row justify-between">
                                 <AnimatedCompleteButton
-                                    onClick={handleComplete}
+                                    onClick={handleCompleteFull}
                                     isExercise={isExercise}
                                     isAlreadyComplete={!!isAlreadyComplete}
                                     className="mt-10"
@@ -190,7 +232,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                         }}
                                         isAlreadyNext={false}
                                         className="mt-10"
-                                        disabled={!(isComplete || isAlreadyComplete)}
+                                        disabled={!submitted && !isAlreadyComplete}
                                     />
                                 )}
                             </div>

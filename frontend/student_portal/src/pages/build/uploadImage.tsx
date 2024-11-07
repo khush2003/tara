@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { client } from '@/store/authStore';
 
 
 const UploadImage: React.FC = () => {

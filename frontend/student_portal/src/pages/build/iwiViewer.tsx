@@ -7,39 +7,30 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
-import { useToast } from "@/hooks/use-toast"
 import { Toaster } from '@/components/ui/toaster'
+import { useExerciseStore } from '@/store/exerciseStore'
 
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
-
-interface ExerciseContent {
-    image_url?: string;
-    question?: string;
-    answerType?: 'textarea' | 'input';
-    grid_columns?: number;
-}
-
-interface Exercise {
-    exercise_type: string;
-    exercise_content: ExerciseContent[];
-    correct_answers: string[];
-    is_instant_scored: boolean;
-    max_score: number;
-}
-
 export default function ImagesWithInputViewer() {
-    const [jsonInput, setJsonInput] = useState<string>('')
-    const [exercise, setExercise] = useState<Exercise | null>(null)
-    const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({})
-    const [score, setScore] = useState<number | null>(null)
-    const [submitted, setSubmitted] = useState<boolean>(false)
-    const [showConfetti, setShowConfetti] = useState<boolean>(false)
-    const [firstSubmission, setFirstSubmission] = useState<boolean>(true)
-    const { toast } = useToast()
+    const {
+        exercise,
+        score,
+        showConfetti,
+        userAnswers,
+        setUserAnswers,
+        setScore,
+        setSubmitted,
+        unitId,
+        setExercise,
+        handleComplete,
+        setFirstSubmission,
+        submitted,
+    } = useExerciseStore();
+    const [jsonInput, setJsonInput] = useState<string>("");
 
     const handleJsonSubmit = () => {
         try {
-            const parsedExercise: Exercise = JSON.parse(jsonInput)
+            const parsedExercise = JSON.parse(jsonInput)
             setExercise(parsedExercise)
             setUserAnswers({})
             setScore(null)
@@ -52,8 +43,8 @@ export default function ImagesWithInputViewer() {
     }
 
     const handleAnswerChange = (index: number, value: string) => {
-        setUserAnswers(prev => ({
-            ...prev,
+        setUserAnswers(({
+            ...userAnswers,
             [index]: value
         }))
         if (submitted) {
@@ -61,53 +52,6 @@ export default function ImagesWithInputViewer() {
         }
     }
 
-    const handleSubmit = () => {
-        if (exercise?.exercise_type === 'images_with_input') {
-            let correctCount = 0
-            let totalQuestions = 0
-            let answersString = ""
-
-            exercise.exercise_content.slice(1).forEach((content, index) => {
-                const userAnswer = userAnswers[index] || ''
-                const isCorrect = exercise.correct_answers.slice(1)[index] ? userAnswer.trim().toLowerCase() === exercise.correct_answers.slice(1)[index].trim().toLowerCase() : true
-
-                if (isCorrect) correctCount++
-                totalQuestions++
-
-                if (content.image_url) answersString += `Image URL: ${content.image_url}\n`
-                answersString += `Question: ${content.question || 'No question provided'}\n`
-                answersString += `Student's Answer: ${userAnswer}\n`
-                if (exercise.is_instant_scored) answersString += `Correct Answer: ${exercise.correct_answers.slice(1)[index]}\n`
-                if (exercise.is_instant_scored) answersString += `Is Correct: ${isCorrect}\n`
-                answersString += "\n"
-            })
-
-            console.log("Student's Answers:\n", answersString)
-            setSubmitted(true)
-            if (exercise.is_instant_scored) {
-                const scorePercentage = (correctCount / totalQuestions) * 100
-                const finalScore = Math.round((scorePercentage / 100) * exercise.max_score)
-                setScore(finalScore)
-                
-                if (firstSubmission) {
-                    toast({
-                        title: "Answers Submitted!",
-                        description: `You've earned ${finalScore} out of ${exercise.max_score} points (${scorePercentage.toFixed(2)}%)!`,
-                        duration: 3000,
-                    })
-                    setFirstSubmission(false)
-                }
-                console.log("final score", finalScore)
-                console.log("exercise max score", exercise.max_score)
-                if (finalScore === exercise.max_score) {
-                    setShowConfetti(true)
-                    const timer = setTimeout(() => setShowConfetti(false), 5000)
-                    return () => clearTimeout(timer)
-                }
-            }
-            
-        }
-    }
 
     const renderExerciseContent = () => {
         const gridTemplateColumns = `repeat(${exercise?.exercise_content[0]?.grid_columns || 1}, minmax(0, 1fr))`
@@ -218,9 +162,9 @@ export default function ImagesWithInputViewer() {
                                     transition={springTransition}
                                     className="mt-6"
                                 >
-                                    <Button onClick={handleSubmit} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
+                                    {!unitId && <Button onClick={handleComplete} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
                                         {submitted ? "Resubmit Answers" : "Submit Answers"}
-                                    </Button>
+                                    </Button>}
                                 </motion.div>
                                 {submitted && (
                                     <motion.div

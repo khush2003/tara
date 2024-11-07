@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndProvider, useDrag, useDrop, DropTargetMonitor } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -6,9 +6,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useToast } from "@/hooks/use-toast"
 import { Confetti } from "./confetti"
 import { Toaster } from '@/components/ui/toaster'
+import { useExerciseStore } from '@/store/exerciseStore'
 
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
 
@@ -103,26 +103,32 @@ interface Exercise {
     correct_answers: string[][];
     max_score: number;
     is_instant_scored: boolean;
+    title: string;
+    description: string;
+    instruction: string;
+    order: number;
+    exercise_type: string;
+    varients: string[];
 }
 
 export default function DragAndDropViewer() {
+        const {
+        exercise,
+        score,
+        showConfetti,
+        setScore,
+        setSubmitted,
+        unitId,
+        setExercise,
+        handleComplete,
+        setFirstSubmission,
+        submitted,
+        dropAreas,
+        dropItems,
+        setDropAreas,
+        setDropItems,
+    } = useExerciseStore()
     const [jsonInput, setJsonInput] = useState<string>('')
-    const [exercise, setExercise] = useState<Exercise | null>(null)
-    const [dropAreas, setDropAreas] = useState<{ id: string; type: 'single' | 'multiple'; items: { id: string; content: Content }[] }[]>([])
-    const [dropItems, setDropItems] = useState<{ id: string; content: Content }[]>([])
-    const [score, setScore] = useState<number | null>(null)
-    const [submitted, setSubmitted] = useState<boolean>(false)
-    const [showConfetti, setShowConfetti] = useState<boolean>(false)
-    const [firstSubmission, setFirstSubmission] = useState<boolean>(true)
-    const { toast } = useToast()
-
-    useEffect(() => {
-        if (score !== null && score === exercise?.max_score) {
-            setShowConfetti(true)
-            const timer = setTimeout(() => setShowConfetti(false), 5000)
-            return () => clearTimeout(timer)
-        }
-    }, [score, exercise?.max_score])
 
     const handleJsonSubmit = () => {
         try {
@@ -140,8 +146,7 @@ export default function DragAndDropViewer() {
     }
 
     const handleDrop = useCallback((dropAreaId: string, item: { id: string; content: Content }) => {
-        setDropAreas(areas => {
-            const newAreas = [...areas]
+        const newAreas = [...dropAreas]
             const targetAreaIndex = newAreas.findIndex(area => area.id === dropAreaId)
             const sourceAreaIndex = newAreas.findIndex(area => area.items.some(i => i.id === item.id))
 
@@ -153,7 +158,7 @@ export default function DragAndDropViewer() {
                 if (newAreas[targetAreaIndex].type === 'single' && newAreas[targetAreaIndex].items.length > 0) {
                     // Move the existing item back to the items list
                     const existingItem = newAreas[targetAreaIndex].items[0]
-                    setDropItems(items => [...items, existingItem])
+                    setDropItems([...dropItems, existingItem])
                 }
                 
                 newAreas[targetAreaIndex].items = newAreas[targetAreaIndex].type === 'single' 
@@ -166,99 +171,29 @@ export default function DragAndDropViewer() {
                 if (newAreas[targetAreaIndex].type === 'single' && newAreas[targetAreaIndex].items.length > 0) {
                     // Move the existing item back to the items list
                     const existingItem = newAreas[targetAreaIndex].items[0]
-                    setDropItems(items => [...items, existingItem])
+                    setDropItems([...dropItems, existingItem])
                 }
                 
                 newAreas[targetAreaIndex].items = newAreas[targetAreaIndex].type === 'single'
                     ? [movedItem!]
                     : [...newAreas[targetAreaIndex].items, movedItem!]
                 
-                setDropItems(items => items.filter(i => i.id !== item.id))
+                setDropItems(dropItems.filter(i => i.id !== item.id))
             }
-
-            return newAreas
-        })
-    }, [dropItems])
+        
+        setDropAreas(newAreas)
+        
+    }, [dropAreas, dropItems, setDropAreas, setDropItems])
 
     const handleReset = () => {
         if (exercise) {
             setDropAreas(exercise.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })))
-            setDropItems(exercise.dropItems)
+            setDropItems(exercise.dropItems!)
             setSubmitted(false)
             setScore(null)
         }
     }
 
-    const handleSubmit = () => {
-        if (!exercise) return
-
-        let correctCount = 0
-        let totalQuestions = 0
-        let answersString = ""
-
-        dropAreas.forEach((area, index) => {
-            const correctAnswers = exercise.correct_answers[index] || []
-            const userAnswers = area.items.map(item => item.id)
-
-            answersString += `**Group** ${index + 1}:\n`
-            answersString += `**Correct Answers**: \n`
-            correctAnswers.forEach(answerId => {
-                const item = exercise.dropItems.find(i => i.id === answerId)
-                if (item) {
-                    if (item.content.type === 'image') {
-                        answersString += `- Image: ${item.content.content} (Alt: ${item.content.alt || 'No alt text'})\n`
-                    } else {
-                        answersString += `- Text: ${item.content.content}\n`
-                    }
-                }
-            })
-            answersString += `**User Answers**: \n`
-            userAnswers.forEach(answerId => {
-                const item = exercise.dropItems.find(i => i.id === answerId)
-                if (item) {
-                    if (item.content.type === 'image') {
-                        answersString += `- Image: ${item.content.content} (Alt: ${item.content.alt || 'No alt text'})\n`
-                    } else {
-                        answersString += `- Text: ${item.content.content}\n`
-                    }
-                }
-            })
-
-            if (area.type === 'single') {
-                if (userAnswers.length === 1 && correctAnswers.includes(userAnswers[0])) {
-                    correctCount++
-                }
-                totalQuestions++
-            } else {
-                const correctSet = new Set(correctAnswers)
-                const userSet = new Set(userAnswers)
-                if (correctSet.size === userSet.size && [...correctSet].every(answer => userSet.has(answer))) {
-                    correctCount++
-                }
-                totalQuestions++
-            }
-
-            answersString += `Is Correct: ${correctCount === totalQuestions}\n\n`
-        })
-
-        console.log("Student's Answers:\n", answersString)
-        setSubmitted(true)
-        if (exercise.is_instant_scored) {
-            const scorePercentage = (correctCount / totalQuestions) * 100
-            const finalScore = Math.round((scorePercentage / 100) * exercise.max_score)
-            setScore(finalScore)
-            
-            if (firstSubmission) {
-                toast({
-                    title: "Answers Submitted!",
-                    description: `You've earned ${finalScore} out of ${exercise.max_score} points (${scorePercentage.toFixed(2)}%)!`,
-                    duration: 3000,
-                })
-                setFirstSubmission(false)
-            }
-        }
-        
-    }
 
     const renderExerciseContent = () => {
         return (
@@ -267,7 +202,7 @@ export default function DragAndDropViewer() {
                     <Card key={groupIndex} className="rounded-xl overflow-hidden">
                         <CardContent className="p-6 bg-green-50">
                             {group.text && <p className="mb-4">{group.text}</p>}
-                            {group.images.map((image, imageIndex) => (
+                            {group.images.map((image: string | undefined, imageIndex: number) => (
                                 <img key={imageIndex} src={image} alt={`Group ${groupIndex + 1} Image ${imageIndex + 1}`} width={140} height={140} className="mb-4 rounded-md" />
                             ))}
                             <DroppableArea
@@ -328,9 +263,9 @@ export default function DragAndDropViewer() {
                                                 <Button onClick={handleReset} className="w-full bg-yellow-500 hover:bg-yellow-600">
                                                     Reset
                                                 </Button>
-                                                <Button onClick={handleSubmit} className="w-full bg-blue-500 hover:bg-blue-600">
+                                                {!unitId && <Button onClick={handleComplete} className="w-full bg-blue-500 hover:bg-blue-600">
                                                     {submitted ? "Resubmit Answers" : "Submit Answers"}
-                                                </Button>
+                                                </Button>}
                                             </div>
                                         </div>
                                     </div>

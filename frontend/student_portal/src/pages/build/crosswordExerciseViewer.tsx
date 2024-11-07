@@ -1,33 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useToast } from "@/hooks/use-toast"
 import { Confetti } from "./confetti"
 import Crossword from "@jaredreisinger/react-crossword"
 import { Toaster } from '@/components/ui/toaster'
 import { CrosswordProviderImperative } from "@jaredreisinger/react-crossword"
-
-interface ExerciseContent {
-  clue: string
-  direction: 'across' | 'down'
-  number: number
-  row: number
-  col: number
-}
-
-interface Exercise {
-  title: string
-  description: string
-  instruction: string
-  exercise_content: ExerciseContent[]
-  correct_answers: { [key: number]: string }
-  is_instant_scored: boolean
-  max_score: number
-}
+import { useExerciseStore } from '@/store/exerciseStore'
 
 interface CrosswordData {
   across: {
@@ -51,26 +33,28 @@ interface CrosswordData {
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
 
 export default function CrosswordPuzzleViewer() {
+
+   const {
+      exercise,
+      score,
+      showConfetti,
+      crosswordData,
+      setCrosswordData,
+      setScore,
+      setSubmitted,
+      unitId,
+      setExercise,
+      handleComplete,
+      setFirstSubmission,
+      submitted,
+      currentGridData,
+      setCurrentGridData,
+  } = useExerciseStore()
+
   const [jsonInput, setJsonInput] = useState('')
-  const [exercise, setExercise] = useState<Exercise | null>(null)
-  const [crosswordData, setCrosswordData] = useState<CrosswordData | null>(null)
-  const [score, setScore] = useState<number | null>(null)
-  const [submitted, setSubmitted] = useState(false)
-  const [showConfetti, setShowConfetti] = useState(false)
-  const [firstSubmission, setFirstSubmission] = useState(true)
-  const { toast } = useToast()
-  
   
   const crosswordRef = useRef<CrosswordProviderImperative | null>(null)
-  const [currentGridData, setCurrentGridData] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    if (score !== null && score === exercise?.max_score) {
-      setShowConfetti(true)
-      const timer = setTimeout(() => setShowConfetti(false), 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [score, exercise?.max_score])
 
   const handleJsonSubmit = () => {
     try {
@@ -112,82 +96,13 @@ export default function CrosswordPuzzleViewer() {
   }
 
   // Replace handleCorrect with handleCellChange
-const handleCellChange = (row: number, col: number, value: string) => {
-  setCurrentGridData(prev => ({
-    ...prev,
-    [`${row}-${col}`]: value.toUpperCase()
-  }));
-}
-
-// Add helper to get complete word from grid
-const getWordFromGrid = (row: number, col: number, direction: 'across' | 'down', length: number): string => {
-  let word = '';
-  for (let i = 0; i < length; i++) {
-    if (direction === 'across') {
-      word += currentGridData[`${row}-${col + i}`] || '';
-    } else {
-      word += currentGridData[`${row + i}-${col}`] || '';
-    }
+  const handleCellChange = (row: number, col: number, value: string) => {
+    setCurrentGridData(({
+      ...currentGridData,
+      [`${row}-${col}`]: value.toUpperCase()
+    }));
   }
-  return word.toUpperCase();
-};
 
-  
-
-// Update handleSubmit to use currentGridData
-const handleSubmit = () => {
-  if (crosswordData) {
-    let correctCount = 0;
-    let totalQuestions = 0;
-    let answersString = "";
-
-    Object.entries(crosswordData).forEach(([direction, clues]) => {
-      Object.entries(clues).forEach(([number, clue]) => {
-        // Get user answer from grid position
-        const wordLength = (clue as { answer: string }).answer.length;
-        const typedClue = clue as {
-          answer: string;
-          clue: string;
-          row: number;
-          col: number;
-        };
-        const userAnswer = getWordFromGrid(typedClue.row, typedClue.col, direction as 'across' | 'down', wordLength);
-        const correctAnswer = typedClue.answer.toUpperCase();
-        const isClueCorrect = userAnswer === correctAnswer;
-        
-        if (isClueCorrect) correctCount++;
-        totalQuestions++;
-
-        answersString += `${direction.charAt(0).toUpperCase() + direction.slice(1)} ${number}:
-      Clue: ${typedClue.clue}
-Correct Answer: ${correctAnswer}
-User Answer: ${userAnswer}
-Is Correct: ${isClueCorrect}
-
-`;
-      });
-    });
-
-    // Rest of the submit logic remains the same
-    console.log("Student's Answers:\n", answersString);
-    setSubmitted(true);
-    if (exercise && exercise.is_instant_scored) {
-      const scorePercentage = (correctCount / totalQuestions) * 100;
-      const finalScore = Math.round((scorePercentage / 100) * exercise.max_score);
-      setScore(finalScore);
-      
-      if (firstSubmission) {
-        toast({
-          title: "Answers Submitted!",
-          description: `You've earned ${finalScore} out of ${exercise.max_score} points (${scorePercentage.toFixed(2)}%)!`,
-          duration: 3000,
-        });
-        setFirstSubmission(false);
-      }
-    }
-    
-  }
-};
 
   return (
     <motion.div
@@ -243,9 +158,9 @@ Is Correct: ${isClueCorrect}
                   <Button onClick={handleReset} className="flex-1 bg-yellow-500 hover:bg-yellow-600">
                     Reset
                   </Button>
-                  <Button onClick={handleSubmit} className="flex-1 bg-blue-500 hover:bg-blue-600">
+                 {!unitId && <Button onClick={handleComplete} className="flex-1 bg-blue-500 hover:bg-blue-600">
                     {submitted ? "Resubmit Answers" : "Submit Answers"}
-                  </Button>
+                  </Button>}
                 </div>
                 {submitted && (
                   <motion.div

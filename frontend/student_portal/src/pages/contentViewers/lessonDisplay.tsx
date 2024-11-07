@@ -1,8 +1,9 @@
-  import { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { motion } from "framer-motion"
+import { useExerciseStore } from '@/store/exerciseStore'
 
 interface LessonData {
   title: string
@@ -155,7 +156,7 @@ function parseLesson(lessonData: LessonData) {
 
 export default function LessonDisplay() {
   const [jsonInput, setJsonInput] = useState('')
-  const [lessonData, setLessonData] = useState<LessonData | null>(null)
+  const {lesson: lessonData, setLesson: setLessonData} = useExerciseStore()
   const [error, setError] = useState('')
 
   const handleJsonSubmit = () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -7,43 +7,31 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
-import { useToast } from "@/hooks/use-toast"
 import { Toaster } from '@/components/ui/toaster'
+import { useExerciseStore } from '@/store/exerciseStore'
 
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
 
-
-interface Question {
-  question: string
-  answerType: 'textarea' | 'input'
-}
-
-interface Content {
-  context: string
-  questions: Question[]
-}
-
-interface Exercise {
-  exercise_type: 'text_with_questions'
-  exercise_content: Content[]
-  correct_answers: string[][]
-  is_instant_scored: boolean
-  max_score: number
-}
-
 export default function TextWithQuestionsViewer() {
+  const {
+    exercise,
+    score,
+    showConfetti,
+    userAnswers,
+    setUserAnswers,
+    setScore,
+    setSubmitted,
+    unitId,
+    setExercise,
+    handleComplete,
+    setFirstSubmission,
+    submitted,
+} = useExerciseStore()
   const [jsonInput, setJsonInput] = useState<string>('')
-  const [exercise, setExercise] = useState<Exercise | null>(null)
-  const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({})
-  const [score, setScore] = useState<number | null>(null)
-  const [submitted, setSubmitted] = useState<boolean>(false)
-  const [showConfetti, setShowConfetti] = useState<boolean>(false)
-  const [firstSubmission, setFirstSubmission] = useState<boolean>(true)
-  const { toast } = useToast()
-
+  
   const handleJsonSubmit = () => {
     try {
-      const parsedExercise: Exercise = JSON.parse(jsonInput)
+      const parsedExercise = JSON.parse(jsonInput)
       setExercise(parsedExercise)
       setUserAnswers({})
       setScore(null)
@@ -56,8 +44,8 @@ export default function TextWithQuestionsViewer() {
   }
 
   const handleAnswerChange = (contentIndex: number, questionIndex: number, value: string) => {
-    setUserAnswers(prev => ({
-      ...prev,
+    setUserAnswers(({
+      ...userAnswers,
       [`${contentIndex}-${questionIndex}`]: value
     }))
     if (submitted) {
@@ -65,53 +53,6 @@ export default function TextWithQuestionsViewer() {
     }
   }
 
-  const handleSubmit = () => {
-    if (exercise && exercise.exercise_type === 'text_with_questions') {
-      let correctCount = 0
-      let totalQuestions = 0
-      let answersString = ""
-
-      exercise.exercise_content.forEach((content, contentIndex) => {
-        answersString += `Context: ${content.context}\n\n`
-        content.questions.forEach((question, questionIndex) => {
-          const userAnswer = userAnswers[`${contentIndex}-${questionIndex}`] || ''
-          const isCorrect = exercise.correct_answers[contentIndex][questionIndex] ? userAnswer.trim().toLowerCase() === exercise.correct_answers[contentIndex][questionIndex].trim().toLowerCase() : true
-
-          if (isCorrect) correctCount++
-          totalQuestions++
-
-          if (question.question) answersString += `**Question:** ${question.question}\n`
-          answersString += `**Student's Answer**: ${userAnswer}\n`
-          if (exercise.is_instant_scored) answersString += `**Is Correct**: ${isCorrect}\n`
-          answersString += "\n"
-        })
-      })
-
-      console.log("Student's Answers:\n", answersString)
-      setSubmitted(true)
-      if (exercise.is_instant_scored) {
-        const scorePercentage = (correctCount / totalQuestions) * 100
-        const finalScore = Math.round((scorePercentage / 100) * exercise.max_score)
-        setScore(finalScore)
-        
-        if (firstSubmission) {
-          toast({
-            title: "Answers Submitted!",
-            description: `You've earned ${finalScore} out of ${exercise.max_score} points (${scorePercentage.toFixed(2)}%)!`,
-            duration: 3000,
-          })
-          setFirstSubmission(false)
-        }
-
-        if (finalScore == exercise.max_score) {
-          setShowConfetti(true)
-          const timer = setTimeout(() => setShowConfetti(false), 5000)
-          return () => clearTimeout(timer)
-        }
-      }
-      
-    }
-  }
 
   const renderExerciseContent = () => {
     return (
@@ -123,7 +64,7 @@ export default function TextWithQuestionsViewer() {
                 <p className="text-base mt-2">{content.context}</p>
               </div>
               <div className="grid grid-cols-2 gap-8">
-                {content.questions.map((question, questionIndex) => (
+                {content.questions.map((question: { question: string | number | boolean | ReactElement<unknown, string | JSXElementConstructor<unknown>> | Iterable<ReactNode> | ReactPortal | null | undefined; answerType: string }, questionIndex: number) => (
                   <div key={questionIndex} className="col-span-1">
                     <Label htmlFor={`answer-${contentIndex}-${questionIndex}`}>{question.question}</Label>
                     {question.answerType === 'textarea' ? (
@@ -216,9 +157,9 @@ export default function TextWithQuestionsViewer() {
                   transition={springTransition}
                   className="mt-6"
                 >
-                  <Button onClick={handleSubmit} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
+                  {!unitId && <Button onClick={handleComplete} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
                     {submitted ? "Resubmit Answers" : "Submit Answers"}
-                  </Button>
+                  </Button>}
                 </motion.div>
                 {submitted && (
                   <motion.div

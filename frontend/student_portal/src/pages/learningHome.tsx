@@ -19,7 +19,7 @@ export default function EnhancedLearningHomePage() {
     const [hoverTimer, setHoverTimer] = useState<number | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const { unitId, contentId, classroomId } = useParams();
+    const { unitId, classroomId } = useParams();
     const navigate = useNavigate();
 
     const { data: classroom, isLoading: classroomLoading, error: classroomError } = useClassroom(classroomId);
@@ -64,9 +64,6 @@ export default function EnhancedLearningHomePage() {
             return progress.unit.toString() === unitId && progress.class.toString() === classroomId;
         })?.lessons_completed?.length === unit?.lessons.length;
 
-    const progress = user?.class_progress_info.find((progress) => {
-        return progress.unit.toString() === unitId && progress.class.toString() === classroom?._id;
-    });
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const MotionButton = motion.create(Button);
@@ -109,9 +106,17 @@ export default function EnhancedLearningHomePage() {
                                         <motion.div
                                             whileHover={{ rotate: 360 }}
                                             transition={{ duration: 0.5 }}
-                                            className="w-14 h-14 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-2xl shadow-md"
+                                            className="w-14 h-14 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-2xl shadow-md overflow-hidden"
                                         >
-                                            ME
+                                            {user?.profile_picture ? (
+                                                <img 
+                                                    src={user.profile_picture} 
+                                                    alt="Profile" 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                "ME"
+                                            )}
                                         </motion.div>
                                         <div>
                                             <h2 className="font-bold text-indigo-800 text-xl">{user?.name || "Guest"}</h2>

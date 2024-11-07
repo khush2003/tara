@@ -41,7 +41,7 @@ export const addCurrentUserToClassroom = async (code: string) => {
     }
 }
 
-export const updateUserProfile = async (name?: string, email?: string, school?: string, profilePicture?: string, learningPreferences?:string) => {
+export const updateUserProfile = async (name?: string, email?: string, school?: string, profilePicture?: string) => {
     const token = useAuthStore.getState().accessToken;
 
     try {
@@ -51,8 +51,7 @@ export const updateUserProfile = async (name?: string, email?: string, school?: 
                     name,
                     email,
                     school,
-                    profile_picture: profilePicture,
-                    learning_preferences: learningPreferences
+                    profile_picture: profilePicture
                 },
             },
             {
@@ -83,6 +82,35 @@ export const updateUserProfile = async (name?: string, email?: string, school?: 
         return (error as Error).message;
     }
 }
+
+export const changePassword = async (oldPassword: string, newPassword: string) => {
+    const token = useAuthStore.getState().accessToken;
+
+    try {
+        const response = await client.api.v1.auth.updatePassword.$put(
+            {
+                json: {
+                    oldPassword: oldPassword,
+                    password: newPassword,
+                },
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            return await response.text();
+        }
+
+        return null;
+    } catch (error) {
+        return (error as Error).message;
+    }
+};
+
 
 export const setLearningPreferences = async (learningPreferences: string[]) => {
     const token = useAuthStore.getState().accessToken;

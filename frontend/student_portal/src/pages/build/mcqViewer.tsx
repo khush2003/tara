@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
 import { Star, Rocket, Book, PenTool } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 import { Toaster } from '@/components/ui/toaster'
+import { useExerciseStore } from '@/store/exerciseStore'
 
 const icons = [Star, Rocket, Book, PenTool]
 
@@ -18,19 +18,28 @@ const springTransition = { type: "spring", stiffness: 300, damping: 30 }
 
 export default function MCQViewer() {
   const [jsonInput, setJsonInput] = useState('')
-  interface Exercise {
-    exercise_type: string;
-    exercise_content: { question: string; options: string[] }[];
-    correct_answers: string[];
-    max_score: number;
+  interface ExerciseContent {
+    question: string;
+    options: string[];
   }
-  const [exercise, setExercise] = useState<Exercise | null>(null)
-  const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({})
-  const [score, setScore] = useState<number | null>(null)
-  const [submitted, setSubmitted] = useState(false)
-  const [showConfetti, setShowConfetti] = useState(false)
-  const [firstSubmission, setFirstSubmission] = useState(true)
-  const { toast } = useToast()
+  
+
+  const {
+    exercise,
+    score,
+    showConfetti,
+    userAnswers,
+    setUserAnswers,
+    setScore,
+    setSubmitted,
+    unitId,
+    setExercise,
+    handleComplete,
+    setFirstSubmission,
+    submitted,
+} = useExerciseStore()
+
+  
 
   const handleJsonSubmit = () => {
     try {
@@ -47,59 +56,19 @@ export default function MCQViewer() {
   }
 
   const handleAnswerChange = (questionIndex: any, value: string) => {
-    setUserAnswers(prev => ({ ...prev, [questionIndex]: value }))
+    setUserAnswers(({ ...userAnswers, [questionIndex]: value }))
     if (submitted) {
       setSubmitted(false)
     }
   }
 
-  const handleSubmit = () => {
-    if (exercise?.exercise_type === 'multiple_choice') {
-      const totalQuestions = exercise.exercise_content.length
-      const correctAnswers = exercise.correct_answers
-      let correctCount = 0
-      let answersString = ""
-
-      Object.entries(userAnswers).forEach(([indexString, answer]) => {
-        const index = parseInt(indexString, 10);
-        const question = exercise.exercise_content[index]
-        const isCorrect = correctAnswers[index] === answer
-        if (isCorrect) correctCount++
-
-        answersString += `**Question:** ${question.question}\n`
-        answersString += `**Student's Answer:** ${answer}\n`
-        answersString += `**Is Correct:** ${isCorrect}\n\n`
-      })
-
-      const scorePercentage = (correctCount / totalQuestions) * 100
-      setScore(scorePercentage)
-      setSubmitted(true)
-
-      console.log("Student's Answers:\n", answersString)
-
-      if (firstSubmission) {
-        toast({
-          title: "Points Earned!",
-          description: `You've earned ${Math.round(scorePercentage * exercise.max_score / 100)} points!`,
-          duration: 3000,
-        })
-        setFirstSubmission(false)
-      }
-
-      if (scorePercentage == 100) {
-        setShowConfetti(true)
-        const timer = setTimeout(() => setShowConfetti(false), 5000)
-        return () => clearTimeout(timer)
-      }
-    }
-  }
 
   const renderExerciseContent = () => {
     switch (exercise?.exercise_type) {
       case 'multiple_choice':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {exercise.exercise_content.map((question, index) => {
+            {(exercise.exercise_content as ExerciseContent[]).map((question: ExerciseContent, index) => {
               const Icon = icons[index % icons.length]
               return (
                 <motion.div
@@ -193,9 +162,9 @@ export default function MCQViewer() {
                   transition={springTransition}
                   className="mt-6"
                 >
-                  <Button onClick={handleSubmit} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
+                  {!unitId && <Button onClick={handleComplete} className="w-full text-lg py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 rounded-lg">
                     {submitted ? "Resubmit Answers" : "Submit Answers"}
-                  </Button>
+                  </Button>}
                 </motion.div>
                 {score !== null && (
                   <motion.div
@@ -207,7 +176,7 @@ export default function MCQViewer() {
                     <Alert className="bg-blue-100 border-blue-500 text-blue-800 rounded-lg">
                       <AlertTitle className="text-xl font-bold">Your Score</AlertTitle>
                       <AlertDescription className="text-lg">
-                        You scored {score.toFixed(2)}% ({Math.round(score * exercise.max_score / 100)} out of {exercise.max_score})
+                        You scored {(score/exercise.max_score * 100).toFixed(2)}% ({score} out of {exercise.max_score})
                       </AlertDescription>
                     </Alert>
                   </motion.div>
