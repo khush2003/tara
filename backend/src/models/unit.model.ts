@@ -8,7 +8,7 @@ interface ILesson {
     instruction: string;
     lesson_type: string;
     lesson_content: Mixed[];
-    varients: ObjectId[];
+    index: number;
 }
 
 interface IExercise {
@@ -21,6 +21,7 @@ interface IExercise {
     correct_answers: Mixed;
     varients: ObjectId[];
     max_score: number;
+    index: number;
 }
 
 interface IUnit {
@@ -35,15 +36,13 @@ interface IUnit {
     is_premium: boolean;
 }
 
-
-
 const LessonSchema = new Schema<ILesson>({
     title: { type: String, required: true },
     description: { type: String, required: true },
     instruction: { type: String, required: true },
     lesson_type: { type: String, enum: ["flashcards", "text", "image"] },
     lesson_content: { type: [Schema.Types.Mixed] },
-    varients: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }]
+    index: { type: Number, unique: true, required: true }
 }, { _id: true });
 
 const ExerciseSchema = new Schema<IExercise>({
@@ -55,7 +54,8 @@ const ExerciseSchema = new Schema<IExercise>({
     is_instant_scored: { type: Boolean, default: false },
     correct_answers: { type: Schema.Types.Mixed },
     varients: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
-    max_score: { type: Number, required: true }
+    max_score: { type: Number, required: true },
+    index: { type: Number, unique: true, required: true }
 }, { _id: true });
 
 const UnitSchema = new Schema<IUnit>({

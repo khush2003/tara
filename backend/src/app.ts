@@ -10,6 +10,7 @@ import { unitRoutes } from './routes/unit.ts';
 import { classroomRoutes } from './routes/classroom.ts';
 import { pointslogRoutes } from './routes/pointslog.ts';
 import { logger } from 'hono/logger';
+import { imageRoutes } from './routes/image.ts';
 
 const app = new Hono();
 
@@ -33,7 +34,8 @@ const apiRoutes = app.basePath('/api/v1')
   .route('/auth', authRoutes)
   .route('/unit', unitRoutes)
   .route('/classroom', classroomRoutes)
-  .route('pointslog', pointslogRoutes);
+  .route('pointslog', pointslogRoutes)
+  .route('/image', imageRoutes);
 
 export { app, apiRoutes };
 export type ApiRoutes  =  typeof apiRoutes;

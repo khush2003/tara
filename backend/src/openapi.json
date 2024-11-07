@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3005/api/v1"
+      "url": "/api/v1"
     }
   ],
   "tags": [
@@ -87,82 +87,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": {
+                    "token": {
                       "type": "string",
-                      "example": "Khush"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "abc112@gmail.com"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "student"
-                    },
-                    "profile_picture": {
-                      "type": "string",
-                      "example": ""
-                    },
-                    "school": {
-                      "type": "string",
-                      "example": "ABC"
-                    },
-                    "classroom": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "game_profile": {
-                      "type": "object",
-                      "properties": {
-                        "game_points": {
-                          "type": "integer",
-                          "example": 0
-                        },
-                        "game_minutes_left": {
-                          "type": "integer",
-                          "example": 60
-                        },
-                        "_id": {
-                          "type": "string",
-                          "example": "671c7b089b922e7c6ff4e857"
-                        }
-                      }
-                    },
-                    "is_feedback_available": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "learning_preferences": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "_id": {
-                      "type": "string",
-                      "example": "671c7b089b922e7c6ff4e856"
-                    },
-                    "new_exercise_submission": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "class_progress_info": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "__v": {
-                      "type": "integer",
-                      "example": 0
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTY3OTE3YmZkMzQ1ZmRjYWE5ZTZkOSIsImV4cCI6MTczMDAwNzc3NzYzNH0.MeC--L2Fco_1tmTR7hTQLfuWI7PKVnDUBt7_Cqih-QM"
                     }
                   }
                 }
@@ -261,46 +188,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": {
+                    "token": {
                       "type": "string",
-                      "example": "Admin Name"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "admin123@example.com"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "admin"
-                    },
-                    "school": {
-                      "type": "string",
-                      "example": "XYZ School"
-                    },
-                    "game_profile": {
-                      "type": "object",
-                      "properties": {
-                        "game_points": {
-                          "type": "integer",
-                          "example": 0
-                        },
-                        "game_minutes_left": {
-                          "type": "integer",
-                          "example": 60
-                        },
-                        "_id": {
-                          "type": "string",
-                          "example": "671c7b089b922e7c6ff4e857"
-                        }
-                      }
-                    },
-                    "_id": {
-                      "type": "string",
-                      "example": "671c7b089b922e7c6ff4e856"
-                    },
-                    "__v": {
-                      "type": "integer",
-                      "example": 0
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTY3OTE3YmZkMzQ1ZmRjYWE5ZTZkOSIsImV4cCI6MTczMDAwNzc3NzYzNH0.MeC--L2Fco_1tmTR7hTQLfuWI7PKVnDUBt7_Cqih-QM"
                     }
                   }
                 }
@@ -404,82 +294,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": {
+                    "token": {
                       "type": "string",
-                      "example": "Jane Doe"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "teacherJohn@example.com"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "teacher"
-                    },
-                    "profile_picture": {
-                      "type": "string",
-                      "example": ""
-                    },
-                    "school": {
-                      "type": "string",
-                      "example": "ABC"
-                    },
-                    "classroom": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "game_profile": {
-                      "type": "object",
-                      "properties": {
-                        "game_points": {
-                          "type": "integer",
-                          "example": 0
-                        },
-                        "game_minutes_left": {
-                          "type": "integer",
-                          "example": 60
-                        },
-                        "_id": {
-                          "type": "string",
-                          "example": "671c80de26bdfcd3cc82fef2"
-                        }
-                      }
-                    },
-                    "is_feedback_available": {
-                      "type": "boolean",
-                      "example": false
-                    },
-                    "learning_preferences": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "_id": {
-                      "type": "string",
-                      "example": "671c80de26bdfcd3cc82fef1"
-                    },
-                    "new_exercise_submission": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "class_progress_info": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": []
-                    },
-                    "__v": {
-                      "type": "integer",
-                      "example": 0
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTY3OTE3YmZkMzQ1ZmRjYWE5ZTZkOSIsImV4cCI6MTczMDAwNzc3NzYzNH0.MeC--L2Fco_1tmTR7hTQLfuWI7PKVnDUBt7_Cqih-QM"
                     }
                   }
                 }
@@ -1127,7 +944,7 @@
         "responses": {
           "200": {
             "description": "Successfully joined the classroom",
-            "content": {
+                        "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
@@ -1163,25 +980,29 @@
                   }
                 },
                 "example": {
-                  "_id": "671a66e1571368e9f19f63e1",
-                  "students_enrolled": [
-                    {
-                      "student": "67167917bfd345fdcaa9e6d9",
-                      "is_new_exercise_submission": true,
-                      "_id": "671a75f1b1f3983b05bab129"
-                    },
-                    {
-                      "student": "671a72fd6454976b4f49d33e",
-                      "is_new_exercise_submission": false,
-                      "_id": "671a767fb1f3983b05bab136"
-                    },
-                    {
-                      "student": "671c7b089b922e7c6ff4e856",
-                      "is_new_exercise_submission": false,
-                      "_id": "671c897b8ac5aae2277a4cf0"
-                    }
-                  ],
-                  "__v": 1
+                  "classroom": {
+                    "_id": "6724d275b2f89b06f4bd7683",
+                    "students_enrolled": [
+                      {
+                        "student": "671c80de26bdfcd3cc82fef1",
+                        "is_new_exercise_submission": false,
+                        "_id": "6724d286b2f89b06f4bd7689"
+                      },
+                      {
+                        "student": "6724d2f65983d24f1ef81b94",
+                        "is_new_exercise_submission": false,
+                        "_id": "6724d2fe5983d24f1ef81b9a"
+                      }
+                    ],
+                    "__v": 1
+                  },
+                  "user": {
+                    "_id": "6724d2f65983d24f1ef81b94",
+                    "classroom": [
+                      "6724d275b2f89b06f4bd7683"
+                    ],
+                    "__v": 1
+                  }
                 }
               }
             }
@@ -2238,7 +2059,7 @@
         }
       }
     },
-    "unit/single/{id}": {
+    "/unit/single/{id}": {
       "get": {
         "tags": [
           "Unit"
@@ -2426,6 +2247,208 @@
               }
             }
           }
+        }
+      }
+    },
+    "/unit/all/classroom/{id}": {
+      "get": {
+        "summary": "Get All Units for a Classroom",
+        "description": "Retrieves all units associated with a specific classroom by its ID.",
+        "tags": [
+          "Unit"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "671a66e1571368e9f19f63e1"
+            },
+            "description": "The ID of the classroom to retrieve units for."
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer <JWT TOKEN>"
+            },
+            "description": "JWT token for user authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all units for the classroom.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "example": "67167d198309b1415c2bfb6a"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Unit 1"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Unit 1 description"
+                      },
+                      "difficulty": {
+                        "type": "string",
+                        "example": "easy"
+                      },
+                      "skills": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "related_units": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "prerequisites": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "is_premium": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "lessons": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Lesson 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Lesson 1 Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Lesson 1 Instruction"
+                            },
+                            "lesson_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167d9e8309b1415c2bfb71"
+                            }
+                          }
+                        }
+                      },
+                      "exercises": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "example": "Exercise 1"
+                            },
+                            "description": {
+                              "type": "string",
+                              "example": "Exercise Description"
+                            },
+                            "instruction": {
+                              "type": "string",
+                              "example": "Do it like this"
+                            },
+                            "exercise_content": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "is_instant_scored": {
+                              "type": "boolean",
+                              "example": false
+                            },
+                            "varients": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "max_score": {
+                              "type": "integer",
+                              "example": 30
+                            },
+                            "_id": {
+                              "type": "string",
+                              "example": "67167e218309b1415c2bfb7c"
+                            }
+                          }
+                        }
+                      },
+                      "__v": {
+                        "type": "integer",
+                        "example": 4
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+            "400": {
+            "description": "Invalid classroom ID.",
+            "content": {
+              "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Invalid classroom or user or user not in a classroom"
+                }
+                }
+              }
+              }
+            }
+            },
+            "403": {
+            "description": "User is not in this classroom.",
+            "content": {
+              "text/plain": {
+              "schema": {
+                "type": "string",
+                "example": "User is not in this classroom"
+              }
+              }
+            }
+            }
         }
       }
     },

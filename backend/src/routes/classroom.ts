@@ -90,7 +90,7 @@ export const classroomRoutes = new Hono<{ Variables: JwtVariables }>()
 
         // Parallel save for performance
         await Promise.all([classroom.save(), db_user.save()]);
-        return c.json(classroom);
+        return c.json({classroom, user: db_user});
     })
 
     .get("/:id", async (c) => {

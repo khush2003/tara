@@ -35,22 +35,26 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
             if (existing) {
                 throw new HTTPException(409, { message: "This email is already registered! Please login or use a different email." });
             }
-            const user = new User({
-                email,
-                password: await hash(password),
-                name,
-                role: "student",
-                school: school,
-                game_profile: {
-                    game_points: 0,
-                    game_minutes_left: 60,
-                },
-            });
-
+            
             try {
-                await user.save();
-                const { password: _, ...userWithoutPassword } = user.toObject();
-                return c.json(userWithoutPassword);
+                const user = await User.create({
+                    email,
+                    password: await hash(password),
+                    name,
+                    role: "student",
+                    school: school,
+                    game_profile: {
+                        game_points: 0,
+                        game_minutes_left: 60,
+                    },
+                });
+
+                const [token, error] = await getNewToken(user._id.toString());
+                if (error) {
+                    throw error;
+                }
+
+                return c.json({ token });
             } catch (error) {
                 return c.text("Error: " + error, 400);
             }
@@ -80,22 +84,26 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
             if (existing) {
                 throw new HTTPException(409, { message: "This email is already registered! Please login or use a different email." });
             }
-            const user = new User({
-                email,
-                password: await hash(password),
-                name,
-                role: "admin",
-                school: school,
-                game_profile: {
-                    game_points: 0,
-                    game_minutes_left: 60,
-                },
-            });
-
+           
             try {
-                await user.save();
-                const { password: _, ...userWithoutPassword } = user.toObject();
-                return c.json(userWithoutPassword);
+                const user = await User.create({
+                    email,
+                    password: await hash(password),
+                    name,
+                    role: "admin",
+                    school: school,
+                    game_profile: {
+                        game_points: 0,
+                        game_minutes_left: 60,
+                    },
+                });
+
+                const [token, error] = await getNewToken(user._id.toString());
+                if (error) {
+                    throw error;
+                }
+
+                return c.json({ token });
             } catch (error) {
                 return c.text("Error: " + error, 400);
             }
@@ -112,22 +120,26 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
         if (existing) {
             throw new HTTPException(409, { message: "This email is already registered! Please login or use a different email." });
         }
-        const user = new User({
-            email,
-            password: await hash(password),
-            name,
-            role: "teacher",
-            school: school,
-            game_profile: {
-                game_points: 0,
-                game_minutes_left: 60,
-            },
-        });
-
+       
         try {
-            await user.save();
-            const { password: _, ...userWithoutPassword } = user.toObject();
-            return c.json(userWithoutPassword);
+            const user = await User.create({
+                email,
+                password: await hash(password),
+                name,
+                role: "teacher",
+                school,
+                game_profile: {
+                    game_points: 0,
+                    game_minutes_left: 60,
+                },
+            });
+
+            const [token, error] = await getNewToken(user._id.toString());
+            if (error) {
+                throw error;
+            }
+
+            return c.json({ token });
         } catch (error) {
             return c.text("Error: " + error, 400);
         }

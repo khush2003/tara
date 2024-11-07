@@ -6,6 +6,7 @@ import { schemaValidatorFromMongoose } from "../utils/validators.ts";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
 import type { JwtVariables } from "hono/jwt";
 import { User } from "../models/user.model.ts";
+import { Classroom } from "../models/classroom.model.ts";
 
 
 // TODO: Future, make sure to update reduandent unit information on classroom and student when making changes to units
@@ -31,6 +32,34 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
         const units = await Unit.find({is_premium: false}).lean();
         return c.json(units);
     })
+    .get("/all/classroom/:id", jwtMiddleware, async (c) => {
+        const payload: {
+            id: string,
+            exp: number
+        } = await c.get('jwtPayload')
+
+        const user = await User.findById(payload.id).select(["classroom"]).lean();
+        if (!user) {
+            return c.text('Invalid user', 400);
+        }
+
+        if (!user.classroom) {
+            return c.text('User is not in a classroom', 400);
+        }
+
+        if (user.classroom.toString() !== c.req.param("id")) {
+            return c.text('User is not in this classroom', 403);
+        }
+
+        const classroom = await Classroom.findById(c.req.param("id")).select(["chosen_units"]).lean();
+        if (!classroom) {
+            return c.text('Invalid classroom ID', 400);
+        }
+        console.log(classroom.chosen_units);
+        const unitIds = classroom.chosen_units.map((chosenUnit) => chosenUnit.unit);
+        const units = await Unit.find({_id: {$in: unitIds}}).lean();
+        return c.json(units);
+    })
     
     .post("/create", jwtMiddleware, schemaValidatorFromMongoose(UnitSchema), async (c) => {
         const {name, description, difficulty, skills, related_units, prerequisites, is_premium} = c.req.valid("json");
@@ -49,7 +78,7 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
             return c.text('Only admins can create units', 403);  
         }
 
-        const unit = new Unit({ name, description, difficulty, skills, related_units, prerequisites, is_premium });
+        const unit = new Unit({ name, description, difficulty, skills, related_units, prerequisites, is_premium});
         await unit.save();
         return c.json(unit);
     })

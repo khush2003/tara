@@ -1,13 +1,14 @@
 {
   "name": "hono-bun",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
     "@scalar/hono-api-reference": "^0.5.156",
-    "bullmq": "^5.21.2",
     "cron": "^3.1.7",
+    "firebase": "^11.0.1",
     "hono": "^4.6.7",
     "mongoose": "^8.7.3",
     "zod": "^3.23.8"
