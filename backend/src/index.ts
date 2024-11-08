@@ -1,32 +1,53 @@
-import express, { Express, Request, Response } from 'express';
-import postRoutes from './post.js';
-import getRoutes from './get.js';
-import putRoutes from './put.js';
-import deleteRoutes from './delete.js';
-
-
+import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './db.js';
 
-const app: Express = express();
-const port: number = 8080; //Put this in .env file when building code for production
-const hostname = '127.0.0.1'; // Using this url for testing purposes (same as localhost), this supports android emulator when paired with 10.0.2.2
+import authRoutes from './routes/auth.routes'; // Adjust path if necessary
+import connectDB from './config/db';
+import testRoutes from './routes/test.routes';
+import guestSessionRoutes from './routes/guestSession.routes';
+import learningRoutes from './routes/learning.routes';
+import performanceRecordRoutes from './routes/performanceRecords.routes';
+import classroomRoutes from './routes/classRoom.routes';
 
 dotenv.config();
+
+const app: Express = express();
+const port = process.env.PORT || 8080;
+
+// Middleware
 app.use(cors());
+app.use(express.json());
 
-app.use(cors());
-app.get('/', (req: Request, res: Response) => {
-  res.send('Welcome to Tara Backend!');
-});
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    // console.log('MongoDB connection established.');
+  })
+  .catch((err) => {
+    console.error('Failed to establish MongoDB connection:', err.message);
+    process.exit(1);
+  });
 
-connectDB();
-app.use('/post', postRoutes)
-app.use('/get', getRoutes)
-app.use('/put', putRoutes)
-app.use('/delete', deleteRoutes)
+// Register routes
+app.use('/auth', authRoutes);
 
-app.listen(port, hostname, () => {
+// Register test routes
+app.use('/test', testRoutes);
+
+// Guest session routes
+app.use('/guest', guestSessionRoutes);
+
+// Learning module routes
+app.use('/learning', learningRoutes);
+
+// Performance record routes
+app.use('/performance', performanceRecordRoutes);
+
+// Classrooms routes
+app.use('/classroom', classroomRoutes);
+
+// Start the server
+app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });

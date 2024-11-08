@@ -64,3 +64,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+.flashcard {
+  background-color: #f7fafc; /* Equivalent to gray-100 */
+  padding: 1rem;
+  border-radius: 0.5rem; /* Equivalent to rounded-lg */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
