@@ -78,7 +78,7 @@ function DroppableArea({ id, items, onDrop }: DroppableAreaProps) {
     return (
         <div
             ref={drop}
-            className={`bg-white dark:bg-gray-800 p-2 rounded-md min-h-[100px] border-2 border-dashed ${
+            className={`bg-white dark:bg-gray-800 p-2 rounded-md min-h-[40px] border-2 border-dashed ${
                 isOver ? 'border-blue-500' : 'border-gray-300 dark:border-gray-600'
             }`}
         >

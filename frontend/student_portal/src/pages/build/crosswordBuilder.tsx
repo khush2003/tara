@@ -29,7 +29,10 @@ interface Exercise {
   correct_answers: { [key: number]: string }
   is_instant_scored: boolean
   max_score: number
-  variants: any[]
+  varients: {
+    id: string
+    type: string
+  }[]
 }
 
 export default function CrosswordPuzzleBuilder() {
@@ -43,7 +46,7 @@ export default function CrosswordPuzzleBuilder() {
     correct_answers: {},
     is_instant_scored: true,
     max_score: 0,
-    variants: [],
+    varients: [],
   })
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -440,6 +440,7 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
         set({ submitted: true, firstSubmission: false });
         if (exercise) {
             console.log("Submitting exercise");
+            console.log(exercise);
             const error = await submitExercise(
                 contentId,
                 { score: gScore != null ? gScore : undefined, answers: gAnswersString },

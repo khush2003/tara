@@ -54,7 +54,7 @@ export default function SpaceExplorerModule() {
     })?.lessons_completed?.length === learningModule?.lessons.length;
 
     const progress = user?.class_progress_info.find((progress) => {
-        return progress.unit.toString() === id && progress.class.toString() === classroom?._id;
+        return progress.unit.id.toString() === id && progress.class.toString() === classroom?._id;
     });
 
     return (
@@ -174,13 +174,28 @@ export default function SpaceExplorerModule() {
                                         <CardContent>
                                             <p>Coins: {exercise.max_score} 💎</p>
                                             {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString()) && (
-                                                <p>
+                                                <><p>
                                                     Score (Coins Earned):{" "}
                                                     {progress?.exercises
                                                         ?.find((e) => e.exercise.toString() === exercise._id.toString())
-                                                        ?.best_score?.toFixed(0) || 0}{" "}
+                                                        ?.coins_earned?.toFixed(0) || 0}{" "}
                                                     💎
-                                                </p>
+                                                </p><p>
+                                                        Feeback: {" "}
+                                                        {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.feedback || "No feedback yet"}
+                                                    </p>
+                                                    <p>
+                                                        Best Score:{" "}
+                                                        {progress?.exercises
+                                                            ?.find((e) => e.exercise.toString() === exercise._id.toString())
+                                                            ?.best_score?.toFixed(0) || 0}{" "}
+                                                    </p>
+                                                    
+                                                    {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.best_score || 0 > 
+                                                    (progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.coins_earned || 0) && 
+                                                        <p className="text-sm text-orange-600">Tip: You can ask your teacher to award you extra points for your high score!</p>
+                                                    }
+                                                    </>
                                             )}
                                         </CardContent>
                                         <CardFooter>

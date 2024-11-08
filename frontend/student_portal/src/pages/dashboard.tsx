@@ -31,7 +31,11 @@ export default function DashboardPage() {
 
     const { data: classroom, error: classroomError, isLoading: classroomLoading } = useClassroom(classroomId);
 
-    useUnits(classroomId);
+    const {
+        data: units,
+        error: unitsError,
+        isLoading: unitsLoading
+    } = useUnits(classroomId);
 
 
 
@@ -46,15 +50,15 @@ export default function DashboardPage() {
         setLogoutModalVisible(false); // Hide the modal without logging out
     };
 
-    if (userError || classroomError) {
+    if (userError || classroomError || unitsError) {
         return (
             <div>
-                Error: There was some unexpected error! {userError} || {classroomError}
+                Error: There was some unexpected error! {userError} || {classroomError} || {unitsError}
             </div>
         );
     }
 
-    if (userLoading || classroomLoading) {
+    if (userLoading || classroomLoading || unitsLoading) {
         return (
             <div className="min-h-screen flex flex-col gap-8 bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 p-4 sm:p-6 lg:p-8">
                 {["1", "2", "3", "4"].map((item) => (
@@ -269,19 +273,31 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <ul className="space-y-3">
-                                {classroom?.chosen_units.map(
+                                {user?.recommended?.lessons.map(
                                     //TODO: Recommendations
                                     (course) => (
                                         <motion.li
-                                            key={course.unit}
+                                            key={course.id}
                                             className="p-3 bg-white bg-opacity-20 rounded-xl flex items-center justify-between"
                                             whileHover={{
                                                 scale: 1.05,
                                                 backgroundColor: "rgba(255,255,255,0.3)",
                                             }}
+                                            onClick={() => navigate("/learning/" +  units?.find((unit) => {
+                                                for (const lesson of unit.lessons) {
+                                                    if (lesson._id === course.id) {
+                                                        return unit._id;
+                                                    }
+                                                }
+                                                for (const exercise of unit.exercises) {
+                                                    if (exercise._id === course.id) {
+                                                        return unit._id;
+                                                    }
+                                                }
+                                            })?._id + "/" + course.id + "/" + classroomId)}
                                         >
                                             <span className="text-lg">{course.name}</span>
-                                            <div className="flex flex-row">20 💎</div>
+                                            <div className="flex flex-row">{course.extra_points} 💎</div>
                                         </motion.li>
                                     )
                                 )}

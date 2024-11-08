@@ -9,6 +9,7 @@ import { Classroom } from "../models/classroom.model.ts";
 import { PointsLog, PointsLogType } from "../models/pointslog.model.ts";
 import { z } from "zod";
 import type { FlattenMaps } from "mongoose";
+import { generateRecommendations } from "../generateRecommendations.ts";
 // import type { HydratedDocument } from "mongoose";
 
 // All routes in userRoutes have jwtMiddleware applied
@@ -333,7 +334,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             exp: number
         } = await c.get('jwtPayload')
 
-        const user = await User.findById(payload.id).select(["class_progress_info", "classroom"]);
+        const user = await User.findById(payload.id).select(["class_progress_info", "classroom", "recommended", "game_profile"]);
         if (!user) {
             return c.text("Invalid ID", 400);
         }
@@ -371,13 +372,45 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                 class: classId as unknown as mongoose.Schema.Types.ObjectId,
             });
 
+
+            if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
+                const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
+                user.game_profile.game_points += points;
+                await PointsLog.create({
+                    user: user._id,
+                    classroom: classId,
+                    is_add: true,
+                    amount: points,
+                    details: "Completed recommended lesson",
+                    type: PointsLogType.RECOMMENDED_LESSON,
+                });
+            }
+
             await user.save();
+            
+            await generateRecommendations(payload.id);
             return c.json(user);
         }
 
         if (classProgressInfo.lessons_completed) {
             if (classProgressInfo.lessons_completed.includes(lessonId as unknown as mongoose.Schema.Types.ObjectId)) {
-                return c.text("Lesson already completed", 400);
+                if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
+                    const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
+                    if (user?.game_profile.game_points) {
+                        user.game_profile.game_points += points;
+                        await PointsLog.create({
+                            user: user._id,
+                            classroom: classId,
+                            is_add: true,
+                            amount: points,
+                            details: "Completed recommended lesson",
+                            type: PointsLogType.RECOMMENDED_LESSON,
+                        });
+                    }
+                }
+                await user.save();
+                await generateRecommendations(payload.id);
+                return c.json(user);
             } else {
                 classProgressInfo.lessons_completed.push(lessonId as unknown as mongoose.Schema.Types.ObjectId);
             }
@@ -389,8 +422,21 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             ((classProgressInfo.lessons_completed.length + (classProgressInfo.exercises?.length || 0)) /
                 (classProgressInfo.num_exercises + classProgressInfo.num_lessons)) *
             100;
-
+        
+        if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
+            const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
+            user.game_profile.game_points += points;
+            await PointsLog.create({
+                user: user._id,
+                classroom: classId,
+                is_add: true,
+                amount: points,
+                details: "Completed recommended lesson",
+                type: PointsLogType.RECOMMENDED_LESSON,
+            });
+        }
         await user.save();
+        await generateRecommendations(payload.id);
         return c.json(user);
     })
 
@@ -423,9 +469,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             exp: number
         } = await c.get('jwtPayload')
 
-        // TODO: Future, Exercise or lesson and unit must be in classroom.chosen_unit
-
-        const user = await User.findById(payload.id).select(["class_progress_info", "game_profile.game_points", "new_exercise_submission", "classroom"]);
+        const user = await User.findById(payload.id).select(["class_progress_info", "game_profile", "new_exercise_submission", "classroom", "recommended"]);
         if (!user) return c.text("Invalid user ID", 400);
 
         const classroom = await Classroom.findById(classId).select("students_enrolled");
@@ -504,7 +548,20 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             if (student) {
                 student.is_new_exercise_submission = true;
             }
+            if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
+                const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                user.game_profile.game_points += points;
+                await PointsLog.create({
+                    user: user._id,
+                    classroom: classId,
+                    is_add: true,
+                    amount: points,
+                    details: "Completed recommended lesson",
+                    type: PointsLogType.RECOMMENDED_EXERCISE,
+                });
+            }
             await Promise.all([user.save(), classroom.save(),  newPointsLog && newPointsLog.save()]);
+            await generateRecommendations(payload.id);
             return c.json({user, classroom});
         } else {
             if (classProgressInfo.exercises) {
@@ -537,7 +594,20 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                     if (student) {
                         student.is_new_exercise_submission = true;
                     }
+                    if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
+                        const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                        user.game_profile.game_points += points;
+                        await PointsLog.create({
+                            user: user._id,
+                            classroom: classId,
+                            is_add: true,
+                            amount: points,
+                            details: "Completed recommended lesson",
+                            type: PointsLogType.RECOMMENDED_EXERCISE,
+                        });
+                    }
                     await Promise.all([user.save(), classroom.save()]);
+                    await generateRecommendations(payload.id);
                     return c.json({user, classroom});
                 } else {
                     classProgressInfo.exercises.push({
@@ -609,7 +679,20 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             if (student) {
                 student.is_new_exercise_submission = true;
             }
+            if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
+                const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                user.game_profile.game_points += points;
+                await PointsLog.create({
+                    user: user._id,
+                    classroom: classId,
+                    is_add: true,
+                    amount: points,
+                    details: "Completed recommended lesson",
+                    type: PointsLogType.RECOMMENDED_EXERCISE,
+                });
+            }
             await Promise.all([user.save(), classroom.save()]);
+            await generateRecommendations(payload.id);
             return c.json({user, classroom});
         }
     })
@@ -737,7 +820,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         
         // Save the updated user document
         await Promise.all([user.save(), newPointsLog && newPointsLog.save()]);
-
+        await generateRecommendations(user_id);
         return c.json(user);
     })
 
@@ -755,9 +838,5 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         await user.save();
         return c.json(user);
     });
-
-// TODO: Frontend: Reset has_new_exercise_submission after teacher has seen it
-// TODO: Frontend + Backend: Offload password hashing to the frontend so that there is no security risk
-// TODO: Future: Recommendation system
 
 export default userRoutes;

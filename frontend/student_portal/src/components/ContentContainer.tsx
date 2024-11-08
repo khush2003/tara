@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "./ui/toaster";
 import { useEffect } from 'react';
 import { mutate } from "swr";
+import { setSourceMapsEnabled } from "process";
 
 interface LessonContainerProps {
     className?: string;
@@ -95,6 +96,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         setLesson,
         setDropAreas,
         setDropItems,
+        setSubmitted
     } = useExerciseStore()
 
     useEffect(() => {
@@ -108,6 +110,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
 
     useEffect(() => {
         console.log('useEffect triggered');
+        setSubmitted(false)
         if (isExercise) {
             console.log("Setting exercise" + exercise.exercise_type)
             setExercise(exercise)
@@ -123,8 +126,9 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
             }
         } else {
             setLesson(lesson)
+            setExercise(null)
         }
-    }, [isExercise, exercise, exercise?._id, isAlreadyComplete, contentId, setExercise, setFirstSubmission, setLesson, lesson, setDropAreas, setDropItems]);
+    }, [isExercise, exercise, exercise?._id, isAlreadyComplete, contentId, setExercise, setFirstSubmission, setLesson, lesson, setDropAreas, setDropItems, setSubmitted]);
 
     const lessonData = isExercise ? exercise : lesson;
 
@@ -202,9 +206,11 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                 transition={{ duration: 0.5 }}
                             >
                                 {!isExercise ? <LessonDisplay /> : <>
+                                    {renderExerciseContent()}
+                                <div className="px-10 py-6 border-purple-400 bg-purple-50 border-2 text-purple-900 rounded-md ">
                                 <p>Your best score: {progress?.exercises?.find(
                                     (e) => e.exercise.toString() === exercise._id
-                                )?.best_score || "Try to complete once to see"}</p>
+                                )?.best_score || (isExercise && exercise.is_instant_scored ? "Try to complete once to see" : "You will see your score and earn coins when teacher grades you!")}</p>
                                 <p>
                                 You have earned: {progress?.exercises?.find(
                                     (e) => e.exercise.toString() === exercise._id
@@ -215,7 +221,8 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                     (e) => e.exercise.toString() === exercise._id
                                 )?.attempts.length || 0} times
                                 </p>
-                                {renderExerciseContent()}
+                                </div>
+                                
                                 </>}
                             </motion.div>
                             {feedback && (

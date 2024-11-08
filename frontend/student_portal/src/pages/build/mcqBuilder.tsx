@@ -20,7 +20,10 @@ export default function MCQBuilder() {
     exercise_content: { question: string; options: string[] }[];
     is_instant_scored: boolean;
     max_score: number;
-    variants: any[];
+    varients: {
+      id: string
+      type: string
+  }[]
     correct_answers: { [key: number]: string };
   }
   
@@ -33,7 +36,7 @@ export default function MCQBuilder() {
     exercise_content: [],
     is_instant_scored: true,
     max_score: 0,
-    variants: [],
+    varients: [],
     correct_answers: {}
   })
 

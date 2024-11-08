@@ -3,6 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 
 
 interface ILesson {
+    _id: string;
     title: string;
     description: string;
     instruction: string;
@@ -10,9 +11,17 @@ interface ILesson {
     lesson_content: Mixed[];
     order: number;
     image?: string;
+    tags?: string[];
+}
+
+export enum VARIENT_TYPE {
+    Adventure = 'Adventure & Exploration',
+    Sports = 'Sports & Physical Activities',
+    Science = 'Science & Technology'
 }
 
 interface IExercise {
+    _id: string;
     title: string;
     description: string;
     instruction: string;
@@ -20,14 +29,19 @@ interface IExercise {
     exercise_content: Mixed[];
     is_instant_scored: boolean;
     correct_answers: Mixed[];
-    varients: ObjectId[];
+    varients: {
+        id: string;
+        type: VARIENT_TYPE;
+    }[];
     max_score: number;
     order: number;
     dropItems?: Mixed[];
     image?: string;
+    tags?: string[];
 }
 
 interface IUnit {
+    _id: string;
     name: string;
     description: string;
     difficulty: string;
@@ -37,6 +51,7 @@ interface IUnit {
     lessons: ILesson[];
     exercises: IExercise[];
     is_premium: boolean;
+    
 }
 
 const LessonSchema = new Schema<ILesson>({
@@ -45,8 +60,9 @@ const LessonSchema = new Schema<ILesson>({
     instruction: { type: String, required: true },
     lesson_type: { type: String, enum: ["flashcard", "text", "image"] },
     lesson_content: { type: [Schema.Types.Mixed] },
-    order: { type: Number, unique: true, required: true },
-    image: { type: String }
+    order: { type: Number, required: true },
+    image: { type: String },
+    tags: { type: [String] }
 }, { _id: true });
 
 const ExerciseSchema = new Schema<IExercise>({
@@ -57,11 +73,15 @@ const ExerciseSchema = new Schema<IExercise>({
     exercise_content: { type: [Schema.Types.Mixed] },
     is_instant_scored: { type: Boolean, default: false },
     correct_answers: { type: [Schema.Types.Mixed] },
-    varients: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
+    varients: [{
+        id: { type: Schema.Types.ObjectId, ref: 'Exercise' },
+        type: { type: String, enum: Object.values(VARIENT_TYPE) }
+    }],
     max_score: { type: Number, required: true },
-    order: { type: Number, unique: true, required: true },
+    order: { type: Number, required: true },
     dropItems: { type: [Schema.Types.Mixed] },
-    image: { type: String }
+    image: { type: String },
+    tags: { type: [String] }
 }, { _id: true });
 
 const UnitSchema = new Schema<IUnit>({

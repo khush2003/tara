@@ -46,7 +46,10 @@ export interface Exercise {
     exercise_content: object[];
     is_instant_scored: boolean;
     correct_answers: object;
-    varients: string[];
+    varients: {
+        id: string;
+        type: string;
+    }[]
     max_score: number;
     order: number;
     _id: string;

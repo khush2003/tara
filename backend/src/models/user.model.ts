@@ -9,12 +9,12 @@ interface IGameProfile {
 interface IRecommendations {
     lessons: {
         name: string;
-        id: ObjectId;
+        id: string;
         extra_points: number;
     }[];
     exercises: {
         name: string;
-        id: ObjectId;
+        id: string;
         extra_points: number;
     }[];
 }

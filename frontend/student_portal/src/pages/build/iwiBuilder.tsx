@@ -25,7 +25,10 @@ interface Exercise {
     correct_answers: string[]
     is_instant_scored: boolean
     max_score: number
-    variants: unknown[]
+    varients: {
+        id: string
+        type: string
+    }[]
 }
 
 export default function ImagesWithInputBuilder() {
@@ -41,7 +44,7 @@ export default function ImagesWithInputBuilder() {
         correct_answers: [''],
         is_instant_scored: true,
         max_score: 0,
-        variants: [],
+        varients: [],
     })
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

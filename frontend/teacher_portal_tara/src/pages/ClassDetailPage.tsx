@@ -26,6 +26,7 @@ import { awardPoints, PointsLogType, setAnnoucementAPI, setGameRestrictionPeriod
 import { useUsers } from "@/hooks/useUsers";
 import { setTodayUnit as setTodayUnitFull } from "@/api/useAPI";
 import { Exercise, Lesson } from "@/types/dbTypes";
+import { useAllUnits } from "@/hooks/useAllUnits";
 
 export default function ClassDetailsPage() {
     const { id } = useParams();
@@ -56,7 +57,7 @@ export default function ClassDetailsPage() {
         data: learningModules,
         isLoading: moduleLoading,
         error: moduleError,
-    } = useUnits(id);
+    } = useAllUnits();
     
 
     const { toast } = useToast()

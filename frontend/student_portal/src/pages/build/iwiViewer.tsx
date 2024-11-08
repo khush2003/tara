@@ -64,7 +64,7 @@ export default function ImagesWithInputViewer() {
                                 <img
                                     src={content.image_url || "/placeholder.svg?height=300&width=400"}
                                     alt={`Image ${index + 1}`}
-                                    width={400}
+                                    width={600}
                                     height={300}
                                     className="rounded-lg"
                                 />

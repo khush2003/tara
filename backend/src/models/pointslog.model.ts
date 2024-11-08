@@ -20,6 +20,8 @@ export enum PointsLogType {
     GAME_SPENDING = 'game_spending',
     INSTANT_EXERCISE = 'instant_exercise',
     TEACHER_SCORED = 'teacher_scored',
+    RECOMMENDED_LESSON = 'recommended_lesson',
+    RECOMMENDED_EXERCISE = 'recommended_exercise',
 }
 // TODO: Switch Enums from string to enum definitions everywhere
 
