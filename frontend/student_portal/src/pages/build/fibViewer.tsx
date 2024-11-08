@@ -56,12 +56,12 @@ export default function FillInTheBlanksViewer() {
         return (
             <div className="space-y-6">
                 {exercise?.exercise_content.map((content, contentIndex) => {
-                    const textParts = content.text.split(/\[blank\]/g);
+                    const textParts = content.text?.split(/\[blank\]/g);
                     return (
                         <Card key={contentIndex} className="rounded-xl overflow-hidden">
                             <CardContent className="p-6 bg-green-50">
                                 <div className="mb-4 whitespace-pre-wrap">
-                                    {textParts.map((part: string, index: number) => (
+                                    {textParts?.map((part: string, index: number) => (
                                         <span key={index}>
                                             {part.split("\n").map((line, lineIndex) => (
                                                 <span key={lineIndex}>

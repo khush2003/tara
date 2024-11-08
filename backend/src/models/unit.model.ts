@@ -9,6 +9,7 @@ interface ILesson {
     lesson_type: string;
     lesson_content: Mixed[];
     order: number;
+    image?: string;
 }
 
 interface IExercise {
@@ -18,11 +19,12 @@ interface IExercise {
     exercise_type: string;
     exercise_content: Mixed[];
     is_instant_scored: boolean;
-    correct_answers: Mixed;
+    correct_answers: Mixed[];
     varients: ObjectId[];
     max_score: number;
     order: number;
     dropItems?: Mixed[];
+    image?: string;
 }
 
 interface IUnit {
@@ -43,7 +45,8 @@ const LessonSchema = new Schema<ILesson>({
     instruction: { type: String, required: true },
     lesson_type: { type: String, enum: ["flashcard", "text", "image"] },
     lesson_content: { type: [Schema.Types.Mixed] },
-    order: { type: Number, unique: true, required: true }
+    order: { type: Number, unique: true, required: true },
+    image: { type: String }
 }, { _id: true });
 
 const ExerciseSchema = new Schema<IExercise>({
@@ -53,11 +56,12 @@ const ExerciseSchema = new Schema<IExercise>({
     exercise_type: { type: String, enum: ["multiple_choice", "crossword_puzzle", "drag_and_drop", "fill_in_the_blanks", "images_with_input", "text_with_input", "text_with_questions"] },
     exercise_content: { type: [Schema.Types.Mixed] },
     is_instant_scored: { type: Boolean, default: false },
-    correct_answers: { type: Schema.Types.Mixed },
+    correct_answers: { type: [Schema.Types.Mixed] },
     varients: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
     max_score: { type: Number, required: true },
     order: { type: Number, unique: true, required: true },
-    dropItems: { type: [Schema.Types.Mixed] }
+    dropItems: { type: [Schema.Types.Mixed] },
+    image: { type: String }
 }, { _id: true });
 
 const UnitSchema = new Schema<IUnit>({

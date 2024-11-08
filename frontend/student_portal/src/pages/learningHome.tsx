@@ -61,7 +61,7 @@ export default function EnhancedLearningHomePage() {
 
     const allLessonsCompleted =
         user?.class_progress_info.find((progress) => {
-            return progress.unit.toString() === unitId && progress.class.toString() === classroomId;
+            return progress.unit.id.toString() === unitId && progress.class.toString() === classroomId;
         })?.lessons_completed?.length === unit?.lessons.length;
 
 

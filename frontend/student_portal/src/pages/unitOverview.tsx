@@ -50,7 +50,7 @@ export default function SpaceExplorerModule() {
 
     const allLessonsCompleted =
     user?.class_progress_info.find((progress) => {
-        return progress.unit.toString() === id && progress.class.toString() === classroomId;
+        return progress.unit.id.toString() === id && progress.class.toString() === classroomId;
     })?.lessons_completed?.length === learningModule?.lessons.length;
 
     const progress = user?.class_progress_info.find((progress) => {
@@ -83,7 +83,7 @@ export default function SpaceExplorerModule() {
                 <p className="text-sm text-gray-600 mt-2">
                     {isGuest
                         ? "0%"
-                        : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent ||
+                        : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent.toFixed(0) ||
                           0 + "%"}{" "}
                     of your journey completed
                 </p>

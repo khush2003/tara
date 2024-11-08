@@ -16,23 +16,19 @@ const ItemTypes = {
     DRAG_ITEM: 'dragItem',
 }
 
-interface Content {
-    type: 'text' | 'image';
-    content: string;
-    alt?: string;
-}
-
 interface DraggableItemProps {
     id: string;
-    content: Content;
-    onDrop: (dropAreaId: string, item: { id: string; content: Content }) => void;
+    content: string;
+    alt?: string;
+    type: string;
+    onDrop: (dropAreaId: string, item: DropItemType) => void;
     isInDropArea: boolean;
 }
 
-function DraggableItem({ id, content, isInDropArea }: DraggableItemProps) {
+function DraggableItem({ id, content, type, alt, isInDropArea }: DraggableItemProps) {
     const [{ isDragging }, drag] = useDrag(() => ({
         type: ItemTypes.DRAG_ITEM,
-        item: { id, content },
+        item: { id, content, type, alt },
         collect: (monitor) => ({
             isDragging: !!monitor.isDragging(),
         }),
@@ -47,15 +43,15 @@ function DraggableItem({ id, content, isInDropArea }: DraggableItemProps) {
             }}
             className={`bg-white dark:bg-gray-800 p-2 mb-2  rounded-md shadow-sm border-2 border-dashed border-gray-300 dark:border-gray-600 select-none `}
         >
-            {content.type === 'text' ? (
-                <span>{content.content}</span>
+            {type === 'text' ? (
+                <span>{content}</span>
             ) : (
                 <div className={`relative ${
                 isInDropArea ? 'w-[70px] h-[70px]' : 'w-[160px] h-[200px]'
             }`}>
                     <img 
-                        src={content.content} 
-                        alt="Draggable item"
+                        src={content} 
+                        alt={alt}
                         style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                     />
                 </div>
@@ -66,14 +62,14 @@ function DraggableItem({ id, content, isInDropArea }: DraggableItemProps) {
 
 interface DroppableAreaProps {
     id: string;
-    items: { id: string; content: Content }[];
-    onDrop: (dropAreaId: string, item: { id: string; content: Content }) => void;
+    items: DropItemType[];
+    onDrop: (dropAreaId: string, item: DropItemType) => void;
 }
 
 function DroppableArea({ id, items, onDrop }: DroppableAreaProps) {
     const [{ isOver }, drop] = useDrop(() => ({
         accept: ItemTypes.DRAG_ITEM,
-        drop: (item: { id: string; content: Content }) => onDrop(id, item),
+        drop: (item: DropItemType) => onDrop(id, item),
         collect: (monitor: DropTargetMonitor) => ({
             isOver: !!monitor.isOver(),
         }),
@@ -86,20 +82,27 @@ function DroppableArea({ id, items, onDrop }: DroppableAreaProps) {
                 isOver ? 'border-blue-500' : 'border-gray-300 dark:border-gray-600'
             }`}
         >
-            {items.map((item) => (
-                <DraggableItem key={item.id} id={item.id} content={item.content} onDrop={onDrop} isInDropArea={true} />
+            {items?.map((item) => (
+                <DraggableItem key={item.id} id={item.id} content={item.content} type={item.type} alt={item.alt} onDrop={onDrop} isInDropArea={true} />
             ))}
         </div>
     )
 }
 
-interface Exercise {
+export interface DropItemType {
+    id: string;
+    content: string;
+    type: string;
+    alt?: string;
+}
+
+export interface DndExercise {
     exercise_content: {
         dropArea: { type: 'single' | 'multiple' };
         text?: string;
         images: string[];
     }[];
-    dropItems: { id: string; content: Content }[];
+    dropItems: DropItemType[];
     correct_answers: string[][];
     max_score: number;
     is_instant_scored: boolean;
@@ -130,12 +133,15 @@ export default function DragAndDropViewer() {
     } = useExerciseStore()
     const [jsonInput, setJsonInput] = useState<string>('')
 
+
     const handleJsonSubmit = () => {
         try {
-            const parsedExercise: Exercise = JSON.parse(jsonInput)
+            const parsedExercise: DndExercise = JSON.parse(jsonInput)
             setExercise(parsedExercise)
-            setDropAreas(parsedExercise.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })))
-            setDropItems(parsedExercise.dropItems)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            setDropAreas((_prev) => parsedExercise.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })))
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            setDropItems((_prev) => parsedExercise.dropItems)
             setScore(null)
             setSubmitted(false)
             setFirstSubmission(true)
@@ -145,55 +151,74 @@ export default function DragAndDropViewer() {
         }
     }
 
-    const handleDrop = useCallback((dropAreaId: string, item: { id: string; content: Content }) => {
-        const newAreas = [...dropAreas]
-            const targetAreaIndex = newAreas.findIndex(area => area.id === dropAreaId)
-            const sourceAreaIndex = newAreas.findIndex(area => area.items.some(i => i.id === item.id))
-
-            // If the item is coming from another drop area
-            if (sourceAreaIndex !== -1) {
-                const movedItem = newAreas[sourceAreaIndex].items.find(i => i.id === item.id)
-                newAreas[sourceAreaIndex].items = newAreas[sourceAreaIndex].items.filter(i => i.id !== item.id)
-                
-                if (newAreas[targetAreaIndex].type === 'single' && newAreas[targetAreaIndex].items.length > 0) {
-                    // Move the existing item back to the items list
-                    const existingItem = newAreas[targetAreaIndex].items[0]
-                    setDropItems([...dropItems, existingItem])
-                }
-                
-                newAreas[targetAreaIndex].items = newAreas[targetAreaIndex].type === 'single' 
-                    ? [movedItem!]
-                    : [...newAreas[targetAreaIndex].items, movedItem!]
-            } else {
-                // If the item is coming from the original items list
-                const movedItem = dropItems.find(i => i.id === item.id)
-                
-                if (newAreas[targetAreaIndex].type === 'single' && newAreas[targetAreaIndex].items.length > 0) {
-                    // Move the existing item back to the items list
-                    const existingItem = newAreas[targetAreaIndex].items[0]
-                    setDropItems([...dropItems, existingItem])
-                }
-                
-                newAreas[targetAreaIndex].items = newAreas[targetAreaIndex].type === 'single'
-                    ? [movedItem!]
-                    : [...newAreas[targetAreaIndex].items, movedItem!]
-                
-                setDropItems(dropItems.filter(i => i.id !== item.id))
+        const handleDrop = useCallback(
+      (dropAreaId: string, item: DropItemType) => {
+        setDropAreas((areas) => {
+          const newAreas = areas.map((area) => ({
+            ...area,
+            items: [...area.items],
+          }));
+    
+          const targetAreaIndex = newAreas.findIndex((area) => area.id === dropAreaId);
+          const sourceAreaIndex = newAreas.findIndex((area) =>
+            area.items.some((i) => i.id === item.id)
+          );
+    
+          if (sourceAreaIndex !== -1) {
+            // Moving item from another drop area
+            const movedItem = newAreas[sourceAreaIndex].items.find((i) => i.id === item.id);
+            newAreas[sourceAreaIndex].items = newAreas[sourceAreaIndex].items.filter(
+              (i) => i.id !== item.id
+            );
+    
+            if (
+              newAreas[targetAreaIndex].type === 'single' &&
+              newAreas[targetAreaIndex].items.length > 0
+            ) {
+              const existingItem = newAreas[targetAreaIndex].items[0];
+              setDropItems((items) => [...items, existingItem]);
             }
-        
-        setDropAreas(newAreas)
-        
-    }, [dropAreas, dropItems, setDropAreas, setDropItems])
+    
+            newAreas[targetAreaIndex].items =
+              newAreas[targetAreaIndex].type === 'single'
+                ? [movedItem!]
+                : [...newAreas[targetAreaIndex].items, movedItem!];
+          } else {
+            // Moving item from the original items list
+            const movedItem = dropItems.find((i) => i.id === item.id);
+    
+            if (
+              newAreas[targetAreaIndex].type === 'single' &&
+              newAreas[targetAreaIndex].items.length > 0
+            ) {
+              const existingItem = newAreas[targetAreaIndex].items[0];
+              setDropItems((items) => [...items, existingItem]);
+            }
+    
+            newAreas[targetAreaIndex].items =
+              newAreas[targetAreaIndex].type === 'single'
+                ? [movedItem!]
+                : [...newAreas[targetAreaIndex].items, movedItem!];
+    
+            setDropItems((items) => items.filter((i) => i.id !== item.id));
+          }
+    
+          return newAreas;
+        });
+      },
+      [dropItems, setDropAreas, setDropItems]
+    );
 
     const handleReset = () => {
         if (exercise) {
-            setDropAreas(exercise.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })))
-            setDropItems(exercise.dropItems!)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            setDropAreas((_prev) => exercise.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })))
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            setDropItems((_prev) => exercise.dropItems!)
             setSubmitted(false)
             setScore(null)
         }
     }
-
 
     const renderExerciseContent = () => {
         return (
@@ -202,12 +227,12 @@ export default function DragAndDropViewer() {
                     <Card key={groupIndex} className="rounded-xl overflow-hidden">
                         <CardContent className="p-6 bg-green-50">
                             {group.text && <p className="mb-4">{group.text}</p>}
-                            {group.images.map((image: string | undefined, imageIndex: number) => (
+                            {group.images?.map((image: string | undefined, imageIndex: number) => (
                                 <img key={imageIndex} src={image} alt={`Group ${groupIndex + 1} Image ${imageIndex + 1}`} width={140} height={140} className="mb-4 rounded-md" />
                             ))}
                             <DroppableArea
-                                id={dropAreas[groupIndex].id}
-                                items={dropAreas[groupIndex].items}
+                                id={dropAreas[groupIndex]?.id}
+                                items={dropAreas[groupIndex]?.items}
                                 onDrop={handleDrop}
                             />
                         </CardContent>
@@ -256,7 +281,7 @@ export default function DragAndDropViewer() {
                                         <div className="space-y-4">
                                             <div className="bg-white col-span-1 dark:bg-gray-800 p-4 rounded-md">
                                                 {dropItems.map((item) => (
-                                                    <DraggableItem key={item.id} id={item.id} content={item.content} onDrop={handleDrop} isInDropArea={false} />
+                                                    <DraggableItem key={item.id} id={item.id} content={item.content} type={item.type} alt={item.alt} onDrop={handleDrop} isInDropArea={false} />
                                                 ))}
                                             </div>
                                             <div className="flex flex-col space-y-4">

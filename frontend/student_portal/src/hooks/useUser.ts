@@ -26,7 +26,7 @@ export const userFetcher = async () => {
 export const userKey = '/api/user';
 
 export const useUser = () => {
-    const { data, error, isLoading, isValidating, mutate } = useSWR(userKey, userFetcher);
+    const { data, error, isLoading, isValidating, mutate } = useSWR(userKey, userFetcher, { refreshInterval: 10000 });
     return {
         data,
         isLoading,

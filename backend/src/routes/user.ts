@@ -741,15 +741,12 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         return c.json(user);
     })
 
-    .put("/resetNewExerciseSubmission", async (c) => { 
+    .put("/resetNewExerciseSubmission/:id", async (c) => { 
         // Checked
-        const payload: {
-            id: string,
-            exp: number
-        } = await c.get('jwtPayload')
+        
+        const id = c.req.param("id");
 
-
-        const user = await User.findById(payload.id).select("new_exercise_submission");
+        const user = await User.findById(id).select("new_exercise_submission");
         if (!user) {
             return c.text("Invalid ID", 400);
         }

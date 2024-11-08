@@ -2,14 +2,9 @@ import { create } from "zustand";
 import { completeLesson, submitExercise } from "@/api/userApi";
 import { Lesson } from "@/types/dbTypes";
 
-interface Content {
-    type: "text" | "image";
-    content: string;
-    alt?: string;
-}
 
 interface Exercise {
-    dropItems?: { id: string; content: Content }[];
+    dropItems?: { id: string; content: string; type: string; alt?: string }[];
     title: string;
     description: string;
     instruction: string;
@@ -41,10 +36,10 @@ interface ExerciseState {
         across: { [key: string]: { clue: string; answer: string; row: number; col: number } };
         down: { [key: string]: { clue: string; answer: string; row: number; col: number } };
     } | null;
-    dropAreas: { id: string; type: "single" | "multiple"; items: { id: string; content: Content }[] }[];
-    setDropAreas: (dropAreas: { id: string; type: "single" | "multiple"; items: { id: string; content: Content }[] }[]) => void;
-    dropItems: { id: string; content: Content }[];
-    setDropItems: (dropItems: { id: string; content: Content }[]) => void;
+    dropAreas: { id: string; type: "single" | "multiple"; items: { id: string; content: string; type: string; alt?: string }[]; }[];
+    setDropAreas: (updater: (dropAreas: { id: string; type: "single" | "multiple"; items: { id: string; content: string; type: string; alt?: string }[]; }[]) => { id: string; type: "single" | "multiple"; items: { id: string; content: string; type: string; alt?: string }[]; }[]) => void;
+    dropItems: { id: string; content: string; type: string; alt?: string }[];
+    setDropItems: (updater: (dropItems: { id: string; content: string; type: string; alt?: string }[]) => { id: string; content: string; type: string; alt?: string }[]) => void;
     setCrosswordData: (
         crosswordData: {
             across: { [key: string]: { clue: string; answer: string; row: number; col: number } };
@@ -106,8 +101,8 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
     lesson: null,
 
     setLesson: (lesson) => set({ lesson }),
-    setDropAreas: (dropAreas) => set({ dropAreas }),
-    setDropItems: (dropItems) => set({ dropItems }),
+    setDropAreas: (updater) => set((state) => ({ dropAreas: typeof updater === 'function' ? updater(state.dropAreas) : state.dropAreas })),
+    setDropItems: (updater) => set((state) => ({ dropItems: typeof updater === 'function' ? updater(state.dropItems) : state.dropItems })),
     setCurrentGridData: (currentGridData) => set({ currentGridData }),
     setCrosswordData: (crosswordData) => set({ crosswordData }),
     setUserAnswers: (userAnswers) => set({ userAnswers }),
@@ -236,10 +231,10 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
                 correctAnswers.forEach((answerId: string) => {
                     const item = exercise.dropItems?.find((i) => i.id === answerId);
                     if (item) {
-                        if (item.content.type === "image") {
-                            localAnswersString += `- Image: ${item.content.content} (Alt: ${item.content.alt || "No alt text"})\n`;
+                        if (item.type === "image") {
+                            localAnswersString += `- Image: ${item.content} (Alt: ${item.alt || "No alt text"})\n`;
                         } else {
-                            localAnswersString += `- Text: ${item.content.content}\n`;
+                            localAnswersString += `- Text: ${item.content}\n`;
                         }
                     }
                 });
@@ -247,10 +242,10 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
                 userAnswers.forEach((answerId) => {
                     const item = exercise.dropItems?.find((i) => i.id === answerId);
                     if (item) {
-                        if (item.content.type === "image") {
-                            localAnswersString += `- Image: ${item.content.content} (Alt: ${item.content.alt || "No alt text"})\n`;
+                        if (item.type === "image") {
+                            localAnswersString += `- Image: ${item.content} (Alt: ${item.alt || "No alt text"})\n`;
                         } else {
-                            localAnswersString += `- Text: ${item.content.content}\n`;
+                            localAnswersString += `- Text: ${item.content}\n`;
                         }
                     }
                 });

@@ -10,6 +10,8 @@ interface IPointsLog {
     amount: number;
     details: string;
     type: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 

@@ -46,7 +46,7 @@ Promise<{
   chosen_units: {
     name: string
 		description: string
-		difficulity: string
+		difficulty: string
 		skills: string[]
 		unit: string
   }[];
@@ -57,8 +57,7 @@ Promise<{
 export const classKey = '/api/classroom';
 export const useClassroom = (classroomId: string | undefined) => {
   const shouldFetch = Boolean(classroomId);
-  const { data, error, isLoading, isValidating, mutate } = useSWR(shouldFetch ? classKey + classroomId : null, classFetcher);
-  console.log(data);
+  const { data, error, isLoading, isValidating, mutate } = useSWR(shouldFetch ? classKey + classroomId : null, classFetcher, { refreshInterval: 10000 });
   return {
     data,
     isLoading,

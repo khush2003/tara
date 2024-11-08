@@ -84,6 +84,7 @@ function FlashCard({ image, title, description }: { image: string; title: string
 }
 
 function parseLesson(lessonData: LessonData) {
+  console.log(lessonData)
   switch (lessonData.lesson_type) {
     case 'flashcard':
       return (

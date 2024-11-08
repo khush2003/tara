@@ -192,7 +192,7 @@ export default function DashboardPage() {
                                 {" "}
                                 {isGuest
                                     ? "0"
-                                    : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent ||
+                                    : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent.toFixed(0) ||
                                       0}
                                 % of your journey completed
                             </p>

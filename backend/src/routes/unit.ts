@@ -2,12 +2,12 @@ import { Hono } from "hono"
 // import type { HydratedDocument } from "mongoose";
 import { ExerciseSchema, LessonSchema, Unit, UnitSchema } from "../models/unit.model.ts";
 import type { ILesson } from "../models/unit.model.ts";
-import { schemaValidatorFromMongoose } from "../utils/validators.ts";
+import { schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/validators.ts";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
 import type { JwtVariables } from "hono/jwt";
 import { User } from "../models/user.model.ts";
 import { Classroom } from "../models/classroom.model.ts";
-
+import { z } from "zod";
 
 // TODO: Future, make sure to update reduandent unit information on classroom and student when making changes to units
 
@@ -112,8 +112,24 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
         unit.lessons.push(lesson);
         await unit.save();
         return c.json(unit);
-    })
-    .post("/exercise/create", jwtMiddleware, schemaValidatorFromMongoose(ExerciseSchema, "exercise"), async (c) => {
+        })
+        .post("/exercise/create", jwtMiddleware, validateJsonMiddleware(z.object({
+        unit_id: z.string(),
+        exercise: z.object({
+            title: z.string(),
+            description: z.string(),
+            instruction: z.string(),
+            exercise_type: z.enum(["multiple_choice", "crossword_puzzle", "drag_and_drop", "fill_in_the_blanks", "images_with_input", "text_with_input", "text_with_questions"]),
+            exercise_content: z.array(z.any()),
+            is_instant_scored: z.boolean().optional(),
+            correct_answers: z.array(z.any()),
+            varients: z.array(z.string()).optional(),
+            max_score: z.union([z.number(), z.string()]).transform(val => parseInt(val.toString())),
+            order: z.union([z.number(), z.string()]).transform(val => parseInt(val.toString())),
+            dropItems: z.array(z.any()).optional(),
+            image: z.string().optional()
+        })
+        })), async (c) => {
         const {unit_id, exercise} = await c.req.json().catch(() => (
             c.text('Invalid JSON', 400)
         ))

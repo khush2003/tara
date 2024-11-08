@@ -53,6 +53,8 @@ export default function TextWithQuestionsViewer() {
     }
   }
 
+  console.log('exercise', exercise)
+
 
   const renderExerciseContent = () => {
     return (
@@ -64,7 +66,7 @@ export default function TextWithQuestionsViewer() {
                 <p className="text-base mt-2">{content.context}</p>
               </div>
               <div className="grid grid-cols-2 gap-8">
-                {content.questions.map((question: { question: string | number | boolean | ReactElement<unknown, string | JSXElementConstructor<unknown>> | Iterable<ReactNode> | ReactPortal | null | undefined; answerType: string }, questionIndex: number) => (
+                {content.questions?.map((question: { question: string | number | boolean | ReactElement<unknown, string | JSXElementConstructor<unknown>> | Iterable<ReactNode> | ReactPortal | null | undefined; answerType: string }, questionIndex: number) => (
                   <div key={questionIndex} className="col-span-1">
                     <Label htmlFor={`answer-${contentIndex}-${questionIndex}`}>{question.question}</Label>
                     {question.answerType === 'textarea' ? (

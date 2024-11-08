@@ -6,7 +6,7 @@ import AnimatedCompleteButton from "./AnimatedCompleteButton";
 import AnimatedNextButton from "./AnimatedNextButton";
 import { useNavigate, useParams } from "react-router-dom";
 import { useClassroom } from "@/hooks/useClassroom";
-import { useUser } from "@/hooks/useUser";
+import { userKey, useUser } from "@/hooks/useUser";
 import { useUnits } from "@/hooks/useUnit";
 import { Exercise, Lesson } from "@/types/dbTypes";
 import LessonDisplay from "@/pages/contentViewers/lessonDisplay";
@@ -16,12 +16,13 @@ import TextWithInputViewer from '@/pages/build/twiViewer';
 import TextWithQuestionsViewer from '@/pages/build/twqViewer';
 import ImagesWithInputViewer from '@/pages/build/iwiViewer';
 import FillInTheBlanksViewer from '@/pages/build/fibViewer';
-import DragAndDropViewer from '@/pages/build/dndViewer';
+import DragAndDropViewer, { DndExercise } from '@/pages/build/dndViewer';
 import CrosswordPuzzleViewer from '@/pages/build/crosswordExerciseViewer';
 import { useExerciseStore } from "@/store/exerciseStore";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "./ui/toaster";
 import { useEffect } from 'react';
+import { mutate } from "swr";
 
 interface LessonContainerProps {
     className?: string;
@@ -57,8 +58,9 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         return exercise._id === contentId;
     }) as unknown as Exercise;
 
+    console.log(exercise)
     const isExercise = !!exercise;
-
+    console.log(isExercise)
     const isAlreadyComplete = user?.class_progress_info?.find((progress) => {
         if (isExercise) {
             return progress.exercises?.find((exercise) => exercise.exercise.toString() === contentId);
@@ -68,7 +70,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     });
 
     const progress = user?.class_progress_info.find((progress) => {
-        return progress.unit.toString() === unitId && progress.class.toString() === classroom?._id;
+        return progress.unit.id.toString() === unitId && progress.class.toString() === classroom?._id;
     });
 
     const feedback = isExercise ? progress?.exercises?.find((e) => e.exercise.toString() == exercise._id)?.feedback : undefined;
@@ -90,7 +92,9 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         setUnitId,
         score,
         error,
-        setLesson
+        setLesson,
+        setDropAreas,
+        setDropItems,
     } = useExerciseStore()
 
     useEffect(() => {
@@ -98,23 +102,40 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         if (contentId) setContentId(contentId)
         if (unitId) setUnitId(unitId)
     }, [classroomId, contentId, unitId, setClassId, setContentId, setUnitId]);
+
+    console.log("contentId: " + contentId)
     
+
     useEffect(() => {
+        console.log('useEffect triggered');
         if (isExercise) {
+            console.log("Setting exercise" + exercise.exercise_type)
             setExercise(exercise)
             setFirstSubmission(!isAlreadyComplete)
+            console.log("Setting exercise" + exercise.exercise_type)
+            if (exercise.exercise_type == 'drag_and_drop') {
+                const e = exercise as unknown as DndExercise
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                setDropAreas((_prev) => e?.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })) ?? [])
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                setDropItems((_prev) => e.dropItems)
+                console.log("Setting drop areas")
+            }
         } else {
             setLesson(lesson)
         }
-    }, [isExercise, exercise, isAlreadyComplete, setExercise, setFirstSubmission, setLesson, lesson]);
+    }, [isExercise, exercise, exercise?._id, isAlreadyComplete, contentId, setExercise, setFirstSubmission, setLesson, lesson, setDropAreas, setDropItems]);
 
     const lessonData = isExercise ? exercise : lesson;
 
     const nextContentId = (unit?.lessons.find((l) => l.order === lessonData.order + 1) as unknown as Lesson | undefined)?._id || (unit?.exercises.find((e) => e.order === lessonData.order + 1) as unknown as Exercise | undefined)?._id;
     const isLastModule = !nextContentId;
 
+    // console.log(nextContentId)
+    // console.log(isLastModule)
+
     function handleCompleteFull(){
-        if (!isAlreadyComplete){
+        if (!isAlreadyComplete && isExercise && exercise.is_instant_scored) {
             toast({
                 title: "Points Earned!",
                 description: `You've earned ${score} points!`,
@@ -122,11 +143,12 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
               })
         }
           handleComplete()
+          mutate(userKey)
     }
     
     const renderExerciseContent = () => {
         if (!exercise) return null;
-      
+
         switch (exercise.exercise_type) {
           case 'multiple_choice':
             return <MCQViewer />;
@@ -182,11 +204,11 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                 {!isExercise ? <LessonDisplay /> : <>
                                 <p>Your best score: {progress?.exercises?.find(
                                     (e) => e.exercise.toString() === exercise._id
-                                )?.best_score || "N/A"}</p>
+                                )?.best_score || "Try to complete once to see"}</p>
                                 <p>
                                 You have earned: {progress?.exercises?.find(
                                     (e) => e.exercise.toString() === exercise._id
-                                )?.coins_earned + " Coins" || "N/A"}
+                                )?.coins_earned || "No" + " Coins"}
                                 </p>
                                 <p>
                                 You have attempted this exercise: {progress?.exercises?.find(

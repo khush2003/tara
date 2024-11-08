@@ -7,16 +7,16 @@ interface IGameProfile {
 }
 
 interface IRecommendations {
-    lessons: [{
+    lessons: {
         name: string;
         id: ObjectId;
         extra_points: number;
-    }];
-    exercises: [{
+    }[];
+    exercises: {
         name: string;
         id: ObjectId;
         extra_points: number;
-    }];
+    }[];
 }
 
 interface IExerciseSubmission {
@@ -25,17 +25,17 @@ interface IExerciseSubmission {
     coins_earned?: number;
     best_score?: number;
     feedback?: string;
-    attempts: [{
+    attempts: {
         attempt_number: number;
         score?: number;
         answers: string;
-    }];
+    }[];
     last_attempt_at: Date;
 }
 
 interface IClassProgressInfo {
     lessons_completed?: ObjectId[];
-    exercises?: [IExerciseSubmission];
+    exercises?: IExerciseSubmission[];
     unit: {
         id: ObjectId;
         name: string; // Duplicate of unit name 
@@ -62,7 +62,7 @@ interface IUser {
         class: ObjectId;
     }>;
     learning_preferences: string[];
-    class_progress_info: [IClassProgressInfo];
+    class_progress_info: IClassProgressInfo[];
 }
 
 
@@ -86,7 +86,7 @@ const RecommendationsSchema = new Schema<IRecommendations>({
 
 
 const ExerciseSubmissionSchema = new Schema<IExerciseSubmission>({
-    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise', unique: true, required: true },
+    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise', required: true },
     max_score: { type: Number, default: 0, required: true }, //  Duplicate of exercse max score
     coins_earned: { type: Number },
     best_score: { type: Number },

@@ -96,7 +96,9 @@ const authRoutes = new Hono<{ Variables: JwtVariables }>()
                         game_points: 0,
                         game_minutes_left: 60,
                     },
+                    class_progress_info: []
                 });
+                console.log(user);
 
                 const [token, error] = await getNewToken(user._id.toString());
                 if (error) {

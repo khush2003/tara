@@ -84,16 +84,17 @@ function FlashCard({ image, title, description }: { image: string; title: string
 }
 
 function parseLesson(lessonData: LessonData) {
+  console.log(lessonData)
   switch (lessonData.lesson_type) {
     case 'flashcard':
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {lessonData.lesson_content.images.map((image: string, index: number) => (
+          {lessonData.lesson_content[0].images.map((image: string, index: number) => (
             <FlashCard
               key={index}
               image={image}
-              title={lessonData.lesson_content.titles[index]}
-              description={lessonData.lesson_content.descriptions[index]}
+              title={lessonData.lesson_content[0].titles[index]}
+              description={lessonData.lesson_content[0].descriptions[index]}
             />
           ))}
         </div>
@@ -103,13 +104,13 @@ function parseLesson(lessonData: LessonData) {
         <div className="relative p-10">
           <img
             className="object-contain w-full h-full"
-            src={lessonData.lesson_content.url}
+            src={lessonData.lesson_content[0].url}
             alt={lessonData.title}
           />
         </div>
       )
     case 'text': {
-      const { paragraphs, background_image } = lessonData.lesson_content
+      const { paragraphs, background_image } = lessonData.lesson_content[0]
       const bgImageStyle = background_image.position === 'background'
         ? { backgroundImage: `url(${background_image.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
         : {}
