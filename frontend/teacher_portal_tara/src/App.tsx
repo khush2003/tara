@@ -28,7 +28,7 @@ function App() {
           <Route path="/createClass" element={<ClassCreationPage />} />
           <Route path='/dashboard' element={<DashboardPage />} />
           <Route path='/classDetails/:id' element={<ClassDetailsPage />} />
-          <Route path="/studentDetails/:id/:classCode" element={<StudentProgressDetails />} />
+          <Route path="/studentDetails/:studentId/:classId" element={<StudentProgressDetails />} />
           <Route path="*" element={<div>Not Found</div>} />
           <Route path="/settings" element={<UserSettings />} />
         </Routes>
