@@ -1,37 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Home, LogOut, Plus, Settings, User, UserPlus, Users } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Home, LogOut, Plus, Settings} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/stores/authStore";
-import { useTeacherStore } from "@/stores/userStore";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { Dialog, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { DialogContent, DialogTrigger } from "@radix-ui/react-dialog";
-
-const sidebarItems = [
-    { icon: Home, label: "Dashboard", href: "#" },
-    { icon: Users, label: "Classes", href: "#" },
-    { icon: UserPlus, label: "Students", href: "#" },
-    { icon: Bell, label: "Announcements", href: "#" },
-    { icon: Settings, label: "Settings", href: "#" },
-];
+import { useUser } from "@/hooks/useUser";
+// import { Dialog, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface ContentContainerProps {
     children?: React.ReactNode | React.ReactNode[];
 }
 
 const ContentContainer: React.FC<ContentContainerProps> = ({ children }) => {
-    const [activeItem, setActiveItem] = useState("Dashboard");
+    // const [activeItem, setActiveItem] = useState("Dashboard");
     const accessToken = useAuthStore((state) => state.accessToken);
-    const [user, userError, userLoading, fetchCurrentUser] = useTeacherStore((state) => [
-        state.user,
-        state.userError,
-        state.userLoading,
-        state.fetchCurrentUser,
-    ]);
-    const [showLogOut, setShowLogout] = useState(false);
+    const {
+        data: user,
+        error: userError,
+        isLoading: userLoading,
+    } = useUser();
+
+    // const [showLogOut, setShowLogout] = useState(false);
     const logout = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
 
@@ -39,8 +29,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({ children }) => {
         if (!accessToken) {
             navigate("/login");
         }
-        fetchCurrentUser();
-    }, [accessToken, navigate, fetchCurrentUser]);
+    }, [accessToken, navigate]);
 
     if (userLoading) {
         return <div>Loading...</div>;
@@ -77,7 +66,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({ children }) => {
                     <div className=" mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         <div className="flex flex-row gap-3">
                             <motion.a
-                                href={"/dashboard"}
+                                onClick={() => navigate("/")}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className={`flex items-center space-x-3 px-2 py-2 rounded-full ${"bg-gray-900 text-white"}`}
@@ -91,7 +80,7 @@ const ContentContainer: React.FC<ContentContainerProps> = ({ children }) => {
                             </Avatar> */}
                                 <div>
                                     <h2 className="font-semibold">{user?.name}</h2>
-                                    <p className="text-sm text-gray-500">School: {user?.teacher_details?.school}</p>
+                                    <p className="text-sm text-gray-500">School: {user?.school}</p>
                                 </div>
                             </div>
                         </div>

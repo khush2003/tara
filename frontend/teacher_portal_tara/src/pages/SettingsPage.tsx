@@ -7,12 +7,21 @@ import { User, Mail, School, Lock, Loader2Icon } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import ContentContainer from "@/components/ContentContainer"
+import { changePassword, updateUserProfile } from "@/api/useAPI"
+import { useUser } from "@/hooks/useUser"
 
 export default function UserSettings() {
+
+  const {
+    data: user,
+    isLoading: userLoading,
+    error: userError,
+  } = useUser()
+
   const [personalInfo, setPersonalInfo] = useState({
-    name: "Enter new name.. ",
-    email: "newemail@gmail.com",
-    school: "Enter a new high school.."
+    name: user?.name,
+    email: user?.email,
+    school: user?.school
   })
 
   const [passwords, setPasswords] = useState({
@@ -31,20 +40,40 @@ export default function UserSettings() {
     setPasswords(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handlePersonalInfoSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Personal information updated",
-        description: "Your personal information has been successfully updated.",
-      })
-    }, 1000)
+  if (userLoading) {
+    return <div>Loading...</div>
   }
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    
+
+      const error = await updateUserProfile(
+        personalInfo.name,
+        personalInfo.email,
+        personalInfo.school
+      )
+      if (error) {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      } else {
+        toast({
+          title: "Personal information updated",
+          description: "Your personal information has been successfully updated.",
+        })
+        setIsLoading(false)
+      }
+      
+
+  }
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (passwords.newPassword !== passwords.confirmPassword) {
       toast({
@@ -55,15 +84,28 @@ export default function UserSettings() {
       return
     }
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
+    
+    const error = await changePassword(
+      passwords.oldPassword,
+      passwords.newPassword
+    )
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      })
       setIsLoading(false)
-      setPasswords({ oldPassword: "", newPassword: "", confirmPassword: "" })
+      return
+    }
+    else {
       toast({
         title: "Password updated",
         description: "Your password has been successfully updated.",
       })
-    }, 1000)
+      setIsLoading(false)
+    }
   }
 
   return (

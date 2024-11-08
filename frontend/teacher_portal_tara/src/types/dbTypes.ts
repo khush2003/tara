@@ -36,42 +36,32 @@ export interface LearningModule {
 export interface Lesson {
     title: string;
     description: string;
-    lessonCode: string;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+    instruction: string;
+    lesson_type: "flashcard" | "image" | "text";
+    lesson_content: object[];
+    order: number;
+    image?: string;
+    _id: string;
 }
 
 export interface Exercise {
     title: string;
     description: string;
-    exerciseCode: string;
-    maxScore: number;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+    instruction: string;
+    exercise_type: string;
+    exercise_content: object[];
+    is_instant_scored: boolean;
+    correct_answers: object;
+    varients: string[];
+    max_score: number;
+    order: number;
+    image: string;
+    _id: string;
 }
 
 export interface Classroom {
-    classroom_code: string;
-    classroom_name: string;
-    createdAt: string;
-    extra_points_award: ExtraPointsAward[];
-    announcement: string;
-    is_game_active: boolean;
-    learning_modules: LearningModule[];
-    performance_records: PerformanceRecord[]; // Array of performance record IDs or performance records
-    students_enrolled: string[];
-    teacher_id: string;
-    today_lesson?: LearningModule;
-    updatedAt: string;
-    progress: ProgressRecord[],
-    game_restriction_period: {
-        start: Date;
-        end: Date;
-    }
-    __v: number;
-    _id: string;
+    name: string;
+    class_join_code: number;
 }
 
 

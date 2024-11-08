@@ -1,0 +1,285 @@
+{
+    "info": {
+        "_postman_id": "683f6331-3dd7-4701-aca3-98818f0a9188",
+        "name": "tara",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": ""
+    },
+    "item": [
+        {
+            "name": "authentication",
+            "item": [
+                {
+                    "name": "registerStudent",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/auth/registerStudent",
+                            "path": [
+                                "auth",
+                                "registerStudent"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n    \"email\": \"abc@gmail.com\",\n    \"password\": \"123123\",\n    \"name\" : \"Khush\",\n    \"school\": \"ABC\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "login",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/auth/login",
+                            "path": [
+                                "auth",
+                                "login"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Be",
+                                "disabled": true
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"email\": \"abc@gmail.com\",\n  \"password\": \"123123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "profile",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseURL}}/auth/profile",
+                            "path": [
+                                "auth",
+                                "profile"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY3MGY4MWNkNGU4YWI5NTc1MzY5YjZmOSIsIm5hbWUiOiJLaHVzaCIsImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEyJGNVcXFsOGU4UnFsVFNhNGwweHptMy5RQk4xRFZsaDJCeUhlY0x5Z0N3TG1SeC42azNXbEQ2Iiwicm9sZSI6InN0dWRlbnQiLCJwcm9maWxlX3BpY3R1cmUiOiIiLCJzY2hvb2wiOiJBQkMiLCJjbGFzc3Jvb20iOltdLCJnYW1lX3Byb2ZpbGUiOnsiZ2FtZV9wb2ludHMiOjAsImdhbWVfbWludXRlc19sZWZ0Ijo2MCwiX2lkIjoiNjcwZjgxY2Q0ZThhYjk1NzUzNjliNmZhIn0sImlzX2ZlZWRiYWNrX2F2YWlsYWJsZSI6ZmFsc2UsImxlYXJuaW5nX3ByZWZlcmVuY2VzIjpbXSwiY2xhc3NfcHJvZ3Jlc3NfaW5mbyI6W10sIl9fdiI6MH0sImV4cCI6MTcyOTE1NTk0NDM5M30.l098tWdixJi83hMAAxp0sQNGRIR4G6Jp8yXslGSLWk8",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "users",
+            "item": [
+                {
+                    "name": "userById",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseURL}}/user/670f81cd4e8ab9575369b6f9",
+                            "path": [
+                                "user",
+                                "670f81cd4e8ab9575369b6f9"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "units",
+            "item": [
+                {
+                    "name": "createUnit",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/unit/create",
+                            "path": [
+                                "unit",
+                                "create"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"name\": \"Unit 1\",\n  \"description\": \"Unit 1 description\",\n  \"difficulty\": \"easy\",\n  \"skills\": [],\n  \"is_premium\": true\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "createLesson",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/unit/lesson/create",
+                            "path": [
+                                "unit",
+                                "lesson",
+                                "create"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"unit_id\": \"671285e3d11d1b5a0c1ae551\",\n  \"lesson\": {\n    \"title\" : \"Lesson 1\",\n    \"description\": \"Lesson 1 Description\",\n    \"instruction\": \"Lesson 1 Instruction\",\n\n    \"test_feild\": \"Test\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "createExercise",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/unit/exercise/create",
+                            "path": [
+                                "unit",
+                                "exercise",
+                                "create"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"unit_id\": \"671285e3d11d1b5a0c1ae551\",\n  \"exercise\" : {\n       \"title\" : \"ABC\",\n      \"description\" : \"Exercise Description\",\n      \"instruction\": \"Do it like this\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Unit by Id",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseURL}}/unit/all/67134e414a567270bf765d1b",
+                            "path": [
+                                "unit",
+                                "all",
+                                "67134e414a567270bf765d1b"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY3MGY4MWNkNGU4YWI5NTc1MzY5YjZmOSIsIm5hbWUiOiJLaHVzaCIsImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEyJGNVcXFsOGU4UnFsVFNhNGwweHptMy5RQk4xRFZsaDJCeUhlY0x5Z0N3TG1SeC42azNXbEQ2Iiwicm9sZSI6InN0dWRlbnQiLCJwcm9maWxlX3BpY3R1cmUiOiIiLCJzY2hvb2wiOiJBQkMiLCJjbGFzc3Jvb20iOltdLCJnYW1lX3Byb2ZpbGUiOnsiZ2FtZV9wb2ludHMiOjAsImdhbWVfbWludXRlc19sZWZ0Ijo2MCwiX2lkIjoiNjcwZjgxY2Q0ZThhYjk1NzUzNjliNmZhIn0sImlzX2ZlZWRiYWNrX2F2YWlsYWJsZSI6ZmFsc2UsImxlYXJuaW5nX3ByZWZlcmVuY2VzIjpbXSwiY2xhc3NfcHJvZ3Jlc3NfaW5mbyI6W10sIl9fdiI6MH0sImV4cCI6MTcyOTE1NTk0NDM5M30.l098tWdixJi83hMAAxp0sQNGRIR4G6Jp8yXslGSLWk8",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "classrooms",
+            "item": [
+                {
+                    "name": "createClassroom",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/classroom/create",
+                            "path": [
+                                "classroom",
+                                "create"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            },
+                            "raw": "{\n  \"classroom\" : {\n    \"name\": \"New Classroom\",\n    \"creator\": \"670f81cd4e8ab9575369b6f9\"\n  }\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "joinClassroom",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseURL}}/classroom/join/700338",
+                            "path": [
+                                "classroom",
+                                "join",
+                                "700338"
+                            ],
+                            "host": [
+                                "{{baseurl}}"
+                            ]
+                        },
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY3MGY4MWNkNGU4YWI5NTc1MzY5YjZmOSIsIm5hbWUiOiJLaHVzaCIsImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEyJGNVcXFsOGU4UnFsVFNhNGwweHptMy5RQk4xRFZsaDJCeUhlY0x5Z0N3TG1SeC42azNXbEQ2Iiwicm9sZSI6InN0dWRlbnQiLCJwcm9maWxlX3BpY3R1cmUiOiIiLCJzY2hvb2wiOiJBQkMiLCJjbGFzc3Jvb20iOltdLCJnYW1lX3Byb2ZpbGUiOnsiZ2FtZV9wb2ludHMiOjAsImdhbWVfbWludXRlc19sZWZ0Ijo2MCwiX2lkIjoiNjcwZjgxY2Q0ZThhYjk1NzUzNjliNmZhIn0sImlzX2ZlZWRiYWNrX2F2YWlsYWJsZSI6ZmFsc2UsImxlYXJuaW5nX3ByZWZlcmVuY2VzIjpbXSwiY2xhc3NfcHJvZ3Jlc3NfaW5mbyI6W10sIl9fdiI6MH0sImV4cCI6MTcyOTE1NTk0NDM5M30.l098tWdixJi83hMAAxp0sQNGRIR4G6Jp8yXslGSLWk8",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

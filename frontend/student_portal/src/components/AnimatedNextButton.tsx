@@ -40,11 +40,12 @@ const AnimatedNextButton: React.FC<AnimatedNextButtonProps> = ({ onClick, isAlre
    * sets the button to next state, and calls the onClick function.
    */
   const handleClick = () => {
+    console.log('handleClick', isNext, isIntermediate, disabled);
     if (!isNext && !isIntermediate && !disabled) {
       setIsIntermediate(true);
       setTimeout(() => {
         setIsIntermediate(false);
-        setIsNext(true);
+        // setIsNext(true);
         onClick();
       }, 1000); // Intermediate step duration
     }

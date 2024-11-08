@@ -9,17 +9,22 @@ import { FiSave } from "react-icons/fi";
 import { LuKey, LuKeyRound, LuRefreshCw } from "react-icons/lu";
 import useAuthStore from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/hooks/useUser';
+import { changePassword, updateUserProfile } from '@/api/userApi';
+import axios from 'axios';
 
 export default function SettingsPage() {
-  const [avatarSrc, setAvatarSrc] = useState("/placeholder.svg?height=100&width=100")
+  const [avatarSrc, setAvatarSrc] = useState("http://www.google.com")
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const user = useAuthStore((state) => state.user);
+  const {
+    data: user,
+    error,
+    isLoading
+  } = useUser();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const updateProfile = useAuthStore((state) => state.updateProfile);
-  const updatePassword = useAuthStore((state) => state.updatePassword);
   const [errorProfile, setErrorProfile] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
   const navigate = useNavigate();
@@ -31,6 +36,7 @@ export default function SettingsPage() {
     if (user) {
       setName(user.name);
       setEmail(user.email);
+      setAvatarSrc(user.profile_picture || "http://www.google.com");
     }
 
   }, [isLoggedIn, navigate, user]);
@@ -49,7 +55,7 @@ export default function SettingsPage() {
       return;
     }
     setErrorPassword("");
-    const error = await updatePassword(oldPassword, newPassword);
+    const error = await changePassword(oldPassword, newPassword);
     if (error) {
       setErrorPassword(error);
       return;
@@ -65,7 +71,8 @@ export default function SettingsPage() {
     } 
     if (email == user?.email) {
       if (name == user?.name) {
-        setErrorProfile("No changes detected");
+        if (avatarSrc == user?.profile_picture)
+          setErrorProfile("No changes detected");
         return;
     }}
    // Check email format
@@ -80,7 +87,7 @@ export default function SettingsPage() {
       return;
     }
     setErrorProfile("");
-    const error = await updateProfile(name, email);
+    const error = await updateUserProfile(name, email, user?.school, avatarSrc);
     if (error) {
       setErrorProfile(error);
       return;
@@ -92,12 +99,37 @@ export default function SettingsPage() {
     });
   }
 
+  if (isLoading) {
+    return <p>Loading...</p>;
+  } 
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => setAvatarSrc(e.target?.result as string)
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+
+            reader.onload = async () => {
+                const arrayBuffer = reader.result;
+                
+                try {
+                    const response = await axios.post<{ url: string }>('/api/v1/image/upload', arrayBuffer, {
+                        headers: {
+                            'Content-Type': 'application/octet-stream',
+                        },
+                    });
+                    const data = response.data;
+                    setAvatarSrc(data.url);
+                    alert("Avatar updated successfully");
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                    alert('Upload failed');
+                }
+            };
     }
   }
 
