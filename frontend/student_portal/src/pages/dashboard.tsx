@@ -170,7 +170,9 @@ export default function DashboardPage() {
                                 </span>
                                 <Button
                                     disabled={isGuest}
+
                                     onClick={() => navigate("/learningModule/" + classroom?.today_unit?.unit + "/" + classroomId)}
+
                                     variant="outline"
                                     className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full"
                                 >
