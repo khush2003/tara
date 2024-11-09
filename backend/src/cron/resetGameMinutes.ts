@@ -17,7 +17,7 @@ async function enqueueGameResetInBatches(batchSize: number) {
     const userIds = users.map(user => user._id);
     if (errorCount <= 1) {
       try {
-        await User.updateMany({ _id: { $in: userIds } }, { $set: { 'game_profile.game_minutes_left': 100 } });
+        await User.updateMany({ _id: { $in: userIds } }, { $set: { 'game_profile.game_minutes_left': 60 } });
         console.log(`Updated ${users.length} users`);
         usersProcessed += users.length;
       } catch (error) {

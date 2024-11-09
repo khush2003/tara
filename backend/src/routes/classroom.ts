@@ -176,7 +176,6 @@ export const classroomRoutes = new Hono<{ Variables: JwtVariables }>()
     })
 
     .put("/setGameRestrictionPeriod/:id", validateJsonMiddleware(z.object({
-        // TODO: Future: Handle different time zones
         start: z.string().refine((val) => !isNaN(new Date(val).getTime()), {
             message: "Invalid date format",
         }),

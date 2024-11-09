@@ -219,19 +219,19 @@ export const submitExercise = async (exerciseId: string, attempt: { score?: numb
             classroom: object,
         } = await response.json();
 
-        mutate(userKey, (currentData) => ({
-            ...currentData,
-            ...data.user,
-        }), {
-            revalidate: false,
-        });
+        // mutate(userKey, (currentData) => ({
+        //     ...currentData,
+        //     ...data.user,
+        // }), {
+        //     revalidate: false,
+        // });
 
-        mutate(`/classroom/${classId}`, (currentData) => ({
-            ...currentData,
-            ...data.classroom,
-        }), {
-            revalidate: false,
-        });
+        // mutate(`/classroom/${classId}`, (currentData) => ({
+        //     ...currentData,
+        //     ...data.classroom,
+        // }), {
+        //     revalidate: false,
+        // });
 
     } catch (error) {
         return (error as Error).message;

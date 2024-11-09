@@ -10,6 +10,7 @@ import { PointsLog, PointsLogType } from "../models/pointslog.model.ts";
 import { z } from "zod";
 import type { FlattenMaps } from "mongoose";
 import { generateRecommendations } from "../generateRecommendations.ts";
+import { cors } from "hono/cors";
 // import type { HydratedDocument } from "mongoose";
 
 // All routes in userRoutes have jwtMiddleware applied
@@ -118,7 +119,122 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             return c.json(user);
         }
     )
+    .get("/get_opponent_data/opponent", async (c) => {
+        const payload:{
+            id: string,
+            exp: number
+        } = await c.get('jwtPayload')
+        const level = c.req.query("level");
+        console.log(level);
+        const users = await User.find({ "game_profile.level": level }).select("game_profile").lean();
+        if (!users) {
+            return c.text("No users for this level", 500);
+        }
+        
+        const newUsers = users.filter((u) =>{ 
+            console.log(u._id.toString(), payload.id)
+            return u._id.toString() !== payload.id
+        });
 
+        if (!newUsers) {
+            return c.text("No user for this level", 500);``
+        }
+        const randomIndex = Math.floor(Math.random() * newUsers.length);
+        const user = newUsers[randomIndex];
+        return c.json(user?.game_profile);
+    })
+
+    .put("/setGameProfile", validateJsonMiddleware(z.object({
+            game_points: z.number().optional(),
+            game_minutes_left: z.number().optional(),
+            name: z.string().optional(),
+            hp: z.number().optional(),
+            maxHp: z.number().optional(),
+            energy: z.number().optional(),
+            maxEnergy: z.number().optional(),
+            pointsLeft: z.number().optional(),
+            strength: z.number().optional(),
+            extraStrength: z.number().optional(),
+            defense: z.number().optional(),
+            extraDefense: z.number().optional(),
+            speed: z.number().optional(),
+            extraSpeed: z.number().optional(),
+            class: z.number().optional(),
+            level: z.number().optional(),
+            hasIce: z.boolean().optional(),
+            hasSword: z.boolean().optional(),
+            hasWings: z.boolean().optional(),
+            bHasItem: z.boolean().optional(),
+        })),
+    async (c) => {
+        const payload: {
+            id: string,
+            exp: number
+        } = await c.get('jwtPayload')
+        const user = await User.findById(payload.id);
+        if (!user) {
+            return c.text("Invalid user", 400);
+        }
+
+        const {
+            game_points,
+            game_minutes_left,
+            name,
+            hp,
+            maxHp,
+            energy,
+            maxEnergy,
+            pointsLeft,
+            strength,
+            extraStrength,
+            defense,
+            extraDefense,
+            speed,
+            extraSpeed,
+            class: userClass,
+            level,
+            hasIce,
+            hasSword,
+            hasWings,
+            bHasItem,
+        }: IGameProfile = await c.req.valid("json");
+        console.log(game_points, game_minutes_left, name, hp, maxHp, energy, maxEnergy, pointsLeft, strength, extraStrength, defense, extraDefense, speed, extraSpeed, userClass, level)
+        
+        let pointsLog = null;
+        if (game_points !== undefined) {
+            pointsLog = new PointsLog({
+                user: payload.id,
+                is_add: user.game_profile.game_points < game_points,
+                amount: game_points,
+                type: PointsLogType.GAME_SPENDING,
+                details: "Game points update",
+                classroom: user?.classroom[0],
+            });
+            user.game_profile.game_points = game_points;
+        }
+        if (game_minutes_left !== undefined) user.game_profile.game_minutes_left = game_minutes_left;
+        if (name !== undefined) user.game_profile.name = name;
+        if (hp !== undefined) user.game_profile.hp = hp;
+        if (maxHp !== undefined) user.game_profile.maxHp = maxHp;
+        if (energy !== undefined) user.game_profile.energy = energy;
+        if (maxEnergy !== undefined) user.game_profile.maxEnergy = maxEnergy;
+        if (pointsLeft !== undefined) user.game_profile.pointsLeft = pointsLeft;
+        if (strength !== undefined) user.game_profile.strength = strength;
+        if (extraStrength !== undefined) user.game_profile.extraStrength = extraStrength;
+        if (defense !== undefined) user.game_profile.defense = defense;
+        if (extraDefense !== undefined) user.game_profile.extraDefense = extraDefense;
+        if (speed !== undefined) user.game_profile.speed = speed;
+        if (extraSpeed !== undefined) user.game_profile.extraSpeed = extraSpeed;
+        if (userClass !== undefined) user.game_profile.class = userClass;
+        if (level !== undefined) user.game_profile.level = level;
+        if (hasIce !== undefined) user.game_profile.hasIce = hasIce;
+        if (hasSword !== undefined) user.game_profile.hasSword = hasSword;
+        if (hasWings !== undefined) user.game_profile.hasWings = hasWings;
+        if (bHasItem !== undefined) user.game_profile.bHasItem = bHasItem;
+        // console.log(user.game_profile)
+        await Promise.all([user.save(), pointsLog && pointsLog.save()]);
+        return c.json(user);
+    })
     .put(
         "/",
         validateJsonMiddleware(
@@ -334,7 +450,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             exp: number
         } = await c.get('jwtPayload')
 
-        const user = await User.findById(payload.id).select(["class_progress_info", "classroom", "recommended", "game_profile"]);
+        const user = await User.findById(payload.id);
         if (!user) {
             return c.text("Invalid ID", 400);
         }
@@ -355,27 +471,51 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                 return c.text("Invalid lesson ID or Lesson is not in the Provided Unit", 400);
             }
             
-            const num_exercises = unitInfo.exercises.length;
+            const num_exercises = unitInfo.exercises.length;  
+            const num_exercise_without_varients = unitInfo.exercises.filter((ex) => {
+                if (ex.varients?.length != 0){
+                    if (ex._id == ex.varients[0].id){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }).length;
             const num_lessons = unitInfo.lessons.length;
             const unit_name = unitInfo.name;
 
             // Create a new classProgressInfo
             user.class_progress_info.push({
                 lessons_completed: [lessonId as unknown as mongoose.Schema.Types.ObjectId],
-                progress_percent: (1 / (num_lessons + num_exercises)) * 100,
+                progress_percent: (1 / (num_lessons + num_exercise_without_varients)) * 100,
                 unit: {
                     id: unitId as unknown as mongoose.Schema.Types.ObjectId,
                     name: unit_name,
                 },
                 num_lessons: num_lessons,
-                num_exercises: num_exercises,
+                num_exercises: num_exercise_without_varients,
                 class: classId as unknown as mongoose.Schema.Types.ObjectId,
             });
 
 
             if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
-                const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
+                const recommendedLesson = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)
+                const points = recommendedLesson?.extra_points || 0;
                 user.game_profile.game_points += points;
+                if (recommendedLesson){
+                    if (!user.already_complete_recommendations?.lessons.some((lesson) => lesson.id.toString() === recommendedLesson.id.toString())) {
+                        if (!user.already_complete_recommendations){
+                            user.already_complete_recommendations = {
+                                lessons: [recommendedLesson],
+                                exercises: [],
+                            };
+                        }
+                        else{
+                            user.already_complete_recommendations?.lessons.push(recommendedLesson);
+                        }
+                    }
+                }
                 await PointsLog.create({
                     user: user._id,
                     classroom: classId,
@@ -395,18 +535,30 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         if (classProgressInfo.lessons_completed) {
             if (classProgressInfo.lessons_completed.includes(lessonId as unknown as mongoose.Schema.Types.ObjectId)) {
                 if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
-                    const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
-                    if (user?.game_profile.game_points) {
-                        user.game_profile.game_points += points;
-                        await PointsLog.create({
-                            user: user._id,
-                            classroom: classId,
-                            is_add: true,
-                            amount: points,
-                            details: "Completed recommended lesson",
-                            type: PointsLogType.RECOMMENDED_LESSON,
-                        });
+                    const recommendedLesson = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)
+                    const points = recommendedLesson?.extra_points || 0;
+                    user.game_profile.game_points += points;
+                    if (recommendedLesson){
+                        if (!user.already_complete_recommendations?.lessons.some((lesson) => lesson.id.toString() === recommendedLesson.id.toString())) {
+                            if (!user.already_complete_recommendations){
+                                user.already_complete_recommendations = {
+                                    lessons: [recommendedLesson],
+                                    exercises: [],
+                                };
+                            }
+                            else{
+                                user.already_complete_recommendations?.lessons.push(recommendedLesson);
+                            }
+                        }
                     }
+                    await PointsLog.create({
+                        user: user._id,
+                        classroom: classId,
+                        is_add: true,
+                        amount: points,
+                        details: "Completed recommended lesson",
+                        type: PointsLogType.RECOMMENDED_LESSON,
+                    });
                 }
                 await user.save();
                 await generateRecommendations(payload.id);
@@ -418,23 +570,38 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             classProgressInfo.lessons_completed = [lessonId as unknown as mongoose.Schema.Types.ObjectId];
         }
 
+
         classProgressInfo.progress_percent =
             ((classProgressInfo.lessons_completed.length + (classProgressInfo.exercises?.length || 0)) /
                 (classProgressInfo.num_exercises + classProgressInfo.num_lessons)) *
             100;
         
         if (user && user.recommended?.lessons?.some((lesson) => lesson.id.toString() === lessonId)) {
-            const points = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)?.extra_points || 0;
-            user.game_profile.game_points += points;
-            await PointsLog.create({
-                user: user._id,
-                classroom: classId,
-                is_add: true,
-                amount: points,
-                details: "Completed recommended lesson",
-                type: PointsLogType.RECOMMENDED_LESSON,
-            });
-        }
+                const recommendedLesson = user.recommended.lessons.find((lesson) => lesson.id.toString() === lessonId)
+                const points = recommendedLesson?.extra_points || 0;
+                user.game_profile.game_points += points;
+                if (recommendedLesson){
+                    if (!user.already_complete_recommendations?.lessons.some((lesson) => lesson.id.toString() === recommendedLesson.id.toString())) {
+                        if (!user.already_complete_recommendations){
+                            user.already_complete_recommendations = {
+                                lessons: [recommendedLesson],
+                                exercises: [],
+                            };
+                        }
+                        else{
+                            user.already_complete_recommendations?.lessons.push(recommendedLesson);
+                        }
+                    }
+                }
+                await PointsLog.create({
+                    user: user._id,
+                    classroom: classId,
+                    is_add: true,
+                    amount: points,
+                    details: "Completed recommended lesson",
+                    type: PointsLogType.RECOMMENDED_LESSON,
+                });
+            }
         await user.save();
         await generateRecommendations(payload.id);
         return c.json(user);
@@ -469,7 +636,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             exp: number
         } = await c.get('jwtPayload')
 
-        const user = await User.findById(payload.id).select(["class_progress_info", "game_profile", "new_exercise_submission", "classroom", "recommended"]);
+        const user = await User.findById(payload.id);
         if (!user) return c.text("Invalid user ID", 400);
 
         const classroom = await Classroom.findById(classId).select("students_enrolled");
@@ -491,6 +658,16 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
         const classProgressInfo = user.class_progress_info.find((info) => info.class.toString() === classId && info.unit.id.toString() === unitId);
         if (!classProgressInfo) {
             const num_exercises = unitInfo.exercises.length;
+            const num_exercise_without_varients = unitInfo.exercises.filter((ex) => {
+                if (ex.varients?.length != 0){
+                    if (ex._id == ex.varients[0].id){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }).length;
             const num_lessons = unitInfo.lessons.length;
             const unit_name = unitInfo.name;
 
@@ -514,13 +691,13 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                             )?.max_score || 0,
                     },
                 ],
-                progress_percent: (1 / (num_lessons + num_exercises)) * 100,
+                progress_percent: (1 / (num_lessons + num_exercise_without_varients)) * 100,
                 unit: {
                     id: unitId as unknown as mongoose.Schema.Types.ObjectId,
                     name: unit_name,
                 },
                 num_lessons: num_lessons,
-                num_exercises: num_exercises,
+                num_exercises: num_exercise_without_varients,
                 class: classId as unknown as mongoose.Schema.Types.ObjectId,
             });
             
@@ -549,8 +726,22 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                 student.is_new_exercise_submission = true;
             }
             if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
-                const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                const recommendedExercise = user.recommended.exercises.find((exercise) => exercise.id.toString() === exerciseId)
+                const points = recommendedExercise?.extra_points || 0;
                 user.game_profile.game_points += points;
+                if (recommendedExercise){
+                    if (!user.already_complete_recommendations?.exercises.some((exercise) => exercise.id.toString() === recommendedExercise.id.toString())) {
+                        if (!user.already_complete_recommendations){
+                            user.already_complete_recommendations = {
+                                lessons: [],
+                                exercises: [recommendedExercise],
+                            };
+                        }
+                        else{
+                            user.already_complete_recommendations?.exercises.push(recommendedExercise);
+                        }
+                    }
+                }
                 await PointsLog.create({
                     user: user._id,
                     classroom: classId,
@@ -595,8 +786,22 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                         student.is_new_exercise_submission = true;
                     }
                     if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
-                        const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                        const recommendedExercise = user.recommended.exercises.find((exercise) => exercise.id.toString() === exerciseId)
+                        const points = recommendedExercise?.extra_points || 0;
                         user.game_profile.game_points += points;
+                        if (recommendedExercise){
+                            if (!user.already_complete_recommendations?.exercises.some((exercise) => exercise.id.toString() === recommendedExercise.id.toString())) {
+                                if (!user.already_complete_recommendations){
+                                    user.already_complete_recommendations = {
+                                        lessons: [],
+                                        exercises: [recommendedExercise],
+                                    };
+                                }
+                                else{
+                                    user.already_complete_recommendations?.exercises.push(recommendedExercise);
+                                }
+                            }
+                        }
                         await PointsLog.create({
                             user: user._id,
                             classroom: classId,
@@ -680,8 +885,22 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
                 student.is_new_exercise_submission = true;
             }
             if (user && user.recommended?.exercises?.some((exercise) => exercise.id.toString() === exerciseId)) {
-                const points = user.recommended.lessons.find((exercise) => exercise.id.toString() === exerciseId)?.extra_points || 0;
+                const recommendedExercise = user.recommended.exercises.find((exercise) => exercise.id.toString() === exerciseId)
+                const points = recommendedExercise?.extra_points || 0;
                 user.game_profile.game_points += points;
+                if (recommendedExercise){
+                    if (!user.already_complete_recommendations?.exercises.some((exercise) => exercise.id.toString() === recommendedExercise.id.toString())) {
+                        if (!user.already_complete_recommendations){
+                            user.already_complete_recommendations = {
+                                lessons: [],
+                                exercises: [recommendedExercise],
+                            };
+                        }
+                        else{
+                            user.already_complete_recommendations?.exercises.push(recommendedExercise);
+                        }
+                    }
+                }
                 await PointsLog.create({
                     user: user._id,
                     classroom: classId,

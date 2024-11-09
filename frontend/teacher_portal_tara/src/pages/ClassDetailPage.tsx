@@ -256,7 +256,7 @@ export default function ClassDetailsPage() {
                                 <Button
                                     onClick={async () => {
                                         if (id) {
-                                            const error = await setTodayUnitFull(todayUnit, id);
+                                            const error = await setTodayUnitFull(todayUnit, learningModules?.find((unit) => unit._id == todayUnit)?.name || "No name", id);
                                             if (!error) {toast({title: "Today's lesson updated successfully"});}
                                             else {toast({title: "Failed to update today's lesson"});}
                                             mutateClassrooms();
@@ -482,10 +482,18 @@ export default function ClassDetailsPage() {
                             <CardHeader>
                                 <CardTitle>Units</CardTitle>
                                 <p>If you would like to see and interact with a unit, we recommend creating a dummy student account as some exercise preview might not be available!</p>
+                                <p>Some exercises may have varients which may be presented differently to different students!</p>
                             </CardHeader>
                             <CardContent>
                                 <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-                                    {learningModules?.map((unit) => (
+                                    {learningModules?.map((unit) => {
+                                        const sortedExercises = unit.exercises.sort((a, b) => {
+                                            return a.order - b.order;
+                                        });
+                                        const sortedLessons = unit.lessons.sort((a, b) => {
+                                            return a.order - b.order;
+                                        });
+                                        return (
                                         <div key={unit._id} className="mb-4 last:mb-0">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center space-x-2">
@@ -505,8 +513,9 @@ export default function ClassDetailsPage() {
                                                 <AccordionItem value={`lessons-${unit._id}`}>
                                                     <AccordionTrigger>Lessons ({unit.lessons.length})</AccordionTrigger>
                                                     <AccordionContent>
-                                                        {unit.lessons.map((l) => {
+                                                        {sortedLessons.map((l) => {
                                                             const lesson = l as unknown as Lesson;
+                                                            
                                                             return (
                                                             <Dialog key={lesson._id}>
                                                                 <DialogTrigger asChild>
@@ -539,8 +548,10 @@ export default function ClassDetailsPage() {
                                                 <AccordionItem value={`exercises-${unit._id}`}>
                                                     <AccordionTrigger>Exercises ({unit.exercises.length})</AccordionTrigger>
                                                     <AccordionContent>
-                                                        {unit.exercises.map((e) => {
+                                                        {sortedExercises.map((e) => {
                                                             const exercise = e as unknown as Exercise;
+                                                            const varientType = exercise.varients.find((v) => v.id === exercise._id)?.type || "Base";
+                                                            
                                                             return (
                                                             <Dialog key={exercise._id}>
                                                                 <DialogTrigger asChild>
@@ -548,6 +559,7 @@ export default function ClassDetailsPage() {
                                                                         <div className="flex justify-between w-full">
                                                                             <span>{exercise.title}</span>
                                                                             <div>
+                                                                                <span className="text-sm mr-3 text-gray-500">Varient: {varientType}</span>
                                                                                 <span className="text-sm mr-3 text-gray-500">Id: {exercise._id}</span>
                                                                                 <span>Order: {exercise.order}</span>
                                                                             </div>
@@ -577,7 +589,7 @@ export default function ClassDetailsPage() {
                                                 </AccordionItem>
                                             </Accordion>
                                         </div>
-                                    ))}
+                                    )})}
                                 </ScrollArea>
                                 <Button
                                 onClick={

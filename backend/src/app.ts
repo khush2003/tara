@@ -11,12 +11,28 @@ import { classroomRoutes } from './routes/classroom.ts';
 import { pointslogRoutes } from './routes/pointslog.ts';
 import { logger } from 'hono/logger';
 import { imageRoutes } from './routes/image.ts';
+import { cors } from 'hono/cors';
 
 const app = new Hono();
 
 // Middleware
 app.use(logger());
-app.use(secureHeaders());
+app.use("/api/v1/user/setGameProfile", cors({
+    origin: "*",
+    allowMethods: ["PUT"],
+    allowHeaders: ["Content-Type", "Authorization"],
+}));
+app.use("/api/v1/auth/profile", cors({
+  origin: "*",
+  allowMethods: ["GET"],
+  allowHeaders: ["Content-Type", "Authorization"],
+}));
+app.use("/api/v1/user/get_opponent_data/opponent", cors({
+  origin: "*",
+  allowMethods: ["GET"],
+  allowHeaders: ["Content-Type", "Authorization"],
+}));
+// app.use(secureHeaders());
 app.use('*', connectMongoMiddleware);
 app.use('/api/v1/user/*', jwtMiddleware);
 app.use('/api/v1/classroom/*', jwtMiddleware);

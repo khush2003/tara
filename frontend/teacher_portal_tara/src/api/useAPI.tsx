@@ -4,7 +4,7 @@ import { mutate } from "swr";
 
 //TODO: Ensure to call the mutate function for classrooms or users after a successful API call
 
-export const setTodayUnit = async (unitId: string, classroomId: string) => {
+export const setTodayUnit = async (unitId: string, title:string, classroomId: string) => {
     const token = useAuthStore.getState().accessToken;
 
     try {
@@ -14,7 +14,7 @@ export const setTodayUnit = async (unitId: string, classroomId: string) => {
                     id: classroomId
                 },
                 json: {
-                    title: "Today's Lesson",
+                    title: title,
                     unit: unitId
                 }
             },

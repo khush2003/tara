@@ -7,6 +7,8 @@
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
     "@scalar/hono-api-reference": "^0.5.156",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
     "cron": "^3.1.7",
     "firebase": "^11.0.1",
     "hono": "^4.6.7",

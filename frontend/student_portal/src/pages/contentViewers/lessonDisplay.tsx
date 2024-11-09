@@ -46,7 +46,7 @@ function FlashCard({ image, title, description }: { image: string; title: string
                 <img
                   src={image}
                   alt={title}
-                  className="max-h-full w-auto object-contain"
+                  className="max-h-full w-32 object-contain"
                 />
               </div>
               <div className="bg-gray-100 p-4">

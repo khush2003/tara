@@ -6,6 +6,9 @@ let conn: typeof mongoose;
 
 export async function connectToMongo(uri: string): Promise<void> {
   try {
+    if (conn) {
+      return;
+    }
     conn = await mongoose.connect(uri);
     console.log('Connected to MongoDB Atlas, Database: ', conn.connection.name);
   } catch (error) {

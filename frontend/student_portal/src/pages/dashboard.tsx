@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, BookOpen, Gamepad, Layers, LogIn, LogOut, Rocket, Settings, Sparkles, Star } from "lucide-react";
+import { Bell, BookOpen, Gamepad, Info, Layers, LogIn, LogOut, Rocket, Settings, Sparkles, Star } from "lucide-react";
 import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
 import LogoutModal from "../components/logoutmodal";
@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useClassroom } from "@/hooks/useClassroom";
 import { useUser } from "@/hooks/useUser";
 import { useUnits } from "@/hooks/useUnit";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const LEARNING_MODULES = [
     { _id: "60f3b1b3b3b3b3b3b3b3b3b3", name: "Foods", moduleCode: "0001" },
@@ -27,7 +28,7 @@ export default function DashboardPage() {
     const [isGuest, setIsGuest] = useState(false);
     const { data: user, error: userError, isLoading: userLoading } = useUser();
 
-    const classroomId = user?.classroom[0].toString();
+    const classroomId = user?.classroom[0]?.toString();
 
     const { data: classroom, error: classroomError, isLoading: classroomLoading } = useClassroom(classroomId);
 
@@ -83,7 +84,7 @@ export default function DashboardPage() {
             </div>
         );
     }
-
+    const todayunitProgress = user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent || 0;
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-500 p-4 sm:p-6 lg:p-8">
             <DashboardHeader user={user || {}} isGuest={isGuest} navigate={navigate} setLogoutModalVisible={setLogoutModalVisible} />
@@ -108,8 +109,21 @@ export default function DashboardPage() {
                                     Game Zone
                                 </span>
                                 <Button
-                                    disabled={isGuest || user?.game_profile?.game_minutes_left === 0 || classroom?.is_game_blocked === true}
-                                    onClick={() => navigate("/gameintro")}
+                                    disabled={
+                                        isGuest ||
+                                        user?.game_profile?.game_minutes_left === 0 ||
+                                        classroom?.is_game_blocked === true ||
+                                        (classroom?.game_restriction_period &&
+                                            new Date().setHours(
+                                                new Date(classroom.game_restriction_period.start).getHours(),
+                                                new Date(classroom.game_restriction_period.start).getMinutes()
+                                            ) < new Date().getTime() &&
+                                            new Date().setHours(
+                                                new Date(classroom.game_restriction_period.end).getHours(),
+                                                new Date(classroom.game_restriction_period.end).getMinutes()
+                                            ) > new Date().getTime())
+                                    }
+                                    onClick={() => navigate("/leaderboard")}
                                     variant="secondary"
                                     className="bg-white text-purple-600 hover:bg-purple-100 text-lg px-6 py-2 rounded-full"
                                 >
@@ -170,15 +184,15 @@ export default function DashboardPage() {
                             <CardTitle className="text-2xl text-gray-800 flex items-center justify-between ">
                                 <span className="flex items-center">
                                     <BookOpen className="mr-2 h-6 w-6 text-purple-600" />
-                                    Today's Tara Lesson: {classroom?.today_unit?.title || "No lesson today"}
+                                    Today's Tara Unit: {classroom?.today_unit?.title || "No lesson today"}
                                 </span>
                                 <Button
-                                    disabled={isGuest}
+                                    disabled={!classroom?.today_unit || isGuest}
                                     onClick={() => navigate("/learningModule/" + classroom?.today_unit?.unit + "/" + classroomId)}
                                     variant="outline"
                                     className="text-purple-600 border-purple-300 hover:bg-purple-50 rounded-full"
                                 >
-                                    {user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent ===
+                                    {todayunitProgress ===
                                     100
                                         ? "Review"
                                         : "Let's Learn!"}
@@ -188,17 +202,16 @@ export default function DashboardPage() {
                         <CardContent>
                             <Progress
                                 value={
-                                    user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent || 0
+                                    todayunitProgress
                                 }
                                 className="h-4 bg-purple-100"
                             />
                             <p className="text-lg text-gray-600 mt-2">
                                 {" "}
-                                {isGuest
+                                {classroom?.today_unit ? isGuest
                                     ? "0"
-                                    : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent.toFixed(0) ||
-                                      0}
-                                % of your journey completed
+                                    : todayunitProgress.toFixed(0)
+                                 + "% of your journey completed" : "No Unit Set for Today"}
                             </p>
                         </CardContent>
                     </Card>
@@ -268,7 +281,19 @@ export default function DashboardPage() {
                         <CardHeader>
                             <CardTitle className="text-2xl flex items-center">
                                 <Sparkles className="mr-2 h-6 w-6" />
-                                Recommended Units
+                                Recommendations
+                                <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info className="ml-2 h-5 w-5 text-white" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            You can redo the exercises and lessons in recommendations to earn extra points.
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -285,6 +310,34 @@ export default function DashboardPage() {
                                             }}
                                             onClick={() => navigate("/learning/" +  units?.find((unit) => {
                                                 for (const lesson of unit.lessons) {
+                                                    if (lesson._id === course.id) {
+                                                        return unit._id;
+                                                    }
+                                                }
+                                                for (const exercise of unit.exercises) {
+                                                    if (exercise._id === course.id) {
+                                                        return unit._id;
+                                                    }
+                                                }
+                                            })?._id + "/" + course.id + "/" + classroomId)}
+                                        >
+                                            <span className="text-lg">{course.name}</span>
+                                            <div className="flex flex-row">{course.extra_points} 💎</div>
+                                        </motion.li>
+                                    )
+                                )}
+                                {user?.recommended?.exercises.map(
+                                    //TODO: Recommendations
+                                    (course) => (
+                                        <motion.li
+                                            key={course.id}
+                                            className="p-3 bg-white bg-opacity-20 rounded-xl flex items-center justify-between"
+                                            whileHover={{
+                                                scale: 1.05,
+                                                backgroundColor: "rgba(255,255,255,0.3)",
+                                            }}
+                                            onClick={() => navigate("/learning/" +  units?.find((unit) => {
+                                                for (const lesson of unit.exercises) {
                                                     if (lesson._id === course.id) {
                                                         return unit._id;
                                                     }

@@ -32,6 +32,10 @@ Promise<{
   creator: string;
   class_join_code: number;
   is_game_blocked: boolean;
+  game_restriction_period: {
+    start: string;
+    end: string;
+  };
   is_recently_updated_announcement: boolean;
   announcement: string;
   today_unit: {

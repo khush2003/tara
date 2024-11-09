@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 // import type { HydratedDocument } from "mongoose";
-import { ExerciseSchema, LessonSchema, Unit, UnitSchema } from "../models/unit.model.ts";
+import { ExerciseSchema, LessonSchema, Unit, UnitSchema, VARIENT_TYPE } from "../models/unit.model.ts";
 import type { ILesson } from "../models/unit.model.ts";
 import { schemaValidatorFromMongoose, validateJsonMiddleware } from "../utils/validators.ts";
 import { jwtMiddleware } from "../middleware/jwtMiddleware.ts";
@@ -41,12 +41,12 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
         if (!user) {
             return c.text("Invalid user", 400);
         }
-
+        
         if (!user.classroom) {
             return c.text("User is not in a classroom", 400);
         }
-
-        if (user.classroom.toString() !== c.req.param("id")) {
+        
+        if (!user.classroom.find((classroomId) => classroomId.toString() === c.req.param("id"))) {
             return c.text("User is not in this classroom", 403);
         }
 
@@ -292,4 +292,57 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
             await unit.save();
             return c.json(unit);
         }
-    );
+    )
+    .put("/assignVarients", jwtMiddleware, validateJsonMiddleware(z.object({
+        exerciseId: z.string(),
+        varients: z.array(z.string()),
+        unitId: z.string()
+    }))  ,async (c) => {
+        const { exerciseId, varients, unitId } = await c.req.valid("json");
+
+        const payload: {
+            id: string;
+            exp: number;
+        } = await c.get("jwtPayload");
+
+        const user = await User.findById(payload.id).select("role").lean();
+        if (!user) {
+            return c.text("Invalid user", 400);
+        }
+
+        if (user.role !== "admin") {
+            return c.text("Only admins can assign varients", 403);
+        }
+
+        const unit = await Unit.findById(unitId);
+        if (!unit) {
+            return c.text("Invalid unit ID", 400);
+        }
+
+        const exerciseIndex = unit.exercises.findIndex((exercise) => exercise._id.toString() === exerciseId);
+        if (exerciseIndex === -1) {
+            return c.text("Invalid exercise ID", 400);
+        }
+
+        
+        const createdVarients = [
+            {
+                id: exerciseId,
+                type: VARIENT_TYPE.Base
+            },
+            ...varients.map((varient: string, index: number) => ({
+                id: varient,
+                type: [VARIENT_TYPE.Adventure, VARIENT_TYPE.Sports, VARIENT_TYPE.Science][index]
+            })).filter((_varient: string, index: number) => varients[index])
+        ];
+
+        unit.exercises[exerciseIndex].varients = createdVarients;
+
+        // get all varient exercises in the unit and assign the varients
+        const varientExercises = unit.exercises.filter((exercise) => varients.includes(exercise._id.toString()));
+        varientExercises.forEach((exercise) => {
+            exercise.varients = createdVarients;
+        }); 
+        await unit.save();
+        return c.json(unit);
+    });

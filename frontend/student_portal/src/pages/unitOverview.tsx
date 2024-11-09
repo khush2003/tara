@@ -76,14 +76,14 @@ export default function SpaceExplorerModule() {
             <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }} className="bg-white rounded-2xl shadow-lg p-6">
                 <h2 className="text-2xl font-bold mb-4 text-black">Your Learning Journey for this Unit</h2>
                 <Progress
-                    value={user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent || 0}
+                    value={user?.class_progress_info.find((p) => p.unit.id.toString() === learningModule?._id)?.progress_percent || 0}
                     className="w-full h-6 bg-purple-100"
                 />
 
                 <p className="text-sm text-gray-600 mt-2">
                     {isGuest
                         ? "0%"
-                        : user?.class_progress_info.find((p) => p.unit.id.toString() === classroom?.today_unit?.unit)?.progress_percent.toFixed(0) ||
+                        : user?.class_progress_info.find((p) => p.unit.id.toString() === learningModule?._id)?.progress_percent.toFixed(0) ||
                           0 + "%"}{" "}
                     of your journey completed
                 </p>
@@ -158,6 +158,7 @@ export default function SpaceExplorerModule() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {learningModule?.exercises.map((e) => {
                             const exercise = e as unknown as Exercise;
+                            const exerciseProgress = progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString());
                             return (
                                 <motion.div
                                     whileHover={{ scale: !allLessonsCompleted ? 1 : 1.05 }}
@@ -173,16 +174,16 @@ export default function SpaceExplorerModule() {
                                         </CardHeader>
                                         <CardContent>
                                             <p>Coins: {exercise.max_score} 💎</p>
-                                            {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString()) && (
+                                            {exerciseProgress && (
                                                 <><p>
-                                                    Score (Coins Earned):{" "}
+                                                    Coins Earned:{" "}
                                                     {progress?.exercises
                                                         ?.find((e) => e.exercise.toString() === exercise._id.toString())
                                                         ?.coins_earned?.toFixed(0) || 0}{" "}
                                                     💎
                                                 </p><p>
                                                         Feeback: {" "}
-                                                        {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.feedback || "No feedback yet"}
+                                                        {exerciseProgress?.feedback || "No feedback yet"}
                                                     </p>
                                                     <p>
                                                         Best Score:{" "}
@@ -191,9 +192,8 @@ export default function SpaceExplorerModule() {
                                                             ?.best_score?.toFixed(0) || 0}{" "}
                                                     </p>
                                                     
-                                                    {progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.best_score || 0 > 
-                                                    (progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString())?.coins_earned || 0) && 
-                                                        <p className="text-sm text-orange-600">Tip: You can ask your teacher to award you extra points for your high score!</p>
+                                                    {exerciseProgress?.best_score && exerciseProgress?.coins_earned ? exerciseProgress.best_score < exerciseProgress.coins_earned ? 
+                                                        <p className="text-sm text-orange-600">Tip: You can ask your teacher to award you extra points for your high score!</p> : "" : ""
                                                     }
                                                     </>
                                             )}

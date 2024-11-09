@@ -15,6 +15,7 @@ interface ILesson {
 }
 
 export enum VARIENT_TYPE {
+    Base = "Base",
     Adventure = 'Adventure & Exploration',
     Sports = 'Sports & Physical Activities',
     Science = 'Science & Technology'

@@ -39,6 +39,7 @@ import CrosswordPuzzleBuilder from './pages/build/crosswordBuilder';
 import BuilderDashboard from './pages/build/builderDashboard';
 import UploadImage from './pages/build/uploadImage';
 import LearningPreference from './pages/preferences';
+import Leaderboard from './pages/games/leaderboard';
 
 const App: React.FC = () => {
   const autoLogin = useAuthStore((state) => state.autoLogin);
@@ -87,6 +88,7 @@ const App: React.FC = () => {
           <Route path="/dndDisplay" element={<ContentContainer><DragAndDropViewer /></ContentContainer>} />
           <Route path="/builder-dashboard" element={<BuilderDashboard />} />
           <Route path="/uploadImage" element={<UploadImage />} />
+          <Route path="/leaderboard" element={<Leaderboard/ >} />
         </Routes>
 
       </Router>

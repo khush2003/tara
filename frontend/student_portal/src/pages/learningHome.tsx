@@ -11,12 +11,13 @@ import { useUser } from "@/hooks/useUser";
 import { useUnits } from "@/hooks/useUnit";
 import { Exercise, Lesson } from "@/types/dbTypes";
 import ContentContainer from "@/components/ContentContainer";
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
+import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 
 export default function EnhancedLearningHomePage() {
     const [isGuest, setIsGuest] = useState(false);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-
-    const [hoverTimer, setHoverTimer] = useState<number | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const { unitId, classroomId } = useParams();
@@ -64,9 +65,26 @@ export default function EnhancedLearningHomePage() {
             return progress.unit.id.toString() === unitId && progress.class.toString() === classroomId;
         })?.lessons_completed?.length === unit?.lessons.length;
 
-
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
     const MotionButton = motion.create(Button);
+
+    const exercisesVarientFixed = unit?.exercises
+        .filter((ex) => {
+            const exercise = ex as unknown as Exercise;
+            if (exercise.varients.length !== 0) {
+                const preferredVarient =
+                    exercise.varients.find((v) => user?.learning_preferences.some((p) => p == v.type)) ||
+                    exercise.varients.find((v) => v.type === VARIENT_TYPE.Base);
+                if (exercise._id !== preferredVarient?.id) {
+                    return false;
+                }
+                return true;
+            }
+            return true;
+        })
+        .sort((a, b) => {
+            return a.order - b.order;
+        });
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200">
@@ -109,11 +127,7 @@ export default function EnhancedLearningHomePage() {
                                             className="w-14 h-14 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-2xl shadow-md overflow-hidden"
                                         >
                                             {user?.profile_picture ? (
-                                                <img 
-                                                    src={user.profile_picture} 
-                                                    alt="Profile" 
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <img src={user.profile_picture} alt="Profile" className="w-full h-full object-cover" />
                                             ) : (
                                                 "ME"
                                             )}
@@ -161,12 +175,21 @@ export default function EnhancedLearningHomePage() {
                                                 onClick={() => {
                                                     if (
                                                         isGuest ||
-                                                        user?.game_profile.game_minutes_left === 0 ||
-                                                        classroom?.is_game_blocked === true
+                                                        user?.game_profile?.game_minutes_left === 0 ||
+                                                        classroom?.is_game_blocked === true ||
+                                                        (classroom?.game_restriction_period &&
+                                                            new Date().setHours(
+                                                                new Date(classroom.game_restriction_period.start).getHours(),
+                                                                new Date(classroom.game_restriction_period.start).getMinutes()
+                                                            ) < new Date().getTime() &&
+                                                            new Date().setHours(
+                                                                new Date(classroom.game_restriction_period.end).getHours(),
+                                                                new Date(classroom.game_restriction_period.end).getMinutes()
+                                                            ) > new Date().getTime())
                                                     ) {
                                                         alert("Game is not active");
                                                     } else {
-                                                        navigate("/gameintro");
+                                                        navigate("/leaderboard");
                                                     }
                                                 }}
                                             >
@@ -214,7 +237,7 @@ export default function EnhancedLearningHomePage() {
                                                 <h3 className="font-bold  text-xl">Exercises</h3>
                                             </div>
                                             <div className="space-y-3">
-                                                {unit?.exercises.map((ex, index) => {
+                                                {exercisesVarientFixed?.map((ex, index) => {
                                                     const exercise = ex as unknown as Exercise;
                                                     return (
                                                         <motion.button
@@ -227,37 +250,47 @@ export default function EnhancedLearningHomePage() {
                                                             transition={{ type: "spring", stiffness: 300 }}
                                                             disabled={!allLessonsCompleted}
                                                             whileTap={{ scale: !allLessonsCompleted ? 1 : 0.98 }}
-                                                            onHoverStart={() => {
-                                                                if (!allLessonsCompleted) {
-                                                                    const timer = setTimeout(() => {
-                                                                        alert("To start an exercise, please complete all lessons first");
-                                                                    }, 2000);
-                                                                    setHoverTimer(timer as unknown as number);
-                                                                }
-                                                            }}
-                                                            onHoverEnd={() => {
-                                                                clearTimeout(hoverTimer as unknown as number);
-                                                            }}
                                                             onClick={() => {
-                                                                if (allLessonsCompleted) navigate("/learning/" + unit._id + "/" + exercise._id + "/" + classroomId);
+                                                                if (allLessonsCompleted)
+                                                                    navigate("/learning/" + unit?._id + "/" + exercise._id + "/" + classroomId);
                                                                 else {
                                                                     alert("Please complete all lessons first");
                                                                 }
                                                             }}
                                                         >
-                                                            <div className="flex w-full flex-row items-center justify-between">
-                                                                <span className="flex items-center space-x-3">
-                                                                    {!allLessonsCompleted ? (
-                                                                        <Lock className="w-4 h-4 text-yellow-500" />
-                                                                    ) : (
+                                                            {!allLessonsCompleted ? (
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div className="flex w-full flex-row items-center justify-between">
+                                                                                <span className="flex items-center space-x-3">
+                                                                                    <Lock className="w-4 h-4 text-yellow-500" />
+                                                                                    <span>{exercise.title}</span>
+                                                                                </span>
+                                                                                <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
+                                                                                    {exercise.max_score} 💎
+                                                                                </span>
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <div className="p-2 bg-white text-black rounded-md shadow-md">
+                                                                                Complete all lessons to unlock
+                                                                            </div>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            ) : (
+                                                                <div className="flex w-full flex-row items-center justify-between">
+                                                                    <span className="flex items-center space-x-3">
                                                                         <Trophy className="w-4 h-4 text-yellow-500" />
-                                                                    )}
-                                                                    <span>{exercise.title}</span>
-                                                                </span>
-                                                                <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
-                                                                    {exercise.max_score} 💎
-                                                                </span>
-                                                            </div>
+                                                                        <span>{exercise.title}</span>
+                                                                    </span>
+                                                                    <span className="bg-orange-200 text-orange-700 px-2 py-1 text-center rounded-2xl text-sm font-medium whitespace-nowrap">
+                                                                        {exercise.max_score} 💎
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            <div></div>
                                                         </motion.button>
                                                     );
                                                 })}
@@ -312,7 +345,7 @@ export default function EnhancedLearningHomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                <ContentContainer />
+                    <ContentContainer />
                 </motion.div>
 
                 <ChatModule />

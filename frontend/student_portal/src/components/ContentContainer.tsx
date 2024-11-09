@@ -6,7 +6,7 @@ import AnimatedCompleteButton from "./AnimatedCompleteButton";
 import AnimatedNextButton from "./AnimatedNextButton";
 import { useNavigate, useParams } from "react-router-dom";
 import { useClassroom } from "@/hooks/useClassroom";
-import { userKey, useUser } from "@/hooks/useUser";
+import {  useUser } from "@/hooks/useUser";
 import { useUnits } from "@/hooks/useUnit";
 import { Exercise, Lesson } from "@/types/dbTypes";
 import LessonDisplay from "@/pages/contentViewers/lessonDisplay";
@@ -22,8 +22,7 @@ import { useExerciseStore } from "@/store/exerciseStore";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "./ui/toaster";
 import { useEffect } from 'react';
-import { mutate } from "swr";
-import { setSourceMapsEnabled } from "process";
+import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 
 interface LessonContainerProps {
     className?: string;
@@ -44,7 +43,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     const { unitId, contentId, classroomId } = useParams();
 
     const { data: classroom } = useClassroom(classroomId);
-    const { data: user } = useUser();
+    const { data: user, mutate: userMutate } = useUser();
     const { data: units } = useUnits(classroomId);
 
     const unit = units?.find((unit) => unit._id === unitId);
@@ -54,12 +53,23 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         return lesson._id === contentId;
     }) as unknown as Lesson;
 
-    const exercise: Exercise = unit?.exercises.find((e) => {
+    const exercisesVarientFixed = unit?.exercises.filter((ex) => {
+        const exercise = ex as unknown as Exercise;
+        if (exercise.varients.length !== 0) {
+            const preferredVarient = exercise.varients.find((v) => user?.learning_preferences.some((p) => p == v.type)) || exercise.varients.find((v) => v.type === VARIENT_TYPE.Base);
+            if (exercise._id !== preferredVarient?.id) {
+                return false;
+            }
+            return true;
+        }
+        return true;
+    });
+
+    const exercise: Exercise = exercisesVarientFixed?.find((e) => {
         const exercise = e as unknown as Exercise;
         return exercise._id === contentId;
     }) as unknown as Exercise;
 
-    console.log(exercise)
     const isExercise = !!exercise;
     console.log(isExercise)
     const isAlreadyComplete = user?.class_progress_info?.find((progress) => {
@@ -96,7 +106,8 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         setLesson,
         setDropAreas,
         setDropItems,
-        setSubmitted
+        setSubmitted,
+        setUserAnswers,
     } = useExerciseStore()
 
     useEffect(() => {
@@ -109,13 +120,11 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     
 
     useEffect(() => {
-        console.log('useEffect triggered');
         setSubmitted(false)
         if (isExercise) {
-            console.log("Setting exercise" + exercise.exercise_type)
+            setUserAnswers({})
             setExercise(exercise)
             setFirstSubmission(!isAlreadyComplete)
-            console.log("Setting exercise" + exercise.exercise_type)
             if (exercise.exercise_type == 'drag_and_drop') {
                 const e = exercise as unknown as DndExercise
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -128,14 +137,14 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
             setLesson(lesson)
             setExercise(null)
         }
-    }, [isExercise, exercise, exercise?._id, isAlreadyComplete, contentId, setExercise, setFirstSubmission, setLesson, lesson, setDropAreas, setDropItems, setSubmitted]);
+    }, [exercise, isAlreadyComplete, isExercise, lesson, setDropAreas, setDropItems, setExercise, setFirstSubmission, setLesson, setSubmitted, setUserAnswers]);
 
     const lessonData = isExercise ? exercise : lesson;
 
-    const nextContentId = (unit?.lessons.find((l) => l.order === lessonData.order + 1) as unknown as Lesson | undefined)?._id || (unit?.exercises.find((e) => e.order === lessonData.order + 1) as unknown as Exercise | undefined)?._id;
+    const nextContentId = (unit?.lessons.find((l) => l.order === lessonData.order + 1) as unknown as Lesson | undefined)?._id || (exercisesVarientFixed?.find((e) => e.order === lessonData.order + 1) as unknown as Exercise | undefined)?._id;
     const isLastModule = !nextContentId;
 
-    // console.log(nextContentId)
+    console.log(exercisesVarientFixed)
     // console.log(isLastModule)
 
     function handleCompleteFull(){
@@ -147,7 +156,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
               })
         }
           handleComplete()
-          mutate(userKey)
+          userMutate()
     }
     
     const renderExerciseContent = () => {

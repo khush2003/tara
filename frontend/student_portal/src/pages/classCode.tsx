@@ -25,7 +25,10 @@ export default function LearningCodePage(): JSX.Element {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await addCurrentUserToClassroom(classCode)
+      const error = await addCurrentUserToClassroom(classCode)
+      if (error) {
+        throw new Error(error)
+      }
       navigate('/setPreferences');
     } catch (error) {
       alert((error as Error).message || "Failed to join classroom, check the code and try again");

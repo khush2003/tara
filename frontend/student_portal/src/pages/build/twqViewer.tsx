@@ -53,8 +53,6 @@ export default function TextWithQuestionsViewer() {
     }
   }
 
-  console.log('exercise', exercise)
-
 
   const renderExerciseContent = () => {
     return (

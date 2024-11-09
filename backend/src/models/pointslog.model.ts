@@ -23,7 +23,6 @@ export enum PointsLogType {
     RECOMMENDED_LESSON = 'recommended_lesson',
     RECOMMENDED_EXERCISE = 'recommended_exercise',
 }
-// TODO: Switch Enums from string to enum definitions everywhere
 
 const PointsLogSchema: Schema = new Schema<IPointsLog>({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

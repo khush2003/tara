@@ -20,7 +20,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
 
   // Map to store scores per tag
   const tagScoresMap = new Map<string, number[]>();
-  console.log("Passed 1")
 
   for (const attempt of exerciseAttempts) {
     const unit = await Unit.findOne(
@@ -30,7 +29,11 @@ export async function generateRecommendations(userId: string): Promise<void> {
     const exercise = unit?.exercises[0];
     if (exercise && exercise.tags) {
       const tags = exercise.tags;
-    const scores = attempt?.attempts.map((a) => {if(a.score) return a.score / exercise.max_score});
+    const scores = attempt?.attempts.map((a) => {
+      if(a.score !== undefined) {
+          return a.score == 0 ? 0 : (a.score / exercise.max_score) * 100
+      }
+    });
       for (const tag of tags) {
         if (!tagScoresMap.has(tag)) {
           tagScoresMap.set(tag, []);
@@ -41,7 +44,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
       }
     }
   }
-  console.log("Passed 2")
 
   // 3. Calculate Metrics for Each Tag
   interface TagPerformance {
@@ -63,11 +65,10 @@ export async function generateRecommendations(userId: string): Promise<void> {
       scores,
     });
   }
-  console.log("Passed 3")
 
   // 4. Identify Knowledge Gaps
   const KNOWLEDGE_GAP_SCORE_THRESHOLD = 50; // Adjust threshold as needed
-  const KNOWLEDGE_GAP_VARIANCE_THRESHOLD = 10;
+  const KNOWLEDGE_GAP_VARIANCE_THRESHOLD = 150;
 
   const knowledgeGapTags: string[] = [];
 
@@ -79,7 +80,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
       knowledgeGapTags.push(tag);
     }
   }
-  console.log("Passed 4")
 
   // 5. Check Lesson Completion for Content Accessibility
   const completedLessonIds = classProgressInfos.flatMap((progressInfo) =>
@@ -91,7 +91,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
     "lessons._id": { $in: completedLessonIds },
   }).lean();
 
-  console.log("Passed 5")
 
   const accessibleUnitIds = accessibleUnits.map((unit) => unit._id);
 
@@ -110,7 +109,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
     },
   ]) as ILesson[];
 
-  console.log("Passed 6")
 
   // b. Recommend Exercises
   const recommendedExercises = await Unit.aggregate([
@@ -128,8 +126,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
     },
   ]) as IExercise[];
 
-  console.log("Passed 7")
-
   // 7. Apply Learning Preferences
   const userPreferences = user.learning_preferences || [];
 
@@ -140,8 +136,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
     return bHasVariant - aHasVariant;
   });
 
-  console.log("Passed 8")
-  console.log(sortedExercises)
 
   const filteredExercises = sortedExercises;
 
@@ -159,7 +153,6 @@ export async function generateRecommendations(userId: string): Promise<void> {
     return (aTagPerformance?.averageScore || 0) - (bTagPerformance?.averageScore || 0);
   });
 
-  console.log("Passed 9")
 
   // 9. Compile the Recommendation List
   const MAX_RECOMMENDATIONS = 5;
@@ -167,19 +160,19 @@ export async function generateRecommendations(userId: string): Promise<void> {
   const finalRecommendedLessons = recommendedLessons.slice(0, MAX_RECOMMENDATIONS);
   const finalRecommendedExercises = filteredExercises.slice(0, MAX_RECOMMENDATIONS);
 
-  console.log("Passed 10")
   // 10. Update User's Recommendations
   user.recommended = {
     lessons: finalRecommendedLessons.map((lesson, index) => ({
       name: lesson.title,
       id: lesson._id,
-      extra_points: (MAX_RECOMMENDATIONS - index) * 10,
+      extra_points: user.already_complete_recommendations?.lessons?.some((completedLesson) => completedLesson.id.toString() == lesson._id.toString()) ? 0 : (MAX_RECOMMENDATIONS - index) * 10,
     })),
-    exercises: finalRecommendedExercises.map((exercise, index) => ({
+    exercises: finalRecommendedExercises.map((exercise, index) => {
+      return ({
       name: exercise.title,
       id: exercise._id,
-      extra_points: (MAX_RECOMMENDATIONS - index) * 10,
-    })),
+      extra_points: user.already_complete_recommendations?.exercises?.some((completedExercise) => completedExercise.id.toString() == exercise._id.toString()) ? 0 : (MAX_RECOMMENDATIONS - index) * 10,
+    })}),
   };
 
   await User.findByIdAndUpdate(userId, { recommended: user.recommended });
