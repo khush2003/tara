@@ -410,71 +410,79 @@ export default function ClassDetailsPage() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="students">
-                        <div className="flex flex-row w-full gap-3">
-                            <Card className="w-full">
-                                <CardHeader>
-                                    <CardTitle>Students Enrolled</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ScrollArea className="h-[400px] w-full rounded-md border p-4">
-                                        {students?.map((student) => {
-                                            return (
-                                                <div key={student._id} className="mb-6 last:mb-0">
-                                                    <div className="mb-6 last:mb-0">
-                                                        <div className="flex items-center justify-between py-2">
-                                                            <div className="flex items-center space-x-4">
-                                                                <Avatar>
-                                                                    <AvatarImage 
-                                                                        src={student?.profile_picture}
-                                                                        alt={student?.name}
-                                                                        className="w-full h-full rounded-full"
-                                                                    />
-                                                                    <AvatarFallback>
-                                                                        {student?.name
-                                                                            .split(" ")
-                                                                            .map((n) => n[0])
-                                                                            .join("")}
-                                                                    </AvatarFallback>
-                                                                </Avatar>
-                                                                <div>
-                                                                    <p className="text-sm font-medium">{student?.name}</p>
-                                                                    <p className="text-sm text-gray-500">ID: {student?._id}</p>
-                                                                </div>
-                                                            </div>
-                                                            <Button onClick={() => navigate("/studentDetails/" + student?._id + "/" + classroom?._id)} variant="outline">View Progress Details</Button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </ScrollArea>
-                                </CardContent>
-                            </Card>
+                    <TabsContent value="students" className="space-y-6">
+  <div className="grid gap-6 md:grid-cols-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Students Enrolled</CardTitle>
+        <CardDescription>View and manage enrolled students</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[500px] pr-4">
+          {students?.map((student) => (
+            <div key={student._id} className="mb-4 last:mb-0">
+              <div className="flex items-center justify-between space-x-4">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={student?.profile_picture}
+                      alt={student?.name}
+                    />
+                    <AvatarFallback>
+                      {student?.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium leading-none">{student?.name}</p>
+                    <p className="text-sm text-muted-foreground">ID: {student?._id}</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => navigate("/studentDetails/" + student?._id + "/" + classroom?._id)}
+                  variant="outline"
+                  size="sm"
+                >
+                  View Progress
+                </Button>
+              </div>
+            </div>
+          ))}
+        </ScrollArea>
+      </CardContent>
+    </Card>
 
-                            <Card className="w-full">
-                                <CardHeader className="flex flex-row justify-between items-center">
-                                    <CardTitle>Quick Overview of Student Progress</CardTitle>
-                                    <Button
-                                        onClick={() => {
-                                            mutateClassrooms();
-                                            mutateStudents();
-                                            mutateUser();
-
-                                        }}
-                                        className="p-2"
-                                    >
-                                        <RefreshCcw />
-                                    </Button>
-                                </CardHeader>
-                                <CardContent>
-                                    <ScrollArea className="h-[700px] w-full px-4">
-                                        {renderProgress()}
-                                    </ScrollArea>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Student Progress Overview</CardTitle>
+            <CardDescription>Quick view of student achievements</CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              mutateClassrooms();
+              mutateStudents();
+              mutateUser();
+            }}
+            size="icon"
+            variant="outline"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span className="sr-only">Refresh data</span>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[500px] pr-4">
+          {renderProgress()}
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  </div>
+</TabsContent>
 
                     <TabsContent value="modules">
                         <Card>
