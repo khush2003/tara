@@ -23,6 +23,7 @@ const LEARNING_MODULES = [
 
 export default function DashboardPage() {
     const navigate = useNavigate();
+    const accessToken = useAuthStore((state) => state.accessToken);
     const [isLogoutModalVisible, setLogoutModalVisible] = useState<boolean>(false);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const [isGuest, setIsGuest] = useState(false);
@@ -38,14 +39,15 @@ export default function DashboardPage() {
         isLoading: unitsLoading
     } = useUnits(classroomId);
 
-
-
     useEffect(() => {
+        if (!accessToken){
+            navigate("/login");
+        }
         console.log("classroom", classroomId);
         if (!isLoggedIn) {
             setIsGuest(true);
         }
-    }, [classroomId, isLoggedIn]);
+    }, [accessToken, classroomId, isLoggedIn, navigate]);
 
     const handleLogoutCancel = () => {
         setLogoutModalVisible(false); // Hide the modal without logging out

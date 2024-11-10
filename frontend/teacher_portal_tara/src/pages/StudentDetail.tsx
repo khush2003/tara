@@ -343,7 +343,6 @@ export default function StudentProgressDetails() {
                                                                           _id: string;
                                                                       }
                                                                     | undefined;
-                                                                console.log(exerciseProgress);
                                                                 const varientType =
                                                                     exercise.varients.find((v) => v.id == exercise._id)?.type || "Base";
                                                                 const num_attempts = exerciseProgress?.attempts.length || 0;
@@ -355,9 +354,11 @@ export default function StudentProgressDetails() {
                                                                         : varientType == VARIENT_TYPE.Science
                                                                         ? "bg-blue-600"
                                                                         : "bg-black";
+                                                                const isStudentVarientType = !!student.learning_preferences.find((l) => l == varientType);
+                                                                console.log(isStudentVarientType);
                                                                 return (
                                                                     <Card key={exercise._id}>
-                                                                        <CardContent className="p-4">
+                                                                        <CardContent className={cn("p-4", isStudentVarientType ? "bg-gray-200" : "")}>
                                                                             <div className="space-y-2">
                                                                                 <div className="border-b-2 border-gray-200 pb-2 space-y-1">
                                                                                 <div className="flex justify-between items-start">
@@ -368,6 +369,9 @@ export default function StudentProgressDetails() {
                                                                                         </p>
                                                                                     </div>
                                                                                     <div className="flex flex-row gap-3">
+                                                                                        <Badge>
+                                                                                            Student's Varient: {isStudentVarientType ? "Yes" : "No"}
+                                                                                        </Badge>
                                                                                         <Badge
                                                                                             variant={num_attempts == 0 ? "destructive" : "default"}
                                                                                             className="flex items-center"

@@ -93,7 +93,7 @@ export default function Leaderboard() {
           </h1>
           <div className="space-y-6">
             {rankedUsers.map((user) => (
-              <div key={user._id} className={`flex items-center p-4 rounded-2xl shadow-md transition-transform hover:scale-105 ${user._id === currentUser?._id ? 'bg-gradient-to-r from-green-200 via-blue-200 to-purple-200' : 'bg-gradient-to-r from-yellow-200 via-green-200 to-blue-200'}`}>
+              <div key={user._id} className={`flex items-center p-4 rounded-2xl shadow-md transition-transform hover:scale-105 ${user._id === currentUser?._id ? 'bg-gradient-to-r from-purple-200 via-blue-200 to-blue-500' : 'bg-gradient-to-r from-yellow-200 via-green-200 to-blue-200'}`}>
                 <div className="flex-shrink-0 mr-4">
                   <div className="relative">
                     {user.profile_picture ? <img

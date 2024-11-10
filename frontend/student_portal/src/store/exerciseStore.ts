@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { completeLesson, submitExercise } from "@/api/userApi";
 import { Lesson } from "@/types/dbTypes";
+import { mutate } from "swr";
+import { userKey } from "@/hooks/useUser";
 
 
 interface Exercise {
@@ -447,6 +449,7 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
                 unitId || "",
                 classId
             );
+            mutate(userKey)
             set({ error });
         } else {
             const error = await completeLesson(contentId, classId, unitId || "");
@@ -459,5 +462,13 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
             score: null,
             exercise: null,
             error: undefined,
+            lesson: null,
+            answersString: "",
+            showConfetti: false,
+            userAnswers: {},
+            currentGridData: {},
+            dropAreas: [],
+            dropItems: [],
+            crosswordData: null,
         }),
 }));

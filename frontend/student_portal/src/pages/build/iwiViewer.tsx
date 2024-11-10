@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
-import { Toaster } from '@/components/ui/toaster'
 import { useExerciseStore } from '@/store/exerciseStore'
 
 const springTransition = { type: "spring", stiffness: 300, damping: 30 }
@@ -143,9 +142,8 @@ export default function ImagesWithInputViewer() {
                     </Button>
                 </CardContent>
             </Card>}
-
             <AnimatePresence>
-                <Toaster />
+                
                 {exercise && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

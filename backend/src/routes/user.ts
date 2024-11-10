@@ -474,7 +474,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             const num_exercises = unitInfo.exercises.length;  
             const num_exercise_without_varients = unitInfo.exercises.filter((ex) => {
                 if (ex.varients?.length != 0){
-                    if (ex._id == ex.varients[0].id){
+                    if (ex._id.toString() == ex.varients[0].id.toString()){
                         return true;
                     } else {
                         return false;
@@ -660,7 +660,7 @@ const userRoutes = new Hono<{ Variables: JwtVariables }>()
             const num_exercises = unitInfo.exercises.length;
             const num_exercise_without_varients = unitInfo.exercises.filter((ex) => {
                 if (ex.varients?.length != 0){
-                    if (ex._id == ex.varients[0].id){
+                    if (ex._id.toString() == ex.varients[0].id.toString()){
                         return true;
                     } else {
                         return false;

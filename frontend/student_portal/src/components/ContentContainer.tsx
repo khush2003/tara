@@ -21,7 +21,7 @@ import CrosswordPuzzleViewer from '@/pages/build/crosswordExerciseViewer';
 import { useExerciseStore } from "@/store/exerciseStore";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "./ui/toaster";
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 
 interface LessonContainerProps {
@@ -71,7 +71,6 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     }) as unknown as Exercise;
 
     const isExercise = !!exercise;
-    console.log(isExercise)
     const isAlreadyComplete = user?.class_progress_info?.find((progress) => {
         if (isExercise) {
             return progress.exercises?.find((exercise) => exercise.exercise.toString() === contentId);
@@ -96,7 +95,6 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
     const {
         setExercise,
         handleComplete,
-        setFirstSubmission,
         submitted,
         setClassId,
         setContentId,
@@ -106,8 +104,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         setLesson,
         setDropAreas,
         setDropItems,
-        setSubmitted,
-        setUserAnswers,
+        reset
     } = useExerciseStore()
 
     useEffect(() => {
@@ -116,35 +113,48 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         if (unitId) setUnitId(unitId)
     }, [classroomId, contentId, unitId, setClassId, setContentId, setUnitId]);
 
-    console.log("contentId: " + contentId)
     
 
-    useEffect(() => {
-        setSubmitted(false)
+    const callOnce = useCallback(() => {
+        console.log('Resetting')
+        reset()
         if (isExercise) {
-            setUserAnswers({})
             setExercise(exercise)
-            setFirstSubmission(!isAlreadyComplete)
+            console.log('Setting exercise')
+            console.log(exercise)
             if (exercise.exercise_type == 'drag_and_drop') {
+                console.log('Setting drop areas')
                 const e = exercise as unknown as DndExercise
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 setDropAreas((_prev) => e?.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })) ?? [])
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 setDropItems((_prev) => e.dropItems)
-                console.log("Setting drop areas")
+                console.log(e?.exercise_content.map((group, index) => ({ ...group.dropArea, id: `area-${index}`, items: [] })) ?? [])
+                console.log(e.dropItems)
             }
         } else {
             setLesson(lesson)
             setExercise(null)
         }
-    }, [exercise, isAlreadyComplete, isExercise, lesson, setDropAreas, setDropItems, setExercise, setFirstSubmission, setLesson, setSubmitted, setUserAnswers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [contentId]);
+
+    useEffect(() => {
+        callOnce()
+    }, [callOnce]);
+
+    useEffect(() => {
+        return () => {
+            reset()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const lessonData = isExercise ? exercise : lesson;
 
     const nextContentId = (unit?.lessons.find((l) => l.order === lessonData.order + 1) as unknown as Lesson | undefined)?._id || (exercisesVarientFixed?.find((e) => e.order === lessonData.order + 1) as unknown as Exercise | undefined)?._id;
     const isLastModule = !nextContentId;
 
-    console.log(exercisesVarientFixed)
     // console.log(isLastModule)
 
     function handleCompleteFull(){
@@ -182,6 +192,10 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
         }
       };
 
+
+    const bestScore = progress?.exercises?.find(
+        (e) => e.exercise.toString() === exercise._id
+    )?.best_score
     return (
         <div className={cn(`flex min-h-[85vh] items-center justify-center p-4`, className)}>
             <Card className={cn("w-full max-w-5xl bg-white rounded-3xl shadow-lg overflow-hidden", overrideClass)}>
@@ -217,9 +231,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
                                 {!isExercise ? <LessonDisplay /> : <>
                                     {renderExerciseContent()}
                                 <div className="px-10 py-6 border-purple-400 bg-purple-50 border-2 text-purple-900 rounded-md ">
-                                <p>Your best score: {progress?.exercises?.find(
-                                    (e) => e.exercise.toString() === exercise._id
-                                )?.best_score || (isExercise && exercise.is_instant_scored ? "Try to complete once to see" : "You will see your score and earn coins when teacher grades you!")}</p>
+                                <p>Your best score: {bestScore ? bestScore : isExercise && exercise.is_instant_scored ? "Try to complete once to see" : "You will see your score and earn coins when teacher grades you!"}</p>
                                 <p>
                                 You have earned: {progress?.exercises?.find(
                                     (e) => e.exercise.toString() === exercise._id

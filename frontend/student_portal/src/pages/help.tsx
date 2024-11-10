@@ -1,13 +1,12 @@
 import { useState, ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Search, Mail, ChevronLeft, Link } from 'lucide-react';
+import { Search, ChevronLeft, Link } from 'lucide-react';
 
 
 interface HelpTopic {
@@ -18,31 +17,35 @@ interface HelpTopic {
 const helpTopics: HelpTopic[] = [
   {
     title: "How to Update Your Profile",
-    content: "To update your profile, navigate to the Settings page and click on 'Profile'. Here you can change your avatar, update your personal information, and save the changes by clicking the 'Save Your Profile Changes' button."
+    content: "To update your profile, navigate to the Settings page and click on 'Profile'. Here you can change your avatar (upload a photo), update your personal information, and save the changes by clicking the 'Save Your Profile Changes' button."
+  },
+  {
+    title: "How to Change Your Password",
+    content: "To change your password, navigate to the Settings page, enter your current password and the new password, then click 'Save Changes'."
+  },
+  {
+    title: "What if I don't understand something?",
+    content: "When learning, you will see a small chat button on the bottom-right corner of your screen. When you click on it, Tara Assistant will pop up. You can ask any question and AI will answer to your query instantly. If you still have questions, you can ask your teacher for help."
   },
   {
     title: "How to Use the Learning Modules",
     content: "The learning modules can be accessed from the Dashboard. Click on the module you want to start, and follow the instructions provided. Each module contains lessons and exercises to help you learn effectively. You can track your progress and revisit lessons or exercises as needed."
   },
   {
-    title: "How to Contact Support",
-    content: "If you need further assistance, you can contact our support team by clicking the 'Contact Support' button on the Help page. Fill out the form with your query, and our team will get back to you as soon as possible. You can also reach us via email or phone for urgent issues."
-  },
-  {
     title: "Navigating the Dashboard",
-    content: "The Dashboard provides an overview of your progress and available modules. You can access different sections such as Settings, Help, and Learning Modules from here. Use the navigation buttons to explore each section. The Dashboard also displays announcements and your current learning status."
+    content: "The Dashboard provides an overview of your progress and available modules. You can access different sections such as Settings, Help, and Learning Modules from here. Use the navigation buttons to explore each section. The Dashboard also displays announcements and your current learning status. You can play your tara game from the dashboard which will take you to the leaderboard. "
   },
   {
     title: "Understanding Your Learning Progress",
     content: "Your learning progress is displayed on the Dashboard and within each module. Progress bars indicate how much of the module you have completed. Keep track of your progress to stay motivated and on track with your learning goals. Detailed progress reports are available in the Learning Modules section."
   },
   {
-    title: "Using the Game Zone",
-    content: "The Game Zone is accessible from the Dashboard. Click on 'Play Now!' to start playing educational games that help reinforce your learning. Your coins and playtime are displayed in the Game Zone section. Make sure to complete your lessons to earn more playtime."
+    title: "Tara Game",
+    content: "When you click on play now from the dashboard, you are taken to the leaderboard, where you can see your ranking against others in the class. There you can click on play now to go to the game. If you have not yet picked a name for your character you will be asked to put in a name for your character. You can then upgrade the stats of your character and battle other players or computer generated characters." 
   },
   {
-    title: "Viewing Announcements",
-    content: "Announcements from your classroom or the platform are displayed on the Dashboard under 'Tara News'. Check this section regularly to stay updated with the latest news and important information."
+    title: "Game Battle",
+    content: "When you do a battle, it will automatically playout and if you win you will earn 2 stat points which you can use to upgrade your character. As you level up you might have a surprise waiting for you. (Hint: Evolution!!)" 
   },
   {
     title: "Accessing Your Learning Units",
@@ -50,23 +53,19 @@ const helpTopics: HelpTopic[] = [
   },
   {
     title: "Completing Exercises",
-    content: "Exercises are part of the learning modules and can be accessed after completing the lessons. Each exercise has a maximum score you can achieve. Your performance is tracked, and you can reattempt exercises to improve your score."
+    content: "Exercises are part of the learning modules and can be accessed after completing the lessons. Each exercise has a maximum score you can achieve. Your performance is tracked, and you can reattempt exercises to improve your score. You will see your attempts and best score and coins earned for each exercise"
   },
   {
-    title: "Using the Sidebar in Learning Home",
-    content: "The sidebar in the Learning Home page provides quick access to various sections such as Game Zone, Lessons, and Exercises. You can toggle the sidebar visibility using the button at the top. The sidebar also displays your profile information and allows you to navigate to the settings page."
+    title: "I complete an exercise but when I reattempt, I do not get more coins",
+    content: "You will only get coins for the first time you complete an exercise. If you reattempt an exercise, you will not get more coins. You can however improve your score and see your attempts and best score. Then you can ask your teacher to score for you, and if the teacher scores your exercise to be high score, you will get more points."
   },
   {
-    title: "Handling Errors in Learning Home",
-    content: "If you encounter errors while fetching module or user data in the Learning Home page, you will see an error message with a button to navigate back to the Dashboard. Ensure you have a stable internet connection and try reloading the page."
+    title: "Recommendations",
+    content: "On the dashboard, you will see a list of recommended lessons and exercises. These recommendations are based on your learning progress and performance. You can choose to follow the recommendations or explore other modules and units as per your learning needs. If you complete a recommended lesson or exercise, you will earn extra coins."
   },
   {
-    title: "Completing Lessons in Lesson Container",
-    content: "The Lesson Container component is used to display lessons and exercises. After completing a lesson or exercise, click the 'Complete' button to mark it as complete. If it's an exercise, you may need to submit your answers for scoring. You can navigate to the next module or return to the Dashboard after completion."
-  },
-  {
-    title: "Navigating Between Lessons and Exercises",
-    content: "In the Lesson Container, you can navigate between lessons and exercises using the 'Next' button. If you have completed the current module, the 'Next' button will take you to the next module. If it's the last module, you will be redirected to the Dashboard."
+    title: "I see a different exercise from my friend",
+    content: "For some exercises, you might see a different exercise from your classmates or teacher based on your learning preference. For example if you like science and technology, you will see an exercise which has content realted to science and technology."
   }
 ];
 

@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Confetti } from "./confetti"
 import { Star, Rocket, Book, PenTool } from "lucide-react"
-import { Toaster } from '@/components/ui/toaster'
 import { useExerciseStore } from '@/store/exerciseStore'
 
 const icons = [Star, Rocket, Book, PenTool]
@@ -145,7 +144,6 @@ export default function MCQViewer() {
       className=""
     >
       <AnimatePresence>
-        <Toaster />
         {exercise ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

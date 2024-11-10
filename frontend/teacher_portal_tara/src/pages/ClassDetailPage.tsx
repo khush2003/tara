@@ -19,7 +19,6 @@ import ContentContainer from "@/components/ContentContainer";
 import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster"
-import { useUnits } from "@/hooks/useUnit";
 import { useClassrooms } from "@/hooks/useClassrooms";
 import { useUser } from "@/hooks/useUser";
 import { awardPoints, PointsLogType, setAnnoucementAPI, setGameRestrictionPeriodAPI, setIsGameActive, updateChosenUnits } from "@/api/useAPI";
@@ -469,7 +468,7 @@ export default function ClassDetailsPage() {
                                     </Button>
                                 </CardHeader>
                                 <CardContent>
-                                    <ScrollArea className="h-[400px] w-full px-4">
+                                    <ScrollArea className="h-[700px] w-full px-4">
                                         {renderProgress()}
                                     </ScrollArea>
                                 </CardContent>

@@ -10,6 +10,7 @@ import { useClassroom } from "@/hooks/useClassroom";
 import { useUnits } from "@/hooks/useUnit";
 import { useUser } from "@/hooks/useUser";
 import { Exercise, Lesson } from "@/types/dbTypes";
+import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 
 export default function SpaceExplorerModule() {
     const [isGuest, setIsGuest] = useState<boolean>(false);
@@ -55,6 +56,18 @@ export default function SpaceExplorerModule() {
 
     const progress = user?.class_progress_info.find((progress) => {
         return progress.unit.id.toString() === id && progress.class.toString() === classroom?._id;
+    });
+
+     const exercisesVarientFixed = learningModule?.exercises.filter((ex) => {
+            const exercise = ex as unknown as Exercise;
+            if (exercise.varients.length !== 0) {
+                const preferredVarient = exercise.varients.find((v) => user?.learning_preferences.some((p) => p == v.type)) || exercise.varients.find((v) => v.type === VARIENT_TYPE.Base);
+                if (exercise._id !== preferredVarient?.id) {
+                    return false;
+                }
+                return true;
+            }
+            return true;
     });
 
     return (
@@ -156,7 +169,7 @@ export default function SpaceExplorerModule() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {learningModule?.exercises.map((e) => {
+                        {exercisesVarientFixed?.map((e) => {
                             const exercise = e as unknown as Exercise;
                             const exerciseProgress = progress?.exercises?.find((e) => e.exercise.toString() === exercise._id.toString());
                             return (
@@ -199,7 +212,7 @@ export default function SpaceExplorerModule() {
                                             )}
                                         </CardContent>
                                         <CardFooter>
-                                            <Link to={allLessonsCompleted ? `/learning/${learningModule._id}/${exercise._id}/${classroomId}` : "#"}>
+                                            <Link to={allLessonsCompleted ? `/learning/${learningModule?._id}/${exercise._id}/${classroomId}` : "#"}>
                                                 <motion.div
                                                     whileHover={{
                                                         scale: !allLessonsCompleted ? 1 : 1.05,

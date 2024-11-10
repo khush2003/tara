@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/hooks/useUser';
 import { changePassword, updateUserProfile } from '@/api/userApi';
 import axios from 'axios';
+import { Loader2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const [avatarSrc, setAvatarSrc] = useState("http://www.google.com")
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [errorProfile, setErrorProfile] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
+  const [avatarLoading, setAvatarLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,12 +70,13 @@ export default function SettingsPage() {
     if (!name || !email) {
       setErrorProfile("Name and email are required");
       return;
-    } 
+    }
     if (email == user?.email) {
       if (name == user?.name) {
-        if (avatarSrc == user?.profile_picture)
+        if (avatarSrc == user?.profile_picture){
           setErrorProfile("No changes detected");
-        return;
+          return;
+        }
     }}
    // Check email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -87,16 +90,13 @@ export default function SettingsPage() {
       return;
     }
     setErrorProfile("");
+    console.log("Sending update request");
     const error = await updateUserProfile(name, email, user?.school, avatarSrc);
     if (error) {
       setErrorProfile(error);
       return;
     }
     alert("Profile updated successfully");
-    console.log("Profile Updated:", {
-      name,
-      email,
-    });
   }
 
   if (isLoading) {
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
             reader.onload = async () => {
                 const arrayBuffer = reader.result;
-                
+                setAvatarLoading(true);
                 try {
                     const response = await axios.post<{ url: string }>('/api/v1/image/upload', arrayBuffer, {
                         headers: {
@@ -129,6 +129,7 @@ export default function SettingsPage() {
                     console.error('Upload failed:', error);
                     alert('Upload failed');
                 }
+                setAvatarLoading(false);
             };
     }
   }
@@ -154,8 +155,10 @@ export default function SettingsPage() {
             <TabsContent value="profile" className="space-y-8">
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="w-40 h-40 border-4 border-purple-400">
-                  <AvatarImage src={avatarSrc} alt="Profile picture" />
-                  <AvatarFallback className="bg-purple-200 text-purple-600 text-4xl">ME</AvatarFallback>
+                  {avatarLoading ? 
+                      <Loader2 className="w-10 mt-14 ml-14 h-10 text-purple-600 animate-spin" />
+                  :<><AvatarImage src={avatarSrc} alt="Profile picture" />
+                  <AvatarFallback className="bg-purple-200 text-purple-600 text-4xl">ME</AvatarFallback></>}
                 </Avatar>
                 <Label htmlFor="avatar" className="cursor-pointer bg-purple-600 text-white py-3 px-6 rounded-full hover:bg-purple-700 transition-colors flex items-center space-x-2">
                   <RxCamera className="w-5 h-5" />
