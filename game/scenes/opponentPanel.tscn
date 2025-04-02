@@ -1,0 +1,469 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://resource/BG_Stats.png" type="Texture" id=1]
+[ext_resource path="res://resource/tres/panelAtts.tres" type="StyleBox" id=2]
+[ext_resource path="res://resource/fonts/m6x11-32SpacedAlt.tres" type="DynamicFont" id=3]
+[ext_resource path="res://resource/fonts/look16Shadow.tres" type="DynamicFont" id=4]
+[ext_resource path="res://resource/tres/panelReroll/normal.tres" type="StyleBox" id=5]
+[ext_resource path="res://resource/tres/panelReroll/pressed.tres" type="StyleBox" id=6]
+[ext_resource path="res://resource/tres/panelReroll/focus.tres" type="StyleBox" id=7]
+[ext_resource path="res://resource/fonts/_shopPriceFont.tres" type="DynamicFont" id=8]
+[ext_resource path="res://scenes/opponentPanel.gd" type="Script" id=9]
+
+[sub_resource type="GDScript" id=1]
+script/source = "#		LV1		2W 1M
+#		LV2		2W 1M
+#		LV3		1W 2M
+#		LV4		1W 2M
+#		LV5		1W 2M/1W 1M 1S/MIDBOSS
+#		LV6		2M 1S
+#		LV7		2M 1S
+#		LV8		1M 2S?
+#		LV9		3S
+#		LV10	FINALBOSS
+
+extends PanelContainer
+
+var used_enemy_names = []
+var enemyPanel=preload(\"res://scenes/opponentModel.tscn\")
+var targetPos=0
+var doTween=true
+var loadEnemies=false
+const duration=0.4
+func _ready():
+#	print_debug(global.level)
+	randomize()
+	if doTween:
+		targetPos=self.rect_position.y
+		self.rect_position.y=-1.2*self.rect_size.y
+		$twnPosition.interpolate_property(self,\"rect_position:y\",self.rect_position.y,targetPos,self.duration,Tween.TRANS_BACK,Tween.EASE_OUT)
+		$twnPosition.start()
+	else:
+		pass
+	var level=global.level
+	if global.enemiesForBattle!=[]:
+#		print_debug(\"A\")
+		addSameEnemies()
+	else:
+		if level in [1]:
+			[createEnemy(1,1),createEnemy(1,1),createEnemy(1,0)]
+		elif level in [2]:
+			[createEnemy(level-1),createEnemy(level,1),createEnemy(level)]
+		elif level in [3,4,5]:
+			[createEnemy(level-1,2),createEnemy(level,2),createEnemy(level)]
+		elif level in [6,7]:
+			[createEnemy(level-1,2),createEnemy(level,2),createEnemy(level+1,2)]
+		elif level in [8]:
+			[createEnemy(level,3),createEnemy(level,2),createEnemy(level+1,1)]
+		elif level in [9]:
+			[createEnemy(level,2),createEnemy(level+1,2),createEnemy(level+2,1)]
+		elif level in [10]:
+			[createEnemy(level,0,true)]
+			$marginContainer/vbox/btnReroll.disabled=true
+
+func selectName():
+	var name=global.listOfNames[randi()%global.listOfNames.size()]
+#	global.listOfNames.erase(name)
+	return name
+
+func distributePoints(obj,numberOfPoints,addedPoints=[0,0,0]):
+	var attributes=[obj.enemyStr,obj.enemyDef,obj.enemySpd]
+	while(numberOfPoints>0):
+		var index=randi()%attributes.size()
+		attributes[index]+=1
+		numberOfPoints-=1
+	obj.enemyStr=attributes[0]+addedPoints[0]
+	obj.enemyDef=attributes[1]+addedPoints[1]
+	obj.enemySpd=attributes[2]+addedPoints[2]
+
+
+func createEnemy(level, handicap=0, boss=false):
+	randomize()
+	var i = enemyPanel.instance()
+	i.enemyLevel = level
+
+	var request = HTTPRequest.new()
+	add_child(request)
+	request.connect(\"request_completed\", self, \"_on_request_completed\", [i, level, handicap, boss])
+	#var token = get_parameter(\"token\")
+	var token = \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmViYjA5ZGRmOTE4ZjJiNzJkMDQzYSIsImV4cCI6MTczMTIwMjE4NTY5Nn0.HcRJuY4QoDK9XVs9u67QsZ6x-IPJdvMGx2cbpTVRj4Y\"
+	var headers = [\"Authorization: Bearer \" + token]
+	print_debug(level)
+	request.request(global.backendURL + \"/user/get_opponent_data/opponent?level=\" + str(level), headers, HTTPClient.METHOD_GET)
+
+	return i  # Return the enemy instance immediately
+
+func get_parameter(parameter):
+	if OS.has_feature('JavaScript'):
+		return JavaScript.eval(\"\"\" 
+				var url_string = window.location.href;
+				var url = new URL(url_string);
+				url.searchParams.get(parameter);
+			\"\"\")
+	return null
+	
+func _on_request_completed(result, response_code, headers, body, i, level, handicap, boss):
+	print_debug(\"Response\")
+	print_debug(body.get_string_from_utf8())
+	if response_code == 200:
+		var json = JSON.parse(body.get_string_from_utf8())
+		if json.error == OK:
+			var opponent_data = json.result
+			if opponent_data[\"name\"] in used_enemy_names:
+				_create_default_enemy(i, level, handicap, boss)
+			else:
+				i.enemyName = opponent_data[\"name\"]
+				i.enemyLevel = opponent_data[\"level\"]
+				i.enemyGold = opponent_data[\"game_points\"]
+				i.enemyClass = opponent_data[\"class\"]
+				i.enemyStr= opponent_data[\"strength\"] +  opponent_data[\"extraStrength\"]
+				i.enemyDef= opponent_data[\"defense\"] + opponent_data[\"extraDefense\"]
+				i.enemySpd= opponent_data[\"speed\"] + opponent_data[\"extraSpeed\"]
+				used_enemy_names.append(opponent_data[\"name\"])
+				addEnemiesGloballyAndLocally(i)
+		else:
+			_create_default_enemy(i, level, handicap, boss)
+	else:
+		_create_default_enemy(i, level, handicap, boss)
+
+func _create_default_enemy(i, level, handicap, boss):
+	i.enemyName=selectName()
+	i.enemyLevel=level
+	var points=(level*3)-handicap
+#	print_debug(points)
+	var addedPoints=[0,0,0]
+	if level in [1,2]:
+		i.enemyClass=global.commonEnemyPigeons[randi()%global.commonEnemyPigeons.size()]
+	elif level in [3,4,5,6]:
+#		print_debug([3,4,5,6])
+		if((level-randi()%6)>0):
+			var focus=randi()%3
+			var usedPoints=ceil(points/2.0)
+			points-=usedPoints
+			addedPoints[focus]=usedPoints
+			if focus==0:#Str
+				i.enemyClass=global.Classes.Stronga
+			elif focus==1:#Def
+				i.enemyClass=global.Classes.Knight
+			elif focus==2:#Agi
+				i.enemyClass=global.Classes.Winged
+		else:
+			i.enemyClass=global.commonEnemyPigeons[randi()%global.commonEnemyPigeons.size()]
+	elif level in [7,8,9,10,11,12] and not boss:
+#	elif [7,8,9].has(level):
+#		print_debug([7,8,9])
+		if((level-randi()%7)>0):
+			var focus=randi()%3
+			var usedPoints=ceil(points/2.0)
+			var randomFactor=randf()<.40
+			points-=usedPoints
+			addedPoints[focus]=usedPoints
+			if focus==0:#Str
+				i.enemyClass=global.Classes.Wyrm if(randomFactor) else global.Classes.Whey
+			elif focus==1:#Def
+				i.enemyClass=global.Classes.Fridgeon if(randomFactor) else global.Classes.Crusader
+			elif focus==2:#Agi
+				i.enemyClass=global.Classes.Hatoshi if(randomFactor) else global.Classes.Winged2
+		else:
+			var focus=randi()%3
+			var usedPoints=ceil(points/2.0)
+			points-=usedPoints
+			addedPoints[focus]=usedPoints
+			if focus==0:#Str
+				i.enemyClass=global.Classes.Stronga
+			elif focus==1:#Def
+				i.enemyClass=global.Classes.Knight
+			elif focus==2:#Agi
+				i.enemyClass=global.Classes.Winged
+	elif level in [10] and boss:
+		points+=3
+		addedPoints+=[2,2,2]
+		i.enemyName=\"Pigod\"
+		i.enemyLevel=\"???\"
+		i.enemyGold=9999
+		i.enemyClass=global.Classes.GodPigeon
+	distributePoints(i,points,addedPoints)
+	i.enemyGold=100+120*(level-handicap)#100+200*(level-handicap)
+	addEnemiesGloballyAndLocally(i)
+	
+
+func addEnemiesGloballyAndLocally(i):
+	global.enemiesForBattle.append(i.generateEnemyDict())
+	$marginContainer/vbox/vboxOpponents.add_child(i)
+
+func addEnemies(enemyArray=[]):
+	print_debug(enemyArray)
+	if enemyArray!=[]:
+		for enemy in enemyArray:
+			global.enemiesForBattle.append(enemy.generateEnemyDict())
+		addSameEnemies()
+#	for enemy in enemyArray:$marginContainer/vbox/vboxOpponents.add_child(enemy)
+
+func addSameEnemies():
+	for e in global.enemiesForBattle:
+		var i=enemyPanel.instance()
+		i.enemyName=e.name
+		i.enemyLevel=e.level
+		i.enemyGold=e.gold
+		i.enemyClass=e[\"class\"]
+		distributePoints(i,0,[e.strength,e.defense,e.speed])
+		$marginContainer/vbox/vboxOpponents.add_child(i)
+		
+func reroll():
+#	print_debug(\"asdasd\")
+	global.enemiesForBattle=[]
+	global.fight(false)
+	get_parent().get_parent().queue_free()
+
+var thoughts=\"\"\"
+	Ok, let's think about enemy generation...
+	At level 1, the player should have 3 extra status points, 
+	as well as the given 1 point in every stat. 
+	
+	That means that, at level 1, 
+	each enemy to be created should have at max 3 points distribuited...
+	let's say that the player has the choice of fighting an
+	easier, a medium, and a harder enemy, with different rewards.
+	Therefore, we could have an enemy with 2 points, one with 3,
+	and one with 4.
+	We could also have two with 2 points, and one with 3.
+	Maybe the level 1 fight could be less random: we could fix
+	that there will always be 2 weaker enemies, and one stronger.
+	
+	Now, to level 2.
+	By now the player should have a total of 6 applied points, and 
+	a reasonable amount of gold. We want the player to keep
+	fighting, so let's stick to 2 weaker enemies, and 1 stronger.
+	
+	For level 3, let's keep things this way. Maybe we should have
+	just one weaker enemies, and the two others should be on the same
+	level as the player.
+	
+	Now, at the start of level 4, the player should have finally
+	evolved... which means he's a lot stronger by now. We could
+	ramp the difficulty by now. Let's keep a weaker enemy and
+	two strong ones, that might be evolved as well.
+	
+	At level 5, we still have a weak enemy, but now the other
+	two enemies are evolved and at the same level as the player.
+	The game still is balanced because the player still can choose
+	its opponents, and we can make sure that they are different
+	from each other, in a way that the player can choose to
+	not be in a bad matchup.
+	At least for now, we have
+	Strength > Agility > Defense > Strength;
+	Also, at level 5, there's the chance that we could include a
+	miniboss. That way, we could either have 3 enemies with one
+	being the miniboss (that will have a good reward), or just
+	a miniboss, with no choice.
+	We could also have 1 weak, 1 medium, and 1 stronger.
+	That should be fine I guess.
+	
+	Level 6 could be a turning point... we could have one enemy at
+	the player's level, and two others that are stronger. Again,
+	because of the balancing, the player still could win against 
+	stronger enemies.
+	
+	At the beginning of level 7, the player evolves again. Since
+	the pigeon should be a lot stronger by now, we can ramp the 
+	difficulty, but make it a easy win, both to give a resting
+	time to the player, as to let him regain resources.
+	This reminds me of changing classes in Shining Force II...
+	it always was so badass to see your allies get strong 
+	as heck.
+	
+	Well, at level 8, the game gets harder again. Let's have
+	3 enemies at the same level by now.
+	
+	At level 9, let's have the same pattern.
+	
+	Finally, at level 10, we have the game's boss.
+	
+	So... in the end, we have:
+		LV1		2W 1M
+		LV2		2W 1M
+		LV3		1W 2M
+		LV4		1W 2M
+		LV5		1W 2M/1W 1M 1S/MIDBOSS
+		LV6		2M 1S
+		LV7		2M 1S
+		LV8		3S
+		LV9		3S
+		LV10	FINALBOSS
+\"\"\"
+"
+
+[sub_resource type="StyleBoxLine" id=2]
+color = Color( 1, 1, 1, 1 )
+grow_begin = 4.0
+grow_end = 4.0
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Button
+func _ready():
+	var _s1=connect(\"pressed\",self,\"reroll\")
+	if global.level==10:
+		self.text='Nope'
+		self.disabled=true
+	else:
+		self.text=\"REROLL: $\" + str(global.rerollPrice*global.rerolls)
+func reroll():
+	if global.player.gold>=global.rerollPrice:
+		global.rerolls+=1
+		global.player.gold-=global.rerollPrice
+		global.createSelectSfx()
+		get_parent().get_parent().get_parent().reroll()
+		global.setPlayer()
+	else:
+		global.createClickUnableSfx()
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Button
+const duration=0.3
+func _ready():
+	var _s1=self.connect(\"pressed\",self,\"exit\")
+	var _s2=$twnPosition.connect(\"tween_completed\",self,\"delete\")
+func exit():
+	$twnPosition.interpolate_property(get_parent(),\"rect_position:y\",get_parent().rect_position.y,-1.2*get_parent().rect_size.y,self.duration,Tween.TRANS_BACK,Tween.EASE_IN)
+	$twnPosition.start()
+func delete(_h,_m):
+	get_parent().get_parent().get_parent().queue_free()
+"
+
+[node name="opponentControl" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 9 )
+
+[node name="colorRect" type="ColorRect" parent="."]
+modulate = Color( 1, 1, 1, 0.5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="marginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+custom_constants/margin_right = 18
+custom_constants/margin_top = 18
+custom_constants/margin_left = 350
+custom_constants/margin_bottom = 128
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="opponentPanel" type="PanelContainer" parent="marginContainer"]
+margin_left = 350.0
+margin_top = 18.0
+margin_right = 1006.0
+margin_bottom = 472.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/panel = ExtResource( 2 )
+script = SubResource( 1 )
+
+[node name="textureRect" type="TextureRect" parent="marginContainer/opponentPanel"]
+modulate = Color( 0.239216, 0.239216, 0.239216, 1 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 652.0
+margin_bottom = 450.0
+mouse_filter = 2
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 2
+
+[node name="marginContainer" type="MarginContainer" parent="marginContainer/opponentPanel"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 652.0
+margin_bottom = 450.0
+custom_constants/margin_right = 10
+custom_constants/margin_top = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+
+[node name="vbox" type="VBoxContainer" parent="marginContainer/opponentPanel/marginContainer"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 638.0
+margin_bottom = 436.0
+alignment = 1
+
+[node name="title" type="Label" parent="marginContainer/opponentPanel/marginContainer/vbox"]
+margin_right = 628.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+custom_fonts/font = ExtResource( 3 )
+text = "Choose your opponent!"
+align = 1
+
+[node name="hSeparator" type="HSeparator" parent="marginContainer/opponentPanel/marginContainer/vbox"]
+margin_top = 32.0
+margin_right = 628.0
+margin_bottom = 36.0
+custom_styles/separator = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vboxOpponents" type="VBoxContainer" parent="marginContainer/opponentPanel/marginContainer/vbox"]
+margin_top = 40.0
+margin_right = 628.0
+margin_bottom = 381.0
+size_flags_vertical = 3
+custom_constants/separation = 10
+alignment = 1
+
+[node name="hSeparator2" type="HSeparator" parent="marginContainer/opponentPanel/marginContainer/vbox"]
+margin_top = 385.0
+margin_right = 628.0
+margin_bottom = 389.0
+custom_styles/separator = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="btnReroll" type="Button" parent="marginContainer/opponentPanel/marginContainer/vbox"]
+margin_left = 267.0
+margin_top = 393.0
+margin_right = 360.0
+margin_bottom = 426.0
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 4
+custom_fonts/font = ExtResource( 4 )
+custom_styles/hover = ExtResource( 7 )
+custom_styles/pressed = ExtResource( 6 )
+custom_styles/focus = ExtResource( 7 )
+custom_styles/disabled = ExtResource( 5 )
+custom_styles/normal = ExtResource( 5 )
+text = "     REROLL     "
+script = SubResource( 3 )
+
+[node name="btnExit" type="Button" parent="marginContainer/opponentPanel"]
+margin_left = 626.0
+margin_top = 4.0
+margin_right = 652.0
+margin_bottom = 39.0
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+custom_fonts/font = ExtResource( 8 )
+text = "X"
+flat = true
+script = SubResource( 4 )
+
+[node name="twnPosition" type="Tween" parent="marginContainer/opponentPanel/btnExit"]
+
+[node name="twnPosition" type="Tween" parent="marginContainer/opponentPanel"]
+
+[node name="twn" type="Tween" parent="."]

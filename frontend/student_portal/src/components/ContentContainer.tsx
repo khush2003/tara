@@ -22,7 +22,7 @@ import { useExerciseStore } from "@/store/exerciseStore";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "./ui/toaster";
 import { useEffect, useCallback } from 'react';
-import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
+import { VARIENT_TYPE } from "@/store/authStore";
 
 interface LessonContainerProps {
     className?: string;
@@ -194,7 +194,7 @@ const ContentContainer: React.FC<LessonContainerProps> = ({
 
 
     const bestScore = progress?.exercises?.find(
-        (e) => e.exercise.toString() === exercise._id
+        (e) => e.exercise?.toString() === exercise?._id
     )?.best_score
     return (
         <div className={cn(`flex min-h-[85vh] items-center justify-center p-4`, className)}>

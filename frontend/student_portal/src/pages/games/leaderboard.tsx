@@ -166,7 +166,7 @@ export default function Leaderboard() {
             }
             className="w-full  text-lg font-semibold rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
              onClick={() => {
-                window.location.href = 'https://game.tara.software?token=' + useAuthStore.getState().accessToken
+                window.location.href = 'http://localhost:8082?token=' + useAuthStore.getState().accessToken
             }}>
                 Play Game
             </Button>

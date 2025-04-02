@@ -134,7 +134,7 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
                     ]),
                     exercise_content: z.array(z.any()),
                     is_instant_scored: z.boolean().optional(),
-                    correct_answers: z.array(z.any()),
+                    correct_answers: z.any(),
                     varients: z
                         .array(
                             z.object({
@@ -189,9 +189,9 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
                     title: z.string().optional(),
                     description: z.string().optional(),
                     instruction: z.string().optional(),
-                    lesson_type: z.enum(["flashcard", "image", "text"]),
-                    lesson_content: z.array(z.any()),
-                    order: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())),
+                    lesson_type: z.enum(["flashcard", "image", "text"]).optional(),
+                    lesson_content: z.array(z.any()).optional(),
+                    order: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())).optional(),
                     image: z.string().optional(),
                     tags: z.array(z.string()).optional(),
                 }),
@@ -223,8 +223,13 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
             if (lessonIndex === -1) {
                 return c.text("Invalid lesson ID", 400);
             }
-
-            unit.lessons[lessonIndex] = lesson;
+            
+            
+            Object.keys(lesson).forEach((key) => {
+                if (lesson[key] !== undefined) {
+                    (unit.lessons[lessonIndex] as any)[key as keyof ILesson] = lesson[key as keyof ILesson];
+                }
+            });
             await unit.save();
             return c.json(unit);
         }
@@ -248,13 +253,13 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
                         "images_with_input",
                         "text_with_input",
                         "text_with_questions",
-                    ]),
-                    exercise_content: z.array(z.any()),
+                    ]).optional(),
+                    exercise_content: z.array(z.any()).optional(),
                     is_instant_scored: z.boolean().optional(),
-                    correct_answers: z.array(z.any()),
+                    correct_answers: z.array(z.any()).optional(),
                     varients: z.array(z.string()).optional(),
-                    max_score: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())),
-                    order: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())),
+                    max_score: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())).optional(),
+                    order: z.union([z.number(), z.string()]).transform((val) => parseInt(val.toString())).optional(),
                     dropItems: z.array(z.any()).optional(),
                     image: z.string().optional(),
                     tags: z.array(z.string()).optional(),
@@ -287,8 +292,11 @@ export const unitRoutes = new Hono<{ Variables: JwtVariables }>()
             if (exerciseIndex === -1) {
                 return c.text("Invalid exercise ID", 400);
             }
-
-            unit.exercises[exerciseIndex] = exercise;
+            Object.keys(exercise).forEach((key) => {
+                if (exercise[key] !== undefined) {
+                    (unit.exercises[exerciseIndex] as any)[key as keyof typeof exercise] = exercise[key as keyof typeof exercise];
+                }
+            });
             await unit.save();
             return c.json(unit);
         }

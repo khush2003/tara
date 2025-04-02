@@ -144,14 +144,15 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
             Object.entries(userAnswers).forEach(([indexString, answer]) => {
                 const index = parseInt(indexString, 10);
                 const question = exercise.exercise_content[index];
-                const isCorrect = correctAnswers[index] === answer;
+                
+                const isCorrect = correctAnswers[0][index] === answer;
                 if (isCorrect) correctCount++;
 
                 answersString += `**Question:** ${question.question}\n`;
                 answersString += `**Student's Answer:** ${answer}\n`;
                 answersString += `**Is Correct:** ${isCorrect}\n\n`;
             });
-            console.log("Answers string", answersString);
+            
 
             const scorePercentage = (correctCount / totalQuestions) * 100;
             set({ score: (scorePercentage / 100) * exercise.max_score, submitted: true, answersString });
@@ -293,8 +294,8 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
                 answersString += `Text: ${content.text}\n\n`;
                 content.blanks.forEach((_blank: unknown, blankIndex: number) => {
                     const userAnswer = userAnswers[`${contentIndex}-${blankIndex}`] || "";
-                    const correctAnswer = exercise.correct_answers[contentIndex][blankIndex];
-                    const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+                    const correctAnswer = exercise.correct_answers[contentIndex][blankIndex] || "";
+                    const isCorrect = userAnswer.trim().toLowerCase().replace(/\.$/, '') === correctAnswer.trim().toLowerCase().replace(/\.$/, '');
 
                     if (isCorrect) correctCount++;
                     totalBlanks++;
@@ -331,9 +332,11 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
             let answersString = "";
 
             exercise.exercise_content.slice(1).forEach((content, index) => {
+
+
                 const userAnswer = userAnswers[index] || "";
-                const isCorrect = exercise.correct_answers.slice(1)[index]
-                    ? userAnswer.trim().toLowerCase() === exercise.correct_answers.slice(1)[index].trim().toLowerCase()
+                const isCorrect = exercise.correct_answers[index]
+                    ? userAnswer.trim().toLowerCase() === exercise.correct_answers[index].trim().toLowerCase()
                     : true;
 
                 if (isCorrect) correctCount++;
@@ -342,10 +345,13 @@ export const useExerciseStore = create<ExerciseState>((set, get) => ({
                 if (content.image_url) answersString += `Image URL: ${content.image_url}\n`;
                 answersString += `Question: ${content.question || "No question provided"}\n`;
                 answersString += `Student's Answer: ${userAnswer}\n`;
-                if (exercise.is_instant_scored) answersString += `Correct Answer: ${exercise.correct_answers.slice(1)[index]}\n`;
+                if (exercise.is_instant_scored) answersString += `Correct Answer: ${exercise.correct_answers[index]}\n`;
                 if (exercise.is_instant_scored) answersString += `Is Correct: ${isCorrect}\n`;
                 answersString += "\n";
+                
             });
+
+            console.log("Answers String: " + answersString);
 
             setAnswersString(answersString);
             gAnswersString = answersString;

@@ -94,6 +94,9 @@ export async function generateRecommendations(userId: string): Promise<void> {
 
   const accessibleUnitIds = accessibleUnits.map((unit) => unit._id);
 
+
+  
+
   // 6. Generate Recommendations
   // a. Recommend Lessons
   const recommendedLessons = await Unit.aggregate([

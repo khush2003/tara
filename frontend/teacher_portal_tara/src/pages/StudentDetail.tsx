@@ -23,8 +23,14 @@ import { scoreExerciseSubmissionAPI, setFeedbackAPI } from "@/api/useAPI";
 import { useClassroom } from "@/hooks/useClassroom";
 import { useExtraPoints } from "@/hooks/useExtraPoints";
 import { useUnits } from "@/hooks/useUnit";
-import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 import { cn } from "@/lib/utils";
+
+enum VARIENT_TYPE {
+    Base = "Base",
+    Adventure = "Adventure & Exploration",
+    Sports = "Sports & Physical Activities",
+    Science = "Science & Technology",
+}
 
 export default function StudentProgressDetails() {
     const [activeTab, setActiveTab] = useState("module-breakdown");
@@ -37,7 +43,6 @@ export default function StudentProgressDetails() {
     const { data: extraPoints, isLoading: extraPointsLoading, error: extraPointsError } = useExtraPoints(studentId, classId);
 
     const studentIdN = studentId || "";
-    console.log("Student Id" + studentIdN);
     const { data: students, isLoading: studentLoading, error: studentError, mutate: usersMutate } = useUsers([studentIdN]);
 
     const student = students?.find((student) => student._id === studentId);
@@ -309,7 +314,7 @@ export default function StudentProgressDetails() {
                                                                                                 ?.find(
                                                                                                     (progress) =>
                                                                                                         progress.class.toString() == classId &&
-                                                                                                        progress.unit.toString() == unit.toString()
+                                                                                                    progress.unit.id.toString() == unit._id.toString()
                                                                                                 )
                                                                                                 ?.lessons_completed?.find(
                                                                                                     (l) => l.toString() == lesson._id
@@ -366,7 +371,7 @@ export default function StudentProgressDetails() {
                                                                             const classProgressInfo = student?.class_progress_info.find(
                                                                                 (progress) =>
                                                                                     progress.class.toString() == classId &&
-                                                                                    progress.unit.toString() == unit.toString()
+                                                                                progress.unit.id.toString() == unit._id.toString()
                                                                             ) as unknown as
                                                                                 | ((typeof student.class_progress_info)[0] & { _id: string })
                                                                                 | undefined;
@@ -400,7 +405,6 @@ export default function StudentProgressDetails() {
                                                                             const isStudentVarientType = !!student.learning_preferences.find(
                                                                                 (l) => l == varientType
                                                                             );
-                                                                            console.log(isStudentVarientType);
                                                                             return (
                                                                                 <Card key={exercise._id}>
                                                                                     <CardContent
@@ -410,73 +414,95 @@ export default function StudentProgressDetails() {
                                                                                         )}
                                                                                     >
                                                                                         <div className="space-y-2">
-                                                                                        <div className="space-y-4">
-  <div className="flex justify-between items-start">
-    <div className="space-y-2">
-      <h5 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {exercise.title}
-      </h5>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {exercise.description}
-      </p>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      <Badge
-        variant={num_attempts === 0 ? "destructive" : "default"}
-        className="flex items-center px-2 py-1"
-      >
-        <Clock className="w-3 h-3 mr-1" />
-        <span>{exerciseProgress?.attempts.length || 0} Attempts</span>
-      </Badge>
-      <Badge
-        variant="default"
-        className={cn("flex items-center px-2 py-1", color)}
-      >
-        <Clock className="w-3 h-3 mr-1" />
-        <span>{varientType}</span>
-      </Badge>
-    </div>
-  </div>
-  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-    <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Best Score:</span>
-      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        {exerciseProgress?.best_score || "Not Scored"}/{exercise.max_score}
-      </span>
-    </div>
-    <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Coins Earned:</span>
-      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        {exerciseProgress?.coins_earned || "0"}/{exercise.max_score}
-      </span>
-    </div>
-  </div>
-  {exercise.image ? (
-    <img
-      src={exercise.image}
-      alt="Exercise preview"
-      className="w-full h-80 object-cover rounded-lg shadow-md cursor-zoom-in transition-transform hover:scale-[1.02]"
-      onClick={() => handleImageClick(exercise.image)}
-    />
-  ) : (
-    <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col justify-center items-center text-center">
-      <svg
-        className="w-16 h-16 text-gray-400 dark:text-gray-600 mb-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
-      <p className="text-base text-gray-600 dark:text-gray-400">No preview available yet!</p>
-    </div>
-  )}
-</div>
+                                                                                            <div className="space-y-4">
+                                                                                                <div className="flex justify-between items-start">
+                                                                                                    <div className="space-y-2">
+                                                                                                        <h5 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                            {exercise.title}
+                                                                                                        </h5>
+                                                                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                                                            {exercise.description}
+                                                                                                        </p>
+                                                                                                    </div>
+                                                                                                    <div className="flex flex-wrap gap-2">
+                                                                                                        <Badge
+                                                                                                            variant={
+                                                                                                                num_attempts === 0
+                                                                                                                    ? "destructive"
+                                                                                                                    : "default"
+                                                                                                            }
+                                                                                                            className="flex items-center px-2 py-1"
+                                                                                                        >
+                                                                                                            <Clock className="w-3 h-3 mr-1" />
+                                                                                                            <span>
+                                                                                                                {exerciseProgress?.attempts.length ||
+                                                                                                                    0}{" "}
+                                                                                                                Attempts
+                                                                                                            </span>
+                                                                                                        </Badge>
+                                                                                                        <Badge
+                                                                                                            variant="default"
+                                                                                                            className={cn(
+                                                                                                                "flex items-center px-2 py-1",
+                                                                                                                color
+                                                                                                            )}
+                                                                                                        >
+                                                                                                            <Clock className="w-3 h-3 mr-1" />
+                                                                                                            <span>{varientType}</span>
+                                                                                                        </Badge>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                                                                                    <div className="flex items-center space-x-2">
+                                                                                                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                                                                            Best Score:
+                                                                                                        </span>
+                                                                                                        <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                            {exerciseProgress?.best_score ||
+                                                                                                                "Not Scored"}
+                                                                                                            /{exercise.max_score}
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                    <div className="flex items-center space-x-2">
+                                                                                                        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                                                                            Coins Earned:
+                                                                                                        </span>
+                                                                                                        <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                            {exerciseProgress?.coins_earned || "0"}/
+                                                                                                            {exercise.max_score}
+                                                                                                        </span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                {exercise.image ? (
+                                                                                                    <img
+                                                                                                        src={exercise.image}
+                                                                                                        alt="Exercise preview"
+                                                                                                        className="w-full h-80 object-cover rounded-lg shadow-md cursor-zoom-in transition-transform hover:scale-[1.02]"
+                                                                                                        onClick={() =>
+                                                                                                            handleImageClick(exercise.image)
+                                                                                                        }
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col justify-center items-center text-center">
+                                                                                                        <svg
+                                                                                                            className="w-16 h-16 text-gray-400 dark:text-gray-600 mb-4"
+                                                                                                            fill="none"
+                                                                                                            viewBox="0 0 24 24"
+                                                                                                            stroke="currentColor"
+                                                                                                        >
+                                                                                                            <path
+                                                                                                                strokeLinecap="round"
+                                                                                                                strokeLinejoin="round"
+                                                                                                                strokeWidth={2}
+                                                                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                                                            />
+                                                                                                        </svg>
+                                                                                                        <p className="text-base text-gray-600 dark:text-gray-400">
+                                                                                                            No preview available yet!
+                                                                                                        </p>
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </div>
                                                                                             <div>
                                                                                                 {exerciseProgress?.attempts[
                                                                                                     exerciseProgress?.attempts.length - 1
@@ -704,17 +730,18 @@ export default function StudentProgressDetails() {
                                                                         .find(
                                                                             (progress) =>
                                                                                 progress.class.toString() == classId &&
-                                                                                progress.unit.toString() == unit.toString()
+                                                                                progress.unit.id.toString() == unit._id.toString()
                                                                         )
                                                                         ?.exercises?.find((ex) => ex.exercise.toString() == e._id);
                                                                     return exerciseProgress?.attempts && exerciseProgress.attempts.length > 0;
                                                                 })
                                                                 .map((e) => {
                                                                     const exercise = e as unknown as Exercise;
+                                                                    
                                                                     const classProgressInfo = student?.class_progress_info.find(
                                                                         (progress) =>
                                                                             progress.class.toString() == classId &&
-                                                                            progress.unit.toString() == unit.toString()
+                                                                            progress.unit.id.toString() == unit._id.toString()
                                                                     ) as unknown as
                                                                         | ((typeof student.class_progress_info)[0] & { _id: string })
                                                                         | undefined;
@@ -746,73 +773,89 @@ export default function StudentProgressDetails() {
                                                                         <Card key={exercise._id}>
                                                                             <CardContent className="p-4">
                                                                                 <div className="space-y-2">
-                                                                                <div className="space-y-4">
-  <div className="flex justify-between items-start">
-    <div className="space-y-2">
-      <h5 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-        {exercise.title}
-      </h5>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {exercise.description}
-      </p>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      <Badge
-        variant={num_attempts === 0 ? "destructive" : "default"}
-        className="flex items-center px-2 py-1"
-      >
-        <Clock className="w-3 h-3 mr-1" />
-        <span>{exerciseProgress?.attempts.length || 0} Attempts</span>
-      </Badge>
-      <Badge
-        variant="default"
-        className={cn("flex items-center px-2 py-1", color)}
-      >
-        <Clock className="w-3 h-3 mr-1" />
-        <span>{varientType}</span>
-      </Badge>
-    </div>
-  </div>
-  <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-    <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Best Score:</span>
-      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        {exerciseProgress?.best_score || "Not Scored"}/{exercise.max_score}
-      </span>
-    </div>
-    <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Coins Earned:</span>
-      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        {exerciseProgress?.coins_earned || "0"}/{exercise.max_score}
-      </span>
-    </div>
-  </div>
-  {exercise.image ? (
-    <img
-      src={exercise.image}
-      alt="Exercise preview"
-      className="w-full h-80 object-cover rounded-lg shadow-md cursor-zoom-in transition-transform hover:scale-[1.02]"
-      onClick={() => handleImageClick(exercise.image)}
-    />
-  ) : (
-    <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col justify-center items-center text-center">
-      <svg
-        className="w-16 h-16 text-gray-400 dark:text-gray-600 mb-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
-      <p className="text-base text-gray-600 dark:text-gray-400">No preview available yet!</p>
-    </div>
-  )}
-</div>
+                                                                                    <div className="space-y-4">
+                                                                                        <div className="flex justify-between items-start">
+                                                                                            <div className="space-y-2">
+                                                                                                <h5 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                    {exercise.title}
+                                                                                                </h5>
+                                                                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                                                    {exercise.description}
+                                                                                                </p>
+                                                                                            </div>
+                                                                                            <div className="flex flex-wrap gap-2">
+                                                                                                <Badge
+                                                                                                    variant={
+                                                                                                        num_attempts === 0 ? "destructive" : "default"
+                                                                                                    }
+                                                                                                    className="flex items-center px-2 py-1"
+                                                                                                >
+                                                                                                    <Clock className="w-3 h-3 mr-1" />
+                                                                                                    <span>
+                                                                                                        {exerciseProgress?.attempts.length || 0}{" "}
+                                                                                                        Attempts
+                                                                                                    </span>
+                                                                                                </Badge>
+                                                                                                <Badge
+                                                                                                    variant="default"
+                                                                                                    className={cn(
+                                                                                                        "flex items-center px-2 py-1",
+                                                                                                        color
+                                                                                                    )}
+                                                                                                >
+                                                                                                    <Clock className="w-3 h-3 mr-1" />
+                                                                                                    <span>{varientType}</span>
+                                                                                                </Badge>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                                                                            <div className="flex items-center space-x-2">
+                                                                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                                                                    Best Score:
+                                                                                                </span>
+                                                                                                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                    {exerciseProgress?.best_score || "Not Scored"}/
+                                                                                                    {exercise.max_score}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <div className="flex items-center space-x-2">
+                                                                                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                                                                    Coins Earned:
+                                                                                                </span>
+                                                                                                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                                                                    {exerciseProgress?.coins_earned || "0"}/
+                                                                                                    {exercise.max_score}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        {exercise.image ? (
+                                                                                            <img
+                                                                                                src={exercise.image}
+                                                                                                alt="Exercise preview"
+                                                                                                className="w-full h-80 object-cover rounded-lg shadow-md cursor-zoom-in transition-transform hover:scale-[1.02]"
+                                                                                                onClick={() => handleImageClick(exercise.image)}
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col justify-center items-center text-center">
+                                                                                                <svg
+                                                                                                    className="w-16 h-16 text-gray-400 dark:text-gray-600 mb-4"
+                                                                                                    fill="none"
+                                                                                                    viewBox="0 0 24 24"
+                                                                                                    stroke="currentColor"
+                                                                                                >
+                                                                                                    <path
+                                                                                                        strokeLinecap="round"
+                                                                                                        strokeLinejoin="round"
+                                                                                                        strokeWidth={2}
+                                                                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                                                    />
+                                                                                                </svg>
+                                                                                                <p className="text-base text-gray-600 dark:text-gray-400">
+                                                                                                    No preview available yet!
+                                                                                                </p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
                                                                                     <div>
                                                                                         {exerciseProgress?.attempts[
                                                                                             exerciseProgress?.attempts.length - 1

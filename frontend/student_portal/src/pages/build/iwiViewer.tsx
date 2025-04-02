@@ -97,12 +97,12 @@ export default function ImagesWithInputViewer() {
                                     transition={springTransition}
                                     className="mt-4"
                                 >
-                                    {exercise.correct_answers.slice(1)[index] && userAnswers[index]?.trim().toLowerCase() === exercise.correct_answers.slice(1)[index].trim().toLowerCase() ? (
+                                    {exercise.correct_answers[index] && userAnswers[index]?.trim().toLowerCase() === exercise.correct_answers[index].trim().toLowerCase() ? (
                                         <Alert className="bg-green-100 border-green-500 text-green-800">
                                             <AlertTitle>Correct!</AlertTitle>
                                             <AlertDescription>Great job!</AlertDescription>
                                         </Alert>
-                                    ) : exercise.correct_answers.slice(1)[index] ? (
+                                    ) : exercise.correct_answers[index] ? (
                                         <Alert className="bg-red-100 border-red-500 text-red-800">
                                             <AlertTitle>Incorrect</AlertTitle>
                                             <AlertDescription>Try again!</AlertDescription>

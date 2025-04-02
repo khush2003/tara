@@ -111,7 +111,7 @@ export default function MCQViewer() {
                           transition={springTransition}
                           className="mt-4"
                         >
-                          {userAnswers[index] === exercise.correct_answers[index] ? (
+                          {userAnswers[index] === exercise.correct_answers[0][index] ? (
                             <Alert className="bg-green-100 border-green-500 text-green-800">
                               <AlertTitle>Correct!</AlertTitle>
                               <AlertDescription>Great job!</AlertDescription>

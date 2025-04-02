@@ -10,6 +10,13 @@ import useClassStore from "./classStore";
 
 export const client = hc<ApiRoutes>("/");
 
+export enum VARIENT_TYPE {
+    Base = "Base",
+    Adventure = 'Adventure & Exploration',
+    Sports = 'Sports & Physical Activities',
+    Science = 'Science & Technology'
+}
+
 // Define the shape of the state
 interface AuthState {
     accessToken: string | null;

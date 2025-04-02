@@ -1,0 +1,294 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://resource/fonts/look32Shadow.tres" type="DynamicFont" id=1]
+[ext_resource path="res://resource/fonts/look16Shadow.tres" type="DynamicFont" id=2]
+[ext_resource path="res://resource/Bar_Life.png" type="Texture" id=3]
+[ext_resource path="res://resource/Barra_Base.png" type="Texture" id=4]
+[ext_resource path="res://resource/Bar_Food.png" type="Texture" id=5]
+[ext_resource path="res://resource/fonts/m6x11-32Tiny.tres" type="DynamicFont" id=6]
+[ext_resource path="res://resource/fonts/m6x11-32Spaced.tres" type="DynamicFont" id=7]
+[ext_resource path="res://resource/fonts/m6x11-32.tres" type="DynamicFont" id=8]
+[ext_resource path="res://resource/BG_Stats.png" type="Texture" id=9]
+[ext_resource path="res://resource/tres/panelAtts.tres" type="StyleBox" id=10]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends PanelContainer
+var offset=0
+var duration=0.75
+var defaultPos=Vector2()
+export(bool) var entering=false
+export(bool) var showStats=false
+export(bool) var compact=false
+var targetPos=Vector2()
+var durationEnter=2
+func _ready():
+	$twnOffset.connect(\"tween_completed\",self,\"resetProcess\")
+	defaultPos=$marginContainer/vbox/hpBox.rect_position
+	set_process(false)
+	if compact:
+		$marginContainer/vbox/invSep2.visible=false
+		$marginContainer/vbox/abilities.visible=false
+		$marginContainer/vbox/abilitiesText.visible=false
+	else:
+		$marginContainer/vbox/invSep2.visible=true
+		$marginContainer/vbox/abilities.visible=true
+		$marginContainer/vbox/abilitiesText.visible=true
+	if entering:
+		randomize()
+		duration*=rand_range(0.5,1.5)
+		targetPos=self.rect_global_position
+		self.rect_global_position.y=-1.5*self.rect_size.y
+		var twnEnter=Tween.new()
+		add_child(twnEnter)
+		twnEnter.interpolate_property(self,\"rect_global_position:y\",self.rect_global_position.y,targetPos.y,durationEnter,Tween.TRANS_QUART,Tween.EASE_OUT)
+		twnEnter.start()
+
+func _process(delta):
+	$marginContainer/vbox/hpBox.rect_position=defaultPos+offset*Vector2(randf(),randf())
+func shakeHp(newOffset=5):
+	offset=newOffset
+	$twnOffset.interpolate_property(self,\"offset\",self.offset,0,self.duration,Tween.TRANS_QUAD,Tween.EASE_OUT)
+	$twnOffset.start()
+	set_process(true)
+func resetProcess():
+	set_process(false)
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Label
+func _ready():self.text=global.enemy.name
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends TextureProgress
+
+func _ready():set_process(true)
+func _process(delta):
+	self.max_value=global.enemy.maxHp
+	self.value=global.enemy.hp
+#	self.hint_tooltip=String(self.value)+\"/\"+String(self.max_value)
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Label
+
+func _ready():set_process(true)
+func _process(delta):self.text=String(global.enemy.hp)+\"/\"+String(global.enemy.maxHp)
+"
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends TextureProgress
+
+func _ready():set_process(true)
+func _process(delta):
+	self.max_value=global.enemy.maxEnergy
+	self.value=global.enemy.energy
+#	self.hint_tooltip=String(self.value)+\"/\"+String(self.max_value)
+"
+
+[sub_resource type="GDScript" id=6]
+script/source = "extends Label
+
+func _ready():set_process(true)
+func _process(delta):self.text=String(global.enemy.energy)+\"/\"+String(global.enemy.maxEnergy)
+"
+
+[node name="enemyStats" type="PanelContainer"]
+margin_right = 232.0
+margin_bottom = 162.0
+rect_min_size = Vector2( 250, 0 )
+size_flags_stretch_ratio = 4.0
+custom_styles/panel = ExtResource( 10 )
+script = SubResource( 1 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="twnOffset" type="Tween" parent="."]
+
+[node name="textureRect" type="TextureRect" parent="."]
+modulate = Color( 0.239216, 0.239216, 0.239216, 1 )
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 246.0
+margin_bottom = 158.0
+texture = ExtResource( 9 )
+expand = true
+stretch_mode = 2
+
+[node name="marginContainer" type="MarginContainer" parent="."]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 246.0
+margin_bottom = 158.0
+custom_constants/margin_right = 5
+custom_constants/margin_top = 5
+custom_constants/margin_left = 5
+custom_constants/margin_bottom = 5
+
+[node name="vbox" type="VBoxContainer" parent="marginContainer"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 237.0
+margin_bottom = 149.0
+
+[node name="name" type="Label" parent="marginContainer/vbox"]
+margin_right = 232.0
+margin_bottom = 28.0
+size_flags_vertical = 1
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 2
+custom_fonts/font = ExtResource( 7 )
+text = "NOME"
+align = 1
+script = SubResource( 2 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="invSep" type="HSeparator" parent="marginContainer/vbox"]
+self_modulate = Color( 1, 1, 1, 0 )
+margin_top = 32.0
+margin_right = 232.0
+margin_bottom = 37.0
+custom_constants/separation = 5
+
+[node name="hpBox" type="HBoxContainer" parent="marginContainer/vbox"]
+margin_top = 41.0
+margin_right = 232.0
+margin_bottom = 87.0
+
+[node name="hp" type="Label" parent="marginContainer/vbox/hpBox"]
+margin_right = 61.0
+margin_bottom = 46.0
+rect_min_size = Vector2( 61, 0 )
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.3
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 1
+custom_fonts/font = ExtResource( 8 )
+text = "HP"
+align = 1
+valign = 1
+
+[node name="vBoxContainer" type="VBoxContainer" parent="marginContainer/vbox/hpBox"]
+margin_left = 65.0
+margin_right = 232.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="progressBar" type="TextureProgress" parent="marginContainer/vbox/hpBox/vBoxContainer"]
+margin_right = 167.0
+margin_bottom = 25.0
+rect_min_size = Vector2( 0, 25 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+value = 50.0
+texture_over = ExtResource( 4 )
+texture_progress = ExtResource( 3 )
+nine_patch_stretch = true
+script = SubResource( 3 )
+
+[node name="label" type="Label" parent="marginContainer/vbox/hpBox/vBoxContainer"]
+margin_top = 29.0
+margin_right = 167.0
+margin_bottom = 46.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 1
+custom_constants/shadow_offset_y = 1
+custom_constants/shadow_as_outline = 1
+custom_fonts/font = ExtResource( 6 )
+text = "10/10"
+align = 1
+valign = 1
+script = SubResource( 4 )
+
+[node name="foodBox" type="HBoxContainer" parent="marginContainer/vbox"]
+margin_top = 91.0
+margin_right = 232.0
+margin_bottom = 137.0
+
+[node name="food" type="Label" parent="marginContainer/vbox/foodBox"]
+margin_right = 56.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.3
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+custom_constants/shadow_as_outline = 1
+custom_fonts/font = ExtResource( 8 )
+text = "FOOD"
+align = 1
+valign = 1
+
+[node name="vBoxContainer" type="VBoxContainer" parent="marginContainer/vbox/foodBox"]
+margin_left = 60.0
+margin_right = 232.0
+margin_bottom = 46.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="progressBar" type="TextureProgress" parent="marginContainer/vbox/foodBox/vBoxContainer"]
+margin_right = 172.0
+margin_bottom = 25.0
+rect_min_size = Vector2( 0, 25 )
+size_flags_horizontal = 3
+texture_over = ExtResource( 4 )
+texture_progress = ExtResource( 5 )
+nine_patch_stretch = true
+script = SubResource( 5 )
+
+[node name="label" type="Label" parent="marginContainer/vbox/foodBox/vBoxContainer"]
+margin_top = 29.0
+margin_right = 172.0
+margin_bottom = 46.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 1
+custom_constants/shadow_offset_y = 1
+custom_constants/shadow_as_outline = 1
+custom_fonts/font = ExtResource( 6 )
+text = "10/10"
+align = 1
+valign = 1
+script = SubResource( 6 )
+
+[node name="invSep2" type="HSeparator" parent="marginContainer/vbox"]
+visible = false
+self_modulate = Color( 1, 1, 1, 0 )
+margin_top = 146.0
+margin_right = 230.0
+margin_bottom = 156.0
+custom_constants/separation = 10
+
+[node name="abilities" type="Label" parent="marginContainer/vbox"]
+visible = false
+margin_top = 175.0
+margin_right = 230.0
+margin_bottom = 200.0
+size_flags_vertical = 1
+custom_fonts/font = ExtResource( 1 )
+text = "ABILITIES"
+align = 1
+
+[node name="abilitiesText" type="Label" parent="marginContainer/vbox"]
+visible = false
+margin_top = 175.0
+margin_right = 230.0
+margin_bottom = 217.0
+size_flags_vertical = 3
+custom_fonts/font = ExtResource( 2 )
+text = "LOREM IPSUM"
+align = 1
+valign = 1

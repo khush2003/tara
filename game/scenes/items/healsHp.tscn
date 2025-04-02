@@ -1,0 +1,137 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://resource/itens/Potion.png" type="Texture" id=1]
+[ext_resource path="res://resource/fonts/mago3.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://resource/Shop_Panel.png" type="Texture" id=3]
+[ext_resource path="res://scenes/polish/panelGambiarraShadow.tscn" type="PackedScene" id=4]
+
+[sub_resource type="StyleBoxTexture" id=1]
+texture = ExtResource( 3 )
+region_rect = Rect2( 0, 0, 83, 20 )
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends PanelContainer
+
+export(String) var itemName=\"Potion\"
+export(int) var itemPrice=20
+export(String) var itemDescription=\"Heals 20 HP.\"
+export(bool) var unique=false
+export(bool) var clickable=false
+
+const tweenParameters={
+	\"duration\":0.3,
+	\"rect_scale_max\":1.1*Vector2(1,1),
+	\"type\":Tween.TRANS_QUINT,
+	\"easing\":Tween.EASE_OUT
+}
+
+func _ready():
+	$marginContainer/hboxItem/label.text=self.itemName
+	self.rect_pivot_offset=self.rect_size/2
+#	self.rect_scale=0.9*Vector2(1,1)
+	var _v1=connect(\"mouse_entered\",self,\"updateDescription\")
+	var _v2=connect(\"mouse_entered\",self,\"twnGrow\")
+	var _v3=connect(\"mouse_exited\",self,\"twnShrink\")
+	var _v4=connect(\"mouse_entered\",global,\"createHoverSfx\")
+#	$hboxItem/btn.connect(\"pressed\",self,\"buy\")
+	
+func updateDescription():
+	global.currentUpgrade=self
+	global.shopDescription.text=self.itemDescription
+	global.shopDescription.get_parent().get_node(\"hBoxContainer/price\").text=String(self.itemPrice)
+
+func eraseDescription():
+	global.currentUpgrade=null
+	global.shopDescription.text=\"\"
+	global.shopDescription.get_parent().get_node(\"hBoxContainer/price\").text=\"\"
+
+func _input(event):
+	if event.is_action_pressed(\"ui_lmb\") and self.rect_scale>1.05*Vector2(1,1) and global.currentItem==self and self.clickable:
+		buy()
+
+func buy():
+	if global.player.gold>=self.itemPrice and global.player.hp!=global.player.maxHp:
+		global.player.gold-=self.itemPrice
+		#Effect here
+		global.player.hp=clamp(global.player.hp+20,0,global.player.maxHp)
+		global.createSelectSfx()
+		if self.unique:self.queue_free()
+		global.setPlayer()
+	else:
+		global.createClickUnableSfx()
+	
+func twnGrow():
+	global.currentItem=self
+	$twnScale.interpolate_property(self,\"rect_scale\",self.rect_scale,self.tweenParameters.rect_scale_max,self.tweenParameters.duration,self.tweenParameters.type,self.tweenParameters.easing)
+	$twnScale.start()
+
+func twnShrink():
+	#eraseDescription()
+	$twnScale.interpolate_property(self,\"rect_scale\",self.rect_scale,Vector2(1,1),self.tweenParameters.duration,self.tweenParameters.type,self.tweenParameters.easing)
+	$twnScale.start()
+	
+	
+"
+
+[sub_resource type="DynamicFont" id=3]
+size = 32
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+font_data = ExtResource( 2 )
+
+[node name="potion" type="PanelContainer"]
+margin_right = 310.0
+margin_bottom = 99.0
+rect_min_size = Vector2( 0, 100 )
+size_flags_horizontal = 3
+custom_styles/panel = SubResource( 1 )
+script = SubResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="twnScale" type="Tween" parent="."]
+
+[node name="panelGambiarraShadow" parent="." instance=ExtResource( 4 )]
+margin_bottom = 100.0
+
+[node name="marginContainer" type="MarginContainer" parent="."]
+margin_right = 310.0
+margin_bottom = 100.0
+mouse_filter = 2
+custom_constants/margin_right = 10
+custom_constants/margin_left = 3
+
+[node name="hboxItem" type="HBoxContainer" parent="marginContainer"]
+margin_left = 3.0
+margin_right = 300.0
+margin_bottom = 100.0
+
+[node name="vSeparator" type="VSeparator" parent="marginContainer/hboxItem"]
+modulate = Color( 1, 1, 1, 0 )
+margin_right = 15.0
+margin_bottom = 100.0
+custom_constants/separation = 15
+
+[node name="textureRect" type="TextureRect" parent="marginContainer/hboxItem"]
+margin_left = 19.0
+margin_right = 110.0
+margin_bottom = 100.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="label" type="Label" parent="marginContainer/hboxItem"]
+margin_left = 114.0
+margin_top = 37.0
+margin_right = 297.0
+margin_bottom = 63.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+custom_fonts/font = SubResource( 3 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+text = "GODOTINHO"
+align = 1
+valign = 1

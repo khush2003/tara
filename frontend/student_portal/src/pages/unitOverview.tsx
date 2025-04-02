@@ -4,13 +4,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { ArrowLeft, Book, Layers, Lock, Settings, Trophy } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import useAuthStore from "@/store/authStore";
+import useAuthStore, { VARIENT_TYPE } from "@/store/authStore";
 import { useState, useEffect } from "react";
 import { useClassroom } from "@/hooks/useClassroom";
 import { useUnits } from "@/hooks/useUnit";
 import { useUser } from "@/hooks/useUser";
 import { Exercise, Lesson } from "@/types/dbTypes";
-import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
+
+
 
 export default function SpaceExplorerModule() {
     const [isGuest, setIsGuest] = useState<boolean>(false);

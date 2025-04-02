@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookOpen, Settings, ChevronLeft, ChevronRight, Trophy, GamepadIcon, Book, Dumbbell, Lock, Layout, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatModule from "@/components/ChatModule";
-import useAuthStore from "@/store/authStore";
+import useAuthStore, { VARIENT_TYPE } from "@/store/authStore";
 import { useClassroom } from "@/hooks/useClassroom";
 import { useUser } from "@/hooks/useUser";
 import { useUnits } from "@/hooks/useUnit";
@@ -13,7 +13,6 @@ import { Exercise, Lesson } from "@/types/dbTypes";
 import ContentContainer from "@/components/ContentContainer";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
-import { VARIENT_TYPE } from "../../../../backend/src/models/unit.model";
 
 export default function EnhancedLearningHomePage() {
     const [isGuest, setIsGuest] = useState(false);

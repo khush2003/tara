@@ -2,7 +2,8 @@
   "name": "hono-bun",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "upload": "bun run src/upload.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",

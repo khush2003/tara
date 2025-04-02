@@ -93,7 +93,7 @@ export default function FillInTheBlanksViewer() {
                                             <AlertDescription>
                                                 {content.blanks.map((_: unknown, blankIndex: number) => {
                                                     const userAnswer = userAnswers[`${contentIndex}-${blankIndex}`] || "";
-                                                    const correctAnswer = exercise.correct_answers[contentIndex][blankIndex];
+                                                    const correctAnswer = exercise.correct_answers[contentIndex][blankIndex] || "";
                                                     const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
                                                     return (
                                                         <div key={blankIndex} className={`mt-2 ${isCorrect ? "text-green-600" : "text-red-600"}`}>

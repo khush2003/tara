@@ -32,6 +32,7 @@ app.use("/api/v1/user/get_opponent_data/opponent", cors({
   allowMethods: ["GET"],
   allowHeaders: ["Content-Type", "Authorization"],
 }));
+
 // app.use(secureHeaders());
 app.use('*', connectMongoMiddleware);
 app.use('/api/v1/user/*', jwtMiddleware);

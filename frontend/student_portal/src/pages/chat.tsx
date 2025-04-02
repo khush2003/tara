@@ -30,7 +30,8 @@ const systemPrompt: Message = {
 };
 
 const containsInappropriateContent = (message: string): boolean => {
-    return inappropriateKeywords.some((keyword) => message.toLowerCase().includes(keyword));
+    const words = message.toLowerCase().split(/\s+/);
+    return inappropriateKeywords.some((keyword) => words.includes(keyword));
 };
 
 const exampleMessages: Message[] = [
