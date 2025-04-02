@@ -1,48 +1,76 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-//   Table classroom {
-//     id integer [primary key]
-//     students_enrolled ObjectId[]  // Array of user IDs (students) - Index if querying on specific student
-//     teacher_id ObjectId           // Reference to the teacher - Index for fast access to teacher's classrooms
-//     learning_modules ObjectId[]   // Reference to learning modules - Index if filtering based on learning modules
-//     today_lesson Object           // Reference to today's lesson a learning module
-//     game_restriction_period Object  // Object with start and end times
-//     is_game_active Boolean // Control game activity for teacher
-//     performance_records ObjectId[] // Store references to performance records in a separate collection
-//     classroom_name string
-//     classroom_code string
-//     extra_points_award: [{
-//     student_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-//     points: { type: Number, required: true },
-//     reason: { type: String, required: true },
-//     date_awarded: { type: Date, default: Date.now }
-// }]
-//   }
+import mongoose, { Schema, type ObjectId } from 'mongoose';
 
 
-
-const ClassroomSchema = new Schema({
-    students_enrolled: [{ type: Schema.Types.ObjectId, ref: 'User', index: true, unique: true }],
-    teacher_id: { type: Schema.Types.ObjectId, ref: 'User', index: true, required: true },
-    learning_modules: [{ type: String, ref: 'LearningModule', index: true }],
-    today_lesson: { type: String, ref: 'LearningModule' },
+interface IClassroom {
+    name: string;
+    students_enrolled: [{
+        student: ObjectId;
+        is_new_exercise_submission: boolean; //  Duplicate derivative of new_exercise_submission
+    }];
+    teachers_joined: [{
+        teacher: ObjectId;
+        name: string; //  Duplicate of user name
+    }];
+    creator: ObjectId;
+    class_join_code: number;
+    is_game_blocked: boolean;
     game_restriction_period: {
-        start: { type: Date },
+        start: Date;
+        end: Date;
+    };
+    is_recently_updated_announcement: boolean; // Duplicate derivative of is_recently_updated_announcement
+    announcement: string;
+    today_unit: {
+        title: string; // Duplicate of unit name
+        unit: ObjectId;
+    };
+    chosen_units: [{ // Duplicate of unit info
+        name: string;
+        description: string;
+        difficulty: string;
+        skills: string[];
+        unit: ObjectId;
+    }];
+}
+
+const ClassroomSchema = new Schema<IClassroom>({
+    name: { type: String, required: true },
+    students_enrolled: [
+        {
+            student: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+            is_new_exercise_submission: { type: Boolean, default: false, required: true }   
+        }
+    ],
+    teachers_joined: [
+        {
+            teacher: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+            name: { type: String, required: true }
+        }
+    ],
+    creator: { type: Schema.Types.ObjectId, ref: 'User' },
+    class_join_code: { type: Number, unique: true },
+    is_game_blocked: { type: Boolean, default: false },
+    game_restriction_period: {
+        start: { type: Date},
         end: { type: Date }
     },
-    is_game_active: { type: Boolean, default: true },
-    performance_records: [{ type: Schema.Types.ObjectId, ref: 'PerformanceRecord' }],
-    classroom_name: { type: String, required: true },
-    classroom_code: { type: String, required: true, unique: true },
-    announcement: { type: String },
-    extra_points_award: [{
-        student_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
-        points: { type: Number, required: true },
-        reason: { type: String, required: true },
-        date_awarded: { type: Date, default: Date.now }
-    }]
-}, { timestamps: true });
+    is_recently_updated_announcement: { type: Boolean, default: false },
+    announcement: { type: String, default: '' },
+    today_unit: {
+        title: { type: String },
+        unit: { type: Schema.Types.ObjectId, ref: 'Unit' }
+    },
+    chosen_units: [
+        {
+            name: { type: String, required: true },
+            description: { type: String, required: true },
+            difficulty: { type: String, required: true },
+            skills: { type: [String], required: true },
+            unit: { type: Schema.Types.ObjectId, ref: 'Unit', required: true }
+        }
+    ]
+});
 
-ClassroomSchema.index({ students_enrolled: 1 }, { unique: true });
-
-export default mongoose.model('Classroom', ClassroomSchema);
+export const Classroom = mongoose.model<IClassroom>('Classroom', ClassroomSchema);
+export type { IClassroom };
+export { ClassroomSchema };

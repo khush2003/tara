@@ -1,14 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",  // CommonJS for Node.js
-    "target": "ES2020",
-    "rootDir": "./src",
-    "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    /* If transpiling with TypeScript: */
+    "module": "NodeNext",
+    "outDir": "dist",
+    "sourceMap": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+
+  }
 }

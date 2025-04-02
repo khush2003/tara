@@ -9,19 +9,26 @@ import { FiSave } from "react-icons/fi";
 import { LuKey, LuKeyRound, LuRefreshCw } from "react-icons/lu";
 import useAuthStore from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/hooks/useUser';
+import { changePassword, updateUserProfile } from '@/api/userApi';
+import axios from 'axios';
+import { Loader2 } from 'lucide-react';
 
 export default function SettingsPage() {
-  const [avatarSrc, setAvatarSrc] = useState("/placeholder.svg?height=100&width=100")
+  const [avatarSrc, setAvatarSrc] = useState("http://www.google.com")
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const user = useAuthStore((state) => state.user);
+  const {
+    data: user,
+    error,
+    isLoading
+  } = useUser();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const updateProfile = useAuthStore((state) => state.updateProfile);
-  const updatePassword = useAuthStore((state) => state.updatePassword);
   const [errorProfile, setErrorProfile] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
+  const [avatarLoading, setAvatarLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +38,7 @@ export default function SettingsPage() {
     if (user) {
       setName(user.name);
       setEmail(user.email);
+      setAvatarSrc(user.profile_picture || "http://www.google.com");
     }
 
   }, [isLoggedIn, navigate, user]);
@@ -49,7 +57,7 @@ export default function SettingsPage() {
       return;
     }
     setErrorPassword("");
-    const error = await updatePassword(oldPassword, newPassword);
+    const error = await changePassword(oldPassword, newPassword);
     if (error) {
       setErrorPassword(error);
       return;
@@ -62,11 +70,13 @@ export default function SettingsPage() {
     if (!name || !email) {
       setErrorProfile("Name and email are required");
       return;
-    } 
+    }
     if (email == user?.email) {
       if (name == user?.name) {
-        setErrorProfile("No changes detected");
-        return;
+        if (avatarSrc == user?.profile_picture){
+          setErrorProfile("No changes detected");
+          return;
+        }
     }}
    // Check email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -80,24 +90,47 @@ export default function SettingsPage() {
       return;
     }
     setErrorProfile("");
-    const error = await updateProfile(name, email);
+    console.log("Sending update request");
+    const error = await updateUserProfile(name, email, user?.school, avatarSrc);
     if (error) {
       setErrorProfile(error);
       return;
     }
     alert("Profile updated successfully");
-    console.log("Profile Updated:", {
-      name,
-      email,
-    });
+  }
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  } 
+
+  if (error) {
+    return <p>{error}</p>;
   }
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => setAvatarSrc(e.target?.result as string)
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+
+            reader.onload = async () => {
+                const arrayBuffer = reader.result;
+                setAvatarLoading(true);
+                try {
+                    const response = await axios.post<{ url: string }>('/api/v1/image/upload', arrayBuffer, {
+                        headers: {
+                            'Content-Type': 'application/octet-stream',
+                        },
+                    });
+                    const data = response.data;
+                    setAvatarSrc(data.url);
+                    alert("Avatar updated successfully");
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                    alert('Upload failed');
+                }
+                setAvatarLoading(false);
+            };
     }
   }
 
@@ -122,8 +155,10 @@ export default function SettingsPage() {
             <TabsContent value="profile" className="space-y-8">
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="w-40 h-40 border-4 border-purple-400">
-                  <AvatarImage src={avatarSrc} alt="Profile picture" />
-                  <AvatarFallback className="bg-purple-200 text-purple-600 text-4xl">ME</AvatarFallback>
+                  {avatarLoading ? 
+                      <Loader2 className="w-10 mt-14 ml-14 h-10 text-purple-600 animate-spin" />
+                  :<><AvatarImage src={avatarSrc} alt="Profile picture" />
+                  <AvatarFallback className="bg-purple-200 text-purple-600 text-4xl">ME</AvatarFallback></>}
                 </Avatar>
                 <Label htmlFor="avatar" className="cursor-pointer bg-purple-600 text-white py-3 px-6 rounded-full hover:bg-purple-700 transition-colors flex items-center space-x-2">
                   <RxCamera className="w-5 h-5" />

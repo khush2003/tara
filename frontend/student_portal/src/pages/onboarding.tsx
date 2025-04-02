@@ -8,7 +8,6 @@ import useAuthStore from "@/store/authStore";
 
 const OnboardingPage: React.FC = () => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-    // const logOut = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
     useEffect(() => {
         if (isLoggedIn) {
@@ -55,7 +54,7 @@ const OnboardingPage: React.FC = () => {
                             <div className="flex items-center justify-center">
                                 <Button
                                     className="bg-cyan-700 rounded-xl w-[300px] p-6 text-lg"
-                                    onClick={() => navigate("dashboard")}
+                                    onClick={() => navigate("register")}
                                 >
                                     Start Learning
                                 </Button>

@@ -9,4 +9,24 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  preview: {
+    port: 8081,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://backend:3000",
+        changeOrigin: true,
+    }
+  },
+},
+  server: {
+    host: "0.0.0.0",
+    port: 8081,
+    proxy: {
+      "/api": {
+        target: "http://backend:3000",
+        changeOrigin: true, 
+      },
+    },
+  },
 })

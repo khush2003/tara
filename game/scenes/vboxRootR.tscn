@@ -1,0 +1,574 @@
+[gd_scene load_steps=28 format=2]
+
+[ext_resource path="res://resource/fonts/_shopDescriptionFont.tres" type="DynamicFont" id=1]
+[ext_resource path="res://resource/fonts/look32Shadow.tres" type="DynamicFont" id=2]
+[ext_resource path="res://resource/fonts/_shopPriceFont.tres" type="DynamicFont" id=3]
+[ext_resource path="res://resource/Shop_Chainx2.png" type="Texture" id=4]
+[ext_resource path="res://resource/Shop_Buttom_Locked.png" type="Texture" id=5]
+[ext_resource path="res://resource/BG_Shop.png" type="Texture" id=6]
+[ext_resource path="res://resource/Shop_Panel.png" type="Texture" id=7]
+[ext_resource path="res://resource/Shop_Buttom_Over.png" type="Texture" id=8]
+[ext_resource path="res://resource/Shop_Buttom_Normal.png" type="Texture" id=9]
+[ext_resource path="res://resource/Shop_Panel_Decr.png" type="Texture" id=10]
+[ext_resource path="res://resource/Shop_Buttom_Press.png" type="Texture" id=11]
+[ext_resource path="res://scenes/itemModel.tscn" type="PackedScene" id=12]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends VBoxContainer
+var updateable=true
+func _ready():
+	self.rect_pivot_offset=self.rect_size/2
+#	self.connect(\"mouse_entered\",self,'_on_vboxR_mouse_entered')
+#	self.connect(\"mouse_exited\",self,'_on_vboxR_mouse_exited')
+	
+	set_process(true if updateable else false)
+func _process(_delta):self.visible=!global.isGameCompact()
+
+func _on_vboxR_mouse_entered()->void:
+	var _v1=$twn.interpolate_property(self,'rect_scale',self.rect_scale,Vector2(1.01,1.01),0.33,Tween.TRANS_QUINT,Tween.EASE_OUT)
+	var _v2=$twn.start()
+
+func _on_vboxR_mouse_exited()->void:
+	var _v1=$twn.interpolate_property(self,'rect_scale',self.rect_scale,Vector2(1,1),0.33,Tween.TRANS_QUINT,Tween.EASE_OUT)
+	var _v2=$twn.start()
+"
+
+[sub_resource type="StyleBoxFlat" id=2]
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color( 0.160156, 0.0849892, 0.0756989, 1 )
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+corner_detail = 1
+anti_aliasing = false
+
+[sub_resource type="StyleBoxTexture" id=3]
+texture = ExtResource( 7 )
+region_rect = Rect2( 0, 0, 83, 20 )
+
+[sub_resource type="StyleBoxTexture" id=4]
+texture = ExtResource( 7 )
+region_rect = Rect2( 0, 0, 83, 20 )
+expand_margin_right = 5.0
+expand_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.729412, 0.380392, 0.337255, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.466667, 0.247059, 0.219608, 1 )
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+corner_detail = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.8, 0.419608, 0.372549, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.466667, 0.247059, 0.219608, 1 )
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+corner_detail = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.466667, 0.247059, 0.219608, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.466667, 0.247059, 0.219608, 1 )
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+corner_detail = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id=8]
+content_margin_left = 4.0
+content_margin_right = 4.0
+content_margin_top = 0.0
+content_margin_bottom = 0.0
+bg_color = Color( 1, 0.709804, 0.439216, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.54902, 0.247059, 0.364706, 1 )
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+corner_detail = 2
+expand_margin_left = 2.0
+expand_margin_right = 2.0
+expand_margin_top = 2.0
+expand_margin_bottom = 2.0
+anti_aliasing = false
+
+[sub_resource type="Theme" id=9]
+VScrollBar/icons/decrement = null
+VScrollBar/icons/decrement_highlight = null
+VScrollBar/icons/increment = null
+VScrollBar/icons/increment_highlight = null
+VScrollBar/styles/grabber = SubResource( 5 )
+VScrollBar/styles/grabber_highlight = SubResource( 6 )
+VScrollBar/styles/grabber_pressed = SubResource( 7 )
+VScrollBar/styles/scroll = SubResource( 8 )
+VScrollBar/styles/scroll_focus = null
+
+[sub_resource type="GDScript" id=10]
+script/source = "extends VBoxContainer
+
+var items=[
+	preload(\"res://scenes/items/healsHp.tscn\"),
+	preload(\"res://scenes/items/healsFood.tscn\"),
+	preload(\"res://scenes/items/healsFoodAndStr.tscn\"),
+	preload(\"res://scenes/items/healsFoodAndDef.tscn\"),
+	preload(\"res://scenes/items/healsFoodAndSpd.tscn\"),
+	preload(\"res://scenes/items/healsFoodAndAllBoosts.tscn\"),
+	preload(\"res://scenes/items/ice.tscn\"),
+	preload(\"res://scenes/items/sword.tscn\"),
+	preload(\"res://scenes/items/wing.tscn\"),
+]
+func _ready():
+	for node in self.get_children():
+		node.queue_free()
+	for item in items:
+		var i=item.instance()
+		i.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+		i.clickable=true
+		add_child(i)
+	global.currentItem=get_children()[0]
+"
+
+[sub_resource type="StyleBoxTexture" id=11]
+texture = ExtResource( 10 )
+region_rect = Rect2( 0, 0, 118, 49 )
+
+[sub_resource type="GDScript" id=12]
+script/source = "extends PanelContainer
+func _ready():global.shopDescription=$marginContainer/vBoxContainer/label
+"
+
+[sub_resource type="GDScript" id=13]
+script/source = "extends Label
+func _ready():
+	self.text=\"Hover your mouse over an item to see its info, and click it to buy!\"
+"
+
+[sub_resource type="GDScript" id=14]
+script/source = "extends Label
+func _ready():self.text=\"\"
+"
+
+[sub_resource type="GDScript" id=15]
+script/source = "extends TextureButton
+
+func _ready():
+	var _v1=connect(\"pressed\",self,\"buy\")
+	var _v2=self.connect(\"mouse_entered\",global,\"createHoverSfx\")
+	var _v3=self.connect(\"button_down\",global,\"createSelectSfx\")
+func buy():
+	global.currentItem.buy()
+		#Effect here
+"
+
+[node name="vboxRootR" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -664.0
+rect_min_size = Vector2( 360, 0 )
+size_flags_horizontal = 3
+script = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="twn" type="Tween" parent="."]
+
+[node name="panelRContainer" type="PanelContainer" parent="."]
+margin_right = 360.0
+margin_bottom = 600.0
+mouse_filter = 1
+size_flags_vertical = 3
+custom_styles/panel = SubResource( 2 )
+
+[node name="textureRect" type="TextureRect" parent="panelRContainer"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 356.0
+margin_bottom = 596.0
+texture = ExtResource( 6 )
+expand = true
+stretch_mode = 2
+
+[node name="marginBox" type="MarginContainer" parent="panelRContainer"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 356.0
+margin_bottom = 596.0
+mouse_filter = 1
+custom_constants/margin_top = 10
+custom_constants/margin_bottom = 10
+
+[node name="hboxChain" type="HBoxContainer" parent="panelRContainer/marginBox"]
+margin_top = 10.0
+margin_right = 352.0
+margin_bottom = 582.0
+alignment = 1
+
+[node name="1" type="TextureRect" parent="panelRContainer/marginBox/hboxChain"]
+margin_left = 87.0
+margin_right = 87.0
+margin_bottom = 572.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+stretch_mode = 2
+
+[node name="shadow" type="TextureRect" parent="panelRContainer/marginBox/hboxChain/1"]
+modulate = Color( 0, 0, 0, 0.5 )
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 27.0
+margin_bottom = 571.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="chain" type="TextureRect" parent="panelRContainer/marginBox/hboxChain/1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="3" type="TextureRect" parent="panelRContainer/marginBox/hboxChain"]
+margin_left = 265.0
+margin_right = 265.0
+margin_bottom = 572.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+stretch_mode = 2
+
+[node name="shadow" type="TextureRect" parent="panelRContainer/marginBox/hboxChain/3"]
+modulate = Color( 0, 0, 0, 0.5 )
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 27.0
+margin_bottom = 571.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="chain" type="TextureRect" parent="panelRContainer/marginBox/hboxChain/3"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 6
+size_flags_vertical = 3
+texture = ExtResource( 4 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vbox" type="VBoxContainer" parent="panelRContainer"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 356.0
+margin_bottom = 596.0
+size_flags_vertical = 3
+
+[node name="vboxShop" type="VBoxContainer" parent="panelRContainer/vbox"]
+margin_right = 352.0
+margin_bottom = 424.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 8.0
+
+[node name="panelContainer" type="PanelContainer" parent="panelRContainer/vbox/vboxShop"]
+margin_right = 352.0
+margin_bottom = 45.0
+mouse_filter = 1
+custom_styles/panel = SubResource( 3 )
+
+[node name="panelShadow" type="PanelContainer" parent="panelRContainer/vbox/vboxShop/panelContainer"]
+modulate = Color( 0, 0, 0, 0.5 )
+margin_right = 352.0
+margin_bottom = 45.0
+mouse_filter = 1
+custom_styles/panel = SubResource( 4 )
+
+[node name="panel" type="PanelContainer" parent="panelRContainer/vbox/vboxShop/panelContainer"]
+margin_right = 352.0
+margin_bottom = 45.0
+mouse_filter = 1
+custom_styles/panel = SubResource( 3 )
+
+[node name="marginContainer" type="MarginContainer" parent="panelRContainer/vbox/vboxShop/panelContainer"]
+margin_right = 352.0
+margin_bottom = 45.0
+mouse_filter = 1
+custom_constants/margin_right = 10
+custom_constants/margin_top = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+
+[node name="shopLabel" type="Label" parent="panelRContainer/vbox/vboxShop/panelContainer/marginContainer"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 342.0
+margin_bottom = 35.0
+mouse_filter = 1
+custom_fonts/font = ExtResource( 2 )
+text = "Shop!"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="marginContainer" type="MarginContainer" parent="panelRContainer/vbox/vboxShop"]
+margin_top = 49.0
+margin_right = 352.0
+margin_bottom = 424.0
+rect_clip_content = true
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 4
+custom_constants/margin_top = 4
+custom_constants/margin_left = 4
+custom_constants/margin_bottom = 4
+
+[node name="panelShop" type="ScrollContainer" parent="panelRContainer/vbox/vboxShop/marginContainer"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 348.0
+margin_bottom = 371.0
+rect_clip_content = false
+mouse_filter = 1
+size_flags_vertical = 3
+theme = SubResource( 9 )
+
+[node name="marginCtn" type="MarginContainer" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop"]
+margin_right = 210.0
+margin_bottom = 934.0
+rect_clip_content = true
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 20
+custom_constants/margin_top = 5
+custom_constants/margin_left = 20
+custom_constants/margin_bottom = 5
+
+[node name="vboxShop" type="VBoxContainer" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn"]
+margin_left = 20.0
+margin_top = 5.0
+margin_right = 316.0
+margin_bottom = 929.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 16
+script = SubResource( 10 )
+
+[node name="itemModel" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_right = 296.0
+margin_bottom = 31.0
+
+[node name="itemModel2" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 47.0
+margin_right = 296.0
+margin_bottom = 78.0
+
+[node name="itemModel3" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 94.0
+margin_right = 296.0
+margin_bottom = 125.0
+
+[node name="itemModel4" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 141.0
+margin_right = 296.0
+margin_bottom = 172.0
+
+[node name="itemModel5" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 188.0
+margin_right = 296.0
+margin_bottom = 219.0
+
+[node name="itemModel16" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 235.0
+margin_right = 296.0
+margin_bottom = 266.0
+
+[node name="itemModel17" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 282.0
+margin_right = 296.0
+margin_bottom = 313.0
+
+[node name="itemModel18" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 329.0
+margin_right = 296.0
+margin_bottom = 360.0
+
+[node name="itemModel19" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 376.0
+margin_right = 296.0
+margin_bottom = 407.0
+
+[node name="itemModel20" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 423.0
+margin_right = 296.0
+margin_bottom = 454.0
+
+[node name="itemModel6" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 470.0
+margin_right = 296.0
+margin_bottom = 501.0
+
+[node name="itemModel7" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 517.0
+margin_right = 296.0
+margin_bottom = 548.0
+
+[node name="itemModel8" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 564.0
+margin_right = 296.0
+margin_bottom = 595.0
+
+[node name="itemModel9" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 611.0
+margin_right = 296.0
+margin_bottom = 642.0
+
+[node name="itemModel10" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 658.0
+margin_right = 296.0
+margin_bottom = 689.0
+
+[node name="itemModel11" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 705.0
+margin_right = 296.0
+margin_bottom = 736.0
+
+[node name="itemModel12" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 752.0
+margin_right = 296.0
+margin_bottom = 783.0
+
+[node name="itemModel13" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 799.0
+margin_right = 296.0
+margin_bottom = 830.0
+
+[node name="itemModel14" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 846.0
+margin_right = 296.0
+margin_bottom = 877.0
+
+[node name="itemModel15" parent="panelRContainer/vbox/vboxShop/marginContainer/panelShop/marginCtn/vboxShop" instance=ExtResource( 12 )]
+margin_top = 893.0
+margin_right = 296.0
+margin_bottom = 924.0
+
+[node name="descriptionContainer" type="PanelContainer" parent="panelRContainer/vbox"]
+margin_top = 428.0
+margin_right = 352.0
+margin_bottom = 592.0
+mouse_filter = 1
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+custom_styles/panel = SubResource( 11 )
+script = SubResource( 12 )
+
+[node name="marginContainer" type="MarginContainer" parent="panelRContainer/vbox/descriptionContainer"]
+margin_right = 352.0
+margin_bottom = 164.0
+mouse_filter = 1
+custom_constants/margin_right = 25
+custom_constants/margin_top = 10
+custom_constants/margin_left = 25
+custom_constants/margin_bottom = 4
+
+[node name="vBoxContainer" type="VBoxContainer" parent="panelRContainer/vbox/descriptionContainer/marginContainer"]
+margin_left = 25.0
+margin_top = 10.0
+margin_right = 327.0
+margin_bottom = 160.0
+
+[node name="label" type="Label" parent="panelRContainer/vbox/descriptionContainer/marginContainer/vBoxContainer"]
+margin_right = 302.0
+margin_bottom = 117.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_fonts/font = ExtResource( 1 )
+text = "DESCRIPTION
+Mussum Ipsum, cacilds vidis litro abertis. Si u mundo tá muito paradis? Toma um mé que o mundo vai girarzis!
+"
+autowrap = true
+script = SubResource( 13 )
+
+[node name="hBoxContainer" type="HBoxContainer" parent="panelRContainer/vbox/descriptionContainer/marginContainer/vBoxContainer"]
+margin_top = 121.0
+margin_right = 302.0
+margin_bottom = 150.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="price" type="Label" parent="panelRContainer/vbox/descriptionContainer/marginContainer/vBoxContainer/hBoxContainer"]
+margin_right = 302.0
+margin_bottom = 29.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+custom_fonts/font = ExtResource( 3 )
+text = "PRICE"
+align = 1
+script = SubResource( 14 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="priceBtn" type="TextureButton" parent="panelRContainer/vbox/descriptionContainer/marginContainer/vBoxContainer/hBoxContainer"]
+visible = false
+margin_left = 566.0
+margin_right = 960.0
+margin_bottom = 36.0
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.4
+texture_normal = ExtResource( 9 )
+texture_pressed = ExtResource( 11 )
+texture_hover = ExtResource( 8 )
+texture_disabled = ExtResource( 5 )
+expand = true
+script = SubResource( 15 )

@@ -2,49 +2,34 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
-import { Check, LogOut, Stars } from "lucide-react"
+import { Check,  Stars } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '@/store/userStore'
 import LogoutModal from '@/components/logoutmodal'
 import useAuthStore from '@/store/authStore'
+import { addCurrentUserToClassroom } from '@/api/userApi'
 
-/**
- * LearningCodePage component
- * 
- * This component renders a page where users can enter a special code provided by their teacher
- * to join a classroom. It uses OTP (One-Time Password) input fields for the code entry.
- * 
- * @returns {JSX.Element} The rendered LearningCodePage component
- */
+
 export default function LearningCodePage(): JSX.Element {
   const [classCode, setClassCode] = useState('')
   const [isComplete, setIsComplete] = useState(false)
   const navigate = useNavigate();
-  const addCurrentUserToClassroom = useUserStore((state) => state.addCurrentUserToClassroom);
   const [isLogoutModalVisible, setLogoutModalVisible] =
   useState<boolean>(false);
   const logout = useAuthStore((state) => state.logout);
 
-  /**
-   * Handles the completion of the OTP input.
-   * 
-   * @param {string} value - The complete OTP value entered by the user
-   */
   const handleComplete = (value: string) => {
     setClassCode(value)
     setIsComplete(value.length === 6)
   }
 
-  /**
-   * Handles the form submission to join the classroom.
-   * 
-   * @param {React.FormEvent} e - The form submission event
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await addCurrentUserToClassroom(classCode);
-      navigate('/dashboard');
+      const error = await addCurrentUserToClassroom(classCode)
+      if (error) {
+        throw new Error(error)
+      }
+      navigate('/setPreferences');
     } catch (error) {
       alert((error as Error).message || "Failed to join classroom, check the code and try again");
     }

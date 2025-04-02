@@ -1,0 +1,8 @@
+[gd_scene format=2]
+
+[node name="music" type="AudioStreamPlayer"]
+autoplay = true
+bus = "Music"
+__meta__ = {
+"_editor_description_": ""
+}

@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@jaredreisinger/react-crossword": "^5.2.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -29,10 +30,12 @@
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
     "axios": "^1.7.7",
+    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.9.0",
+    "hono": "^4.6.7",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.441.0",
     "react": "^18.3.1",
@@ -44,6 +47,7 @@
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.2",
     "remark-gfm": "^4.0.0",
+    "swr": "^2.2.5",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
@@ -53,6 +57,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/axios": "^0.9.36",
+    "@types/canvas-confetti": "^1.6.4",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

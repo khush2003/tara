@@ -14,6 +14,7 @@ import remarkGfm from 'remark-gfm'
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { inappropriateWords as inappropriateKeywords } from "@/lib/words";
 
 interface Message {
     content: string;
@@ -21,8 +22,16 @@ interface Message {
 }
 
 const systemPrompt: Message = {
-    content: `I am a assistant created by Tara in order to help thai middle school students better understand english. I am here to guide students understand what they are stuggling with . I will not answer any offensive or unappropriate questions. `,
+    content: `I am an assistant created by Tara to help Thai middle school students better understand English. 
+    I am here to guide students in understanding what they are struggling with. 
+    I will absolutely not answer any offensive or inappropriate questions.
+    Do not respond about racist, sexist, lewd or any other inappropriate content.`,
     role: "system",
+};
+
+const containsInappropriateContent = (message: string): boolean => {
+    const words = message.toLowerCase().split(/\s+/);
+    return inappropriateKeywords.some((keyword) => words.includes(keyword));
 };
 
 const exampleMessages: Message[] = [
@@ -92,6 +101,13 @@ const fetchAssistantMessage = async (
     >
 ) => {
     try {
+        if (containsInappropriateContent(inputMessage)) {
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { content: "I'm sorry, I can't answer that question.", role: "assistant" },
+            ]);
+            return;
+        }
         const response = await fetch(
             "https://openrouter.ai/api/v1/chat/completions",
             {
@@ -139,17 +155,22 @@ const fetchAssistantMessage = async (
                         const content = json.choices[0].delta.content;
                         if (content) {
                             assistantMessage += content;
+                            if (containsInappropriateContent(assistantMessage)) {
+                                assistantMessage = "I'm sorry, I can't answer that question.";
+                                reader.cancel();
+                            }
                             setStreamingMessage(assistantMessage); // Update the UI with the streamed message
                         }
                     } catch {
-                        console.log(
-                            "Get a completion message which is not valid JSON"
-                        );
+                        //
                     }
                 }
             }
         }
 
+        if (containsInappropriateContent(assistantMessage)) {
+            assistantMessage = "I'm sorry, I can't answer that question.";
+        }
         setMessages((prevMessages) => [
             ...prevMessages,
             { content: assistantMessage, role: "assistant" },

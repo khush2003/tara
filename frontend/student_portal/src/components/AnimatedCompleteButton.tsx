@@ -28,7 +28,7 @@ interface AnimatedCompleteButtonProps {
  * @returns {JSX.Element} The rendered button component.
  */
 const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick, isAlreadyComplete, className, displayText, isExercise }: AnimatedCompleteButtonProps): JSX.Element => {
-  const shouldShowCompleted = isExercise ? false : isAlreadyComplete;
+  const shouldShowCompleted = isExercise ? false : false;
   const [isCompleted, setIsCompleted] = useState(shouldShowCompleted);
   const [isIntermediate, setIsIntermediate] = useState(false);
   useEffect(() => {
@@ -49,10 +49,11 @@ const AnimatedCompleteButton: React.FC<AnimatedCompleteButtonProps> = ({ onClick
           setIsCompleted(false);
           isAlreadyComplete = true;
         } else {
-          setIsCompleted(true);
+          setIsCompleted(false);
+          isAlreadyComplete = true;
         }
         onClick();
-      }, 1000); // Intermediate step duration
+      }, 500); // Intermediate step duration
     }
   };
 
